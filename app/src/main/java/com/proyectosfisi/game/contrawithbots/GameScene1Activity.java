@@ -137,7 +137,7 @@ public class GameScene1Activity extends SimpleBaseGameActivity{
         scene.setBackground(autoParallaxBackground);
 
         // Fondo
-        final Sprite parallaxLayerBackSprite = new Sprite(0, 0, this.mParallaxLayerBackTextureRegion, vertexBufferObjectManager);
+        final Sprite parallaxLayerBackSprite = new Sprite(left, 0, this.mParallaxLayerBackTextureRegion, vertexBufferObjectManager);
         parallaxLayerBackSprite.setOffsetCenter(0, 0);
         autoParallaxBackground.attachParallaxEntity(new ParallaxBackground.ParallaxEntity(0.0f, parallaxLayerBackSprite));
 
@@ -157,6 +157,7 @@ public class GameScene1Activity extends SimpleBaseGameActivity{
         // Touch Area
         HUD hud = new HUD();
 
+        // Control Direccional
         final Rectangle rLeft = new Rectangle(spriteMandoDireccional.getX() - spriteMandoDireccional.getWidth()/3, spriteMandoDireccional.getY(),
                 spriteMandoDireccional.getWidth()/3, spriteMandoDireccional.getHeight()/3, getVertexBufferObjectManager()){
             public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y){
@@ -201,7 +202,7 @@ public class GameScene1Activity extends SimpleBaseGameActivity{
         };
         rDown.setAlpha(0.0f);
 
-        final Rectangle rSelect = new Rectangle(spriteMandoStartSelect.getX() - spriteMandoStartSelect.getWidth()/2, spriteMandoStartSelect.getY(),
+        final Rectangle rSelect = new Rectangle(spriteMandoStartSelect.getX() - spriteMandoStartSelect.getWidth()/4, spriteMandoStartSelect.getY(),
                 spriteMandoStartSelect.getWidth()/2, spriteMandoStartSelect.getHeight(), getVertexBufferObjectManager()){
             public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y){
                 if (touchEvent.isActionUp()){
@@ -211,8 +212,7 @@ public class GameScene1Activity extends SimpleBaseGameActivity{
             };
         };
         rSelect.setAlpha(0.0f);
-
-        final Rectangle rStart = new Rectangle(spriteMandoStartSelect.getX() - spriteMandoStartSelect.getWidth()/2, spriteMandoStartSelect.getY(),
+        final Rectangle rStart = new Rectangle(spriteMandoStartSelect.getX() + spriteMandoStartSelect.getWidth()/4, spriteMandoStartSelect.getY(),
                 spriteMandoStartSelect.getWidth()/2, spriteMandoStartSelect.getHeight(), getVertexBufferObjectManager()){
             public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y){
                 if (touchEvent.isActionUp()){
@@ -221,7 +221,7 @@ public class GameScene1Activity extends SimpleBaseGameActivity{
                 return true;
             };
         };
-        rStart.setAlpha(0.0f);
+        rStart.setAlpha(0.00f);
 
         hud.registerTouchArea(rLeft);
         hud.registerTouchArea(rRight);
