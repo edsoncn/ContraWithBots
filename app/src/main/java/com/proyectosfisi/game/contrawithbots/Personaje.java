@@ -1,15 +1,11 @@
 package com.proyectosfisi.game.contrawithbots;
 
-import android.util.Log;
-
-import org.andengine.engine.options.resolutionpolicy.CropResolutionPolicy;
-import org.andengine.entity.Entity;
-import org.andengine.entity.scene.Scene;
 import org.andengine.entity.sprite.AnimatedSprite;
-import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
+
+import java.util.ArrayList;
 
 /**
  * Created by edson on 07/04/2015.
@@ -18,19 +14,20 @@ public class Personaje extends AnimatedSprite {
 
     public static final long FRAME_TIME = 150;
 
-    public static final float PADDING = 84;
+    public static final int ACTION_LEFT = 101;
+    public static final int ACTION_RIGHT = 102;
+    public static final int ACTION_DOWN = 103;
+    public static final int ACTION_UP = 104;
+    public static final int ACTION_JUMP = 105;
+    public static final int ACTION_DIE = 106;
 
-    public static final int ACTION_LEFT = 1;
-    public static final int ACTION_RIGHT = 2;
-    public static final int ACTION_DOWN = 3;
-    public static final int ACTION_UP = 4;
-    public static final int ACTION_JUMP = 5;
-
-    public static final int STATE_Q0 = 0;
-    public static final int STATE_Q1 = 1;
-    public static final int STATE_Q2 = 2;
-    public static final int STATE_Q3 = 3;
-    public static final int STATE_Q4 = 4;
+    public static final int STATE_Q0 = 0; // Reposo
+    public static final int STATE_Q1 = 1; // Saltando
+    public static final int STATE_Q2 = 2; // Correr Izq&Der
+    public static final int STATE_Q3 = 3; // Arriba
+    public static final int STATE_Q4 = 4; // Abajo
+    public static final int STATE_Q5 = 5; // Muerto
+    public static final int STATE_Q6 = 6; // Cayendo
 
     public static final int ORIENTATION_LEFT = 1;
     public static final int ORIENTATION_RIGHT = 2;
@@ -39,13 +36,16 @@ public class Personaje extends AnimatedSprite {
     public static final float VELOCITY_Y = 6f;
     public static final float GRAVEDAD = -0.25f;
 
-    public static int ACTIVE_POINTER_ID = 0;
-
     protected boolean actionLeft;
     protected boolean actionRight;
     protected boolean actionDown;
     protected boolean actionUp;
     protected boolean actionJump;
+    protected boolean actionDie;
+    protected boolean actionCayendo;
+    
+    protected boolean flagDead;
+    protected float countDead;
 
     protected int selectBoton;
     protected int orientation;
@@ -56,25 +56,26 @@ public class Personaje extends AnimatedSprite {
     protected float velocityX;
     protected float velocityY;
 
-    protected final Entity layerPlayer;
-    protected final Entity layerBullets;
-
-    protected CropResolutionPolicy crp; // Datos de la pantalla
-    protected Sprite parallaxLayerBackSprite; // Sprite del fondo
+    protected Escenario escenario;
     protected TiledTextureRegion mBulletTextureRegion; // Textura de la bala
+
     protected boolean moveLayerBackSprite;
-
     protected int activePointerID;
+    protected int pisoEscalon;
 
-    public Personaje(final Entity layerPlayer, final Entity layerBullets, CropResolutionPolicy crp, Sprite parallaxLayerBackSprite, final float relativeX, final float relativeY, final TiledTextureRegion pTextureRegion, final TiledTextureRegion mBulletTextureRegion, final VertexBufferObjectManager pVertexBufferObjectManager) {
+    protected Personaje enemigo;
+    protected Vida vida;
+
+    protected ArrayList<Personaje> enemigos;
+
+    public Personaje(Escenario escenario, final float relativeX, final float relativeY, final TiledTextureRegion pTextureRegion, final TiledTextureRegion mBulletTextureRegion, final VertexBufferObjectManager pVertexBufferObjectManager) {
         super(0, 0, pTextureRegion, pVertexBufferObjectManager);
 
-        this.layerPlayer = layerPlayer;
-        this.layerBullets = layerBullets;
-        this.crp = crp;
-        this.parallaxLayerBackSprite = parallaxLayerBackSprite;
+        this.escenario = escenario;
         this.mBulletTextureRegion = mBulletTextureRegion;
         moveLayerBackSprite = false;
+
+        vida = new Vida(escenario.getLayerPlayer(), getX(), getY(), getWidth(), pVertexBufferObjectManager);
 
         setRelativeX(relativeX);
         setRelativeY(relativeY);
@@ -83,11 +84,15 @@ public class Personaje extends AnimatedSprite {
 
         orientation = ORIENTATION_RIGHT;
         setStateQ0();
+        pisoEscalon = -1;
 
         initSelectBoton();
+        initFlagsAndCounts();
 
         activePointerID = TouchEvent.INVALID_POINTER_ID;
-        
+
+        enemigo = null;
+        enemigos = null;
     }
 
     public synchronized void setAction(int action){
@@ -148,7 +153,6 @@ public class Personaje extends AnimatedSprite {
                     case -ACTION_RIGHT:
                         actionLeft = false;
                         actionRight = false;
-                        setVelocityX(0);
                         break;
                     case -ACTION_UP:
                     case -ACTION_DOWN:
@@ -208,20 +212,93 @@ public class Personaje extends AnimatedSprite {
                         break;
                 }
                 break;
+            case STATE_Q6:
+                switch (action) {
+                    case ACTION_UP:
+                        actionUp = true;
+                        actionDown = false;
+                        if(actionLeft){
+                            stopAnimation(50);
+                        }else if(actionRight){
+                            stopAnimation(61);
+                        }else{
+                            if(getOrientation() == ORIENTATION_LEFT){
+                                stopAnimation(65);
+                            }else{
+                                stopAnimation(78);
+                            }
+                        }
+                        break;
+                    case ACTION_DOWN:
+                        actionUp = false;
+                        actionDown = true;
+                        if(actionLeft){
+                            stopAnimation(49);
+                        }else if(actionRight){
+                            stopAnimation(62);
+                        }else{
+                            if(getOrientation() == ORIENTATION_LEFT){
+                                stopAnimation(64);
+                            }else{
+                                stopAnimation(79);
+                            }
+                        }
+                        break;
+                    case ACTION_LEFT:
+                        actionLeft = true;
+                        actionRight = false;
+                        setVelocityX(-VELOCITY_X);
+                        setOrientation(ORIENTATION_LEFT);
+                        stopAnimation(48);
+                        break;
+                    case ACTION_RIGHT:
+                        actionLeft = false;
+                        actionRight = true;
+                        setVelocityX(VELOCITY_X);
+                        setOrientation(ORIENTATION_RIGHT);
+                        stopAnimation(63);
+                        break;
+                    case -ACTION_UP:
+                        actionUp = false;
+                        if(getOrientation() == ORIENTATION_LEFT){
+                            stopAnimation(48);
+                        }else{
+                            stopAnimation(63);
+                        }
+                        break;
+                    case -ACTION_DOWN:
+                        actionDown = false;
+                        if(getOrientation() == ORIENTATION_LEFT){
+                            stopAnimation(48);
+                        }else{
+                            stopAnimation(63);
+                        }
+                        break;
+                    case -ACTION_LEFT:
+                        actionLeft = false;
+                        break;
+                    case -ACTION_RIGHT:
+                        actionRight = false;
+                        break;
+                }
         }
     }
 
     @Override
     protected void onManagedUpdate(final float pSecondsElapsed) {
         switch (state){
-            case STATE_Q2:
-                updateLeftRight();
-                break;
             case STATE_Q1:
-                setRelativeY(getRelativeY() + getVelocityY());
-                setVelocityY(getVelocityY() + GRAVEDAD);
-                updateLeftRight();
-                if(getVelocityY() < -VELOCITY_Y){
+                pisoEscalon = escenario.tocoPisoOEscalon(this);
+                if(pisoEscalon < 0) {
+                    setRelativeY(getRelativeY() + getVelocityY());
+                    setVelocityY(getVelocityY() + GRAVEDAD);
+                }else{
+                    if(pisoEscalon == 0) {
+                        setRelativeY(0.0f);
+                    }else{
+                        setRelativeY(Escenario.ESCALONES_ALTO[pisoEscalon - 1]);
+                    }
+                    setVelocityY(0.0f);
                     actionJump = false;
                     state = STATE_Q0;
                     if(actionLeft){
@@ -240,12 +317,79 @@ public class Personaje extends AnimatedSprite {
                         setStateQ0();
                     }
                 }
+                break;
+            case STATE_Q5:
+                if(!flagDead) {
+                    if (getRelativeY() + getVelocityY() <= 0) { // Validamos que toco el piso
+                        setRelativeY(0);
+                        setVelocityX(0);
+                        setVelocityY(0);
+                        flagDead = true;
+                        if(getOrientation() == ORIENTATION_LEFT){
+                            stopAnimation(66);
+                        }else{
+                            stopAnimation(77);
+                        }
+                    } else {
+                        if(countDead >= 0.2){
+                            if(getOrientation() == ORIENTATION_LEFT){
+                                animate(new long[]{FRAME_TIME, FRAME_TIME, FRAME_TIME, FRAME_TIME}, new int[]{70, 69, 68, 67}, true);
+                            }else{
+                                animate(new long[]{FRAME_TIME, FRAME_TIME, FRAME_TIME, FRAME_TIME}, 73, 76, true);
+                            }
+                            countDead = -1;
+                            vida.setVisible(false);
+                        }else if(countDead >= 0){
+                            countDead++;
+                        }
+                        setRelativeY(getRelativeY() + getVelocityY());
+                        setVelocityY(getVelocityY() + GRAVEDAD);
+                    }
+                }
+                break;
+            default:
+                int pisoEscalonAux = escenario.tocoPisoOEscalon(this);
+                if(pisoEscalonAux == -2){
+                    if(pisoEscalon != pisoEscalonAux) {
+                        setStateQ6();
+                    }
+                    setRelativeY(getRelativeY() + getVelocityY());
+                    setVelocityY(getVelocityY() + GRAVEDAD);
+                }else if(pisoEscalonAux >= 0){
+                    if(pisoEscalon != pisoEscalonAux) {
+                        if (pisoEscalonAux == 0) {
+                            setRelativeY(0.0f);
+                        } else {
+                            setRelativeY(Escenario.ESCALONES_ALTO[pisoEscalonAux - 1]);
+                        }
+                        setVelocityY(0.0f);
+                        actionCayendo = false;
+                        state = STATE_Q0;
+                        if(actionLeft){
+                            actionLeft = false;
+                            setAction(ACTION_LEFT);
+                        }else if(actionRight){
+                            actionRight = false;
+                            setAction(ACTION_RIGHT);
+                        }else if(actionUp){
+                            actionUp = false;
+                            setAction(ACTION_UP);
+                        }else if(actionDown) {
+                            actionDown = false;
+                            setAction(ACTION_DOWN);
+                        }else{
+                            setStateQ0();
+                        }
+                    }
+                }
+                pisoEscalon = pisoEscalonAux;
+                break;
         }
+        updateLeftRight();
         super.onManagedUpdate(pSecondsElapsed);
     }
 
     public void resetActionsAndStates(){
-        Log.i("Contra", "Reset Actions, State : " + state);
         switch (state){
             case STATE_Q0:
                 break;
@@ -256,6 +400,13 @@ public class Personaje extends AnimatedSprite {
             case STATE_Q3:
             case STATE_Q4:
                 setStateQ0();
+                break;
+            case STATE_Q6:
+                if(getOrientation() == ORIENTATION_LEFT){
+                    stopAnimation(48);
+                }else{
+                    stopAnimation(63);
+                }
                 break;
         }
         activePointerID = TouchEvent.INVALID_POINTER_ID;
@@ -344,18 +495,101 @@ public class Personaje extends AnimatedSprite {
         }
     }
 
+    public void setStateQ5(){
+        if(!actionDie) {
+            state = STATE_Q5;
+            resetActions();
+            switch (orientation) {
+                case ORIENTATION_LEFT:
+                    stopAnimation(71);
+                    setVelocityX(VELOCITY_X);
+                    break;
+                case ORIENTATION_RIGHT:
+                    stopAnimation(72);
+                    setVelocityX(-VELOCITY_X);
+                    break;
+            }
+            actionDie = true;
+            flagDead = false;
+            countDead = 0;
+            setVelocityY(VELOCITY_Y);
+        }
+    }
+
+    public void setStateQ6(){
+        if(!actionCayendo){
+            state = STATE_Q6;
+            switch (orientation) {
+                case ORIENTATION_LEFT:
+                    setVelocityX(-VELOCITY_X);
+                    if(actionLeft){
+                        if(actionUp){
+                            stopAnimation(50);
+                        }else if(actionDown){
+                            stopAnimation(49);
+                        }else{
+                            stopAnimation(48);
+                        }
+                    }else{
+                        if(actionUp){
+                            stopAnimation(65);
+                        }else if(actionDown){
+                            stopAnimation(64);
+                        }else{
+                            stopAnimation(48);
+                        }
+                    }
+                    break;
+                case ORIENTATION_RIGHT:
+                    setVelocityX(VELOCITY_X);
+                    if(actionRight){
+                        if(actionUp){
+                            stopAnimation(61);
+                        }else if(actionDown){
+                            stopAnimation(62);
+                        }else{
+                            stopAnimation(63);
+                        }
+                    }else{
+                        if(actionUp){
+                            stopAnimation(78);
+                        }else if(actionDown){
+                            stopAnimation(79);
+                        }else{
+                            stopAnimation(63);
+                        }
+                    }
+                    break;
+            }
+            actionCayendo = true;
+        }
+    }
+
     private void updateLeftRight(){
         if(getVelocityX() != 0){
-            setRelativeX(getRelativeX() + getVelocityX());
             if(moveLayerBackSprite) {
-                if (getRelativeX() < (crp.getRight() - crp.getLeft()) / 2) {
-                    parallaxLayerBackSprite.setX(crp.getLeft());
-                } else if (getRelativeX() > parallaxLayerBackSprite.getWidth() - (crp.getRight() - crp.getLeft()) / 2) {
-                    parallaxLayerBackSprite.setX(crp.getRight() - parallaxLayerBackSprite.getWidth());
-                } else {
-                    parallaxLayerBackSprite.setX((crp.getLeft() + crp.getRight()) / 2 - getRelativeX());
+                float left = escenario.getCropResolutionPolicy().getLeft();
+                float right = escenario.getCropResolutionPolicy().getRight();
+                float anchoEscena = escenario.getParallaxLayerBackSprite().getWidth();
+                float velocityX = getVelocityX();
+                if(getX() + getVelocityX() <= left + getWidth()/2){ // Aseguramos que el personaje no salga de la escena por la izquierda
+                    velocityX = left + getWidth()/2 - getX() - getVelocityX();
+                }else if(getRelativeX() + getVelocityX() >= anchoEscena - Escenario.ESCENARIO_PAGGING_RIGHT - getWidth()/2){/// y por la derecha de la pantalla
+                    velocityX = anchoEscena - Escenario.ESCENARIO_PAGGING_RIGHT - getWidth()/2 - getRelativeX() - getVelocityX();
                 }
+                setRelativeX(getRelativeX() + velocityX);
+                if(velocityX > 0) {
+                    if (getRelativeX() > anchoEscena - (right - left) / 2) {
+                        escenario.getParallaxLayerBackSprite().setX(right - anchoEscena);
+                    } else if(getX() > (left+right) /2){
+                        escenario.getParallaxLayerBackSprite().setX((left + right) / 2 - getRelativeX());
+                    }
+                }
+            }else{
+                setRelativeX(getRelativeX() + getVelocityX());
             }
+        }else{
+            setRelativeX(getRelativeX());
         }
     }
 
@@ -364,6 +598,8 @@ public class Personaje extends AnimatedSprite {
         actionRight = false;
         actionDown = false;
         actionUp = false;
+        actionDie = false;
+        actionCayendo = false;
     }
 
     public void resetActionsLeftRight(){
@@ -379,10 +615,14 @@ public class Personaje extends AnimatedSprite {
         selectBoton = -1;
     }
 
+    public void initFlagsAndCounts(){
+        flagDead = false;
+        countDead = 0;
+    }
     public synchronized void setAction(int action, TouchEvent touchEvent){
         if(touchEvent.isActionDown() || touchEvent.isActionMove()){
+            activePointerID = touchEvent.getPointerID();
             setAction(action);
-            activePointerID = ACTIVE_POINTER_ID;
         } else if (touchEvent.isActionUp() || touchEvent.isActionOutside()){
             setAction(-action);
             activePointerID = TouchEvent.INVALID_POINTER_ID;
@@ -391,7 +631,7 @@ public class Personaje extends AnimatedSprite {
     }
 
     public synchronized void setAction(TouchEvent touchEvent, float x, float y, float width, float height){
-        if(touchEvent.getPointerID() > 0){
+        if(touchEvent.getPointerID() != touchEvent.getPointerID()){
             return;
         }
         int div = 3;
@@ -407,12 +647,11 @@ public class Personaje extends AnimatedSprite {
                 selectBotonAux = -1;
                 break;
         }
-        Log.i("Contra", "Select: " + selectBoton);
         if(selectBoton < 0) {
             if(selectBotonAux != -1) {
                 if (touchEvent.isActionDown() || touchEvent.isActionMove()) {
                     pressBoton(selectBotonAux);
-                    activePointerID = ACTIVE_POINTER_ID;
+                    activePointerID = touchEvent.getPointerID();
                 }
             }else{
                 resetActionsAndStates();
@@ -431,7 +670,7 @@ public class Personaje extends AnimatedSprite {
                         unpressBoton(selectBoton);
                         pressBoton(selectBotonAux);
                         selectBoton = selectBotonAux;
-                        activePointerID = ACTIVE_POINTER_ID;
+                        activePointerID = touchEvent.getPointerID();
                     }
                 }
             }else{
@@ -510,16 +749,36 @@ public class Personaje extends AnimatedSprite {
         }
     }
 
-    public void addBullet(){
-        this.layerBullets.attachChild(new Bala(crp, parallaxLayerBackSprite, this, mBulletTextureRegion, getVertexBufferObjectManager()));
-    }
-
-    public Sprite getParallaxLayerBackSprite() {
-        return parallaxLayerBackSprite;
-    }
-
-    public void setParallaxLayerBackSprite(Sprite parallaxLayerBackSprite) {
-        this.parallaxLayerBackSprite = parallaxLayerBackSprite;
+    public void shoot(){
+        if(!actionDie) {
+            Bala bala = BalaFactory.getInstance().getBala(escenario, mBulletTextureRegion, getVertexBufferObjectManager());
+            bala.setPersonaje(this);
+            bala.setEnemigos(enemigos);
+            bala.initBala();
+            switch (state){
+                case STATE_Q0:
+                    if(orientation == ORIENTATION_RIGHT){
+                        animate(new long[]{Bala.FRAME_TIME_CHISPA, Bala.FRAME_TIME_CHISPA}, new int[]{9, 8}, 1);
+                    }else{
+                        animate(new long[]{Bala.FRAME_TIME_CHISPA, Bala.FRAME_TIME_CHISPA}, 6, 7, 1);
+                    }
+                    break;
+                case STATE_Q3:
+                    if(orientation == ORIENTATION_RIGHT) {
+                        animate(new long[]{Bala.FRAME_TIME_CHISPA, Bala.FRAME_TIME_CHISPA}, new int[]{41, 40}, 1);
+                    }else{
+                        animate(new long[]{Bala.FRAME_TIME_CHISPA, Bala.FRAME_TIME_CHISPA}, 38, 39, 1);
+                    }
+                    break;
+                case STATE_Q4:
+                    if(orientation == ORIENTATION_RIGHT) {
+                        animate(new long[]{Bala.FRAME_TIME_CHISPA, Bala.FRAME_TIME_CHISPA}, new int[]{25, 24}, 1);
+                    }else{
+                        animate(new long[]{Bala.FRAME_TIME_CHISPA, Bala.FRAME_TIME_CHISPA}, 22, 23, 1);
+                    }
+                    break;
+            }
+        }
     }
 
     public float getRelativeX() {
@@ -528,7 +787,8 @@ public class Personaje extends AnimatedSprite {
 
     public void setRelativeX(float relativeX) {
         this.relativeX = relativeX;
-        setX(parallaxLayerBackSprite.getX() + relativeX);
+        setX(escenario.getParallaxLayerBackSprite().getX() + relativeX);
+        vida.actualizarPosicionX(getX() - getWidth()/2);
     }
 
     public float getRelativeY() {
@@ -537,7 +797,8 @@ public class Personaje extends AnimatedSprite {
 
     public void setRelativeY(float relativeY) {
         this.relativeY = relativeY;
-        setY(relativeY + crp.getBottom() +  PADDING);
+        setY(relativeY + escenario.getCropResolutionPolicy().getBottom() +  Escenario.PISO_ALTO);
+        vida.actualizarPosicionY(getY() + getHeight() / 2);
     }
 
     public int getActivePointerID() {
@@ -598,5 +859,35 @@ public class Personaje extends AnimatedSprite {
 
     public boolean isActionJump() {
         return actionJump;
+    }
+
+    public void setOrientation(int orientation) {
+        this.orientation = orientation;
+    }
+
+    public Personaje getEnemigo() {
+        return enemigo;
+    }
+
+    public void setEnemigo(Personaje enemigo) {
+        this.enemigo = enemigo;
+        enemigos = new ArrayList<>();
+        enemigos.add(enemigo);
+    }
+
+    public Vida getVida() {
+        return vida;
+    }
+
+    public void setVida(Vida vida) {
+        this.vida = vida;
+    }
+
+    public boolean isActionDie() {
+        return actionDie;
+    }
+
+    public void setActionDie(boolean actionDie) {
+        this.actionDie = actionDie;
     }
 }
