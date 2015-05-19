@@ -1,5 +1,6 @@
 package com.proyectosfisi.game.contrawithbots;
 
+import android.graphics.Color;
 import android.widget.Toast;
 
 import org.andengine.engine.camera.Camera;
@@ -9,8 +10,6 @@ import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
-import org.andengine.entity.scene.background.AutoParallaxBackground;
-import org.andengine.entity.scene.background.ParallaxBackground;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.util.FPSLogger;
 import org.andengine.input.touch.TouchEvent;
@@ -37,6 +36,7 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
     protected ITexture mParallaxLayerBackTexture;
     protected ITextureRegion mParallaxLayerBackTextureRegion;
 
+    //Personajes y Bala
     protected ITexture mPlayerTexture;
     protected TiledTextureRegion mPlayerTextureRegion;
     protected ITexture mEnemyTexture;
@@ -44,15 +44,31 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
     protected ITexture mBulletTexture;
     protected TiledTextureRegion mBulletTextureRegion;
 
+    //Mandos
     protected ITexture mMandoDireccionalTexture;
     protected ITextureRegion mMandoDireccionalTextureRegion;
-    protected ITexture mMandoStartSelectTexture;
-    protected ITextureRegion mMandoStartSelectTextureRegion;
     protected ITexture mMandoAccionesTexture;
     protected ITextureRegion mMandoAccionesTextureRegion;
 
+    //Intro
+    protected ITexture mIntroTituloTexture;
+    protected ITextureRegion mIntroTituloTextureRegion;
+    protected ITexture mIntroNivel1Texture;
+    protected ITextureRegion mIntroNivel1TextureRegion;
+    protected ITexture mIntroNivel2Texture;
+    protected ITextureRegion mIntroNivel2TextureRegion;
+    protected ITexture mIntroNivel3Texture;
+    protected ITextureRegion mIntroNivel3TextureRegion;
+    protected Rectangle rIntroFondo;
+
+    protected Sprite spriteMandoDireccional;
+    protected Sprite spriteMandoAcciones;
+    protected Rectangle rDireccional;
+
     protected Personaje jugador;
     protected Personaje enemigo;
+
+    protected HUD hud;
 
     @Override
     public EngineOptions onCreateEngineOptions() {
@@ -90,10 +106,6 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
         this.mMandoDireccionalTextureRegion = TextureRegionFactory.extractFromTexture(this.mMandoDireccionalTexture);
         this.mMandoDireccionalTexture.load();
 
-        this.mMandoStartSelectTexture = new AssetBitmapTexture(this.getTextureManager(), this.getAssets(), "gfx/mando_start_select.png", TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-        this.mMandoStartSelectTextureRegion = TextureRegionFactory.extractFromTexture(this.mMandoStartSelectTexture);
-        this.mMandoStartSelectTexture.load();
-
         this.mMandoAccionesTexture = new AssetBitmapTexture(this.getTextureManager(), this.getAssets(), "gfx/mando_acciones.png", TextureOptions.BILINEAR_PREMULTIPLYALPHA);
         this.mMandoAccionesTextureRegion = TextureRegionFactory.extractFromTexture(this.mMandoAccionesTexture);
         this.mMandoAccionesTexture.load();
@@ -113,14 +125,31 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
         this.mBulletTextureRegion = TextureRegionFactory.extractTiledFromTexture(this.mBulletTexture, 3, 1);
         this.mBulletTexture.load();
 
+        //IntroTitulo
+        this.mIntroTituloTexture = new AssetBitmapTexture(this.getTextureManager(), this.getAssets(), "gfx/intro-titulo.png");
+        this.mIntroTituloTextureRegion = TextureRegionFactory.extractFromTexture(this.mIntroTituloTexture);
+        this.mIntroTituloTexture.load();
+
+        //IntroNivel1
+        this.mIntroNivel1Texture = new AssetBitmapTexture(this.getTextureManager(), this.getAssets(), "gfx/intro-nivel1.png");
+        this.mIntroNivel1TextureRegion = TextureRegionFactory.extractFromTexture(this.mIntroNivel1Texture);
+        this.mIntroNivel1Texture.load();
+
+        //IntroNivel2
+        this.mIntroNivel2Texture = new AssetBitmapTexture(this.getTextureManager(), this.getAssets(), "gfx/intro-nivel2.png");
+        this.mIntroNivel2TextureRegion = TextureRegionFactory.extractFromTexture(this.mIntroNivel2Texture);
+        this.mIntroNivel2Texture.load();
+
+        //IntroNivel3
+        this.mIntroNivel3Texture = new AssetBitmapTexture(this.getTextureManager(), this.getAssets(), "gfx/intro-nivel3.png");
+        this.mIntroNivel3TextureRegion = TextureRegionFactory.extractFromTexture(this.mIntroNivel3Texture);
+        this.mIntroNivel3Texture.load();
+
     }
 
     @Override
     public Scene onCreateScene() {
 
-        final float centerX = Escenario.CAMARA_ANCHO / 2;
-        final float centerY = Escenario.CAMARA_ALTO / 2;
-        
         float left = escenario.getCropResolutionPolicy().getLeft();
         float bottom = escenario.getCropResolutionPolicy().getBottom();
         float right = escenario.getCropResolutionPolicy().getRight();
@@ -132,125 +161,190 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
         final Scene scene = new Scene();
 
         //Creamos background y las capas
-        escenario.onCreateEscene(scene, mParallaxLayerBackTextureRegion,vertexBufferObjectManager);
+        escenario.onCreateEscene(scene, mParallaxLayerBackTextureRegion, vertexBufferObjectManager);
+
+        BalaFactory.getInstance().inactivar();
+
+        BotFactory botFactory = new BotFactory(escenario, this.mEnemyTextureRegion, this.mBulletTextureRegion, vertexBufferObjectManager);
+        escenario.setBotFactory(botFactory);
 
         // Principal
         jugador = new Personaje(escenario, (right - left)/2, 0, this.mPlayerTextureRegion, this.mBulletTextureRegion, vertexBufferObjectManager);
         jugador.setMoveLayerBackSprite(true);
+        escenario.setJugador(jugador);
+
+        botFactory.initBots();
+
+        jugador.setEnemigos(botFactory.getBots());
+
         escenario.getLayerPlayer().attachChild(jugador);
 
-        // Principal
-        enemigo = new PersonajeEnemigo(escenario, (right - left)/2, 0, this.mEnemyTextureRegion, this.mBulletTextureRegion, vertexBufferObjectManager);
-        enemigo.setMoveLayerBackSprite(false);
-        enemigo.setOrientation(Personaje.ORIENTATION_LEFT);
-        enemigo.setStateQ0();
-        escenario.getLayerPlayer().attachChild(enemigo);
+        hud = new HUD();
+        // Touch Area
+        initControles(scene);
+        // Intro
+        initIntro(scene);
+        camera.setHUD(hud);
+        hud.setZIndex(9);
+        hud.setOnSceneTouchListener(this);
 
-        jugador.setEnemigo(enemigo);
-        enemigo.setEnemigo(jugador);
+        return scene;
+    }
 
-        // Mando
-        final Sprite spriteMandoDireccional = new Sprite(left + mMandoDireccionalTextureRegion.getWidth()/2 + Escenario.MANDO_PADDING
+    protected void initIntro(Scene scene){
+
+        float left = escenario.getCropResolutionPolicy().getLeft();
+        float bottom = escenario.getCropResolutionPolicy().getBottom();
+        float top = escenario.getCropResolutionPolicy().getTop();
+        float right = escenario.getCropResolutionPolicy().getRight();
+        float alto = top - bottom;
+        final float ancho = right - left;
+        float separaAlto = (alto - mIntroTituloTextureRegion.getHeight() - mIntroNivel1TextureRegion.getHeight())/3;
+        float separaAncho = (ancho - 3*mIntroNivel1TextureRegion.getWidth())/4;
+
+        this.rIntroFondo = new Rectangle(left, bottom, ancho, alto, getVertexBufferObjectManager());
+        this.rIntroFondo.setOffsetCenter(0, 0);
+        this.rIntroFondo.setColor(Color.BLACK);
+        this.rIntroFondo.setAlpha(0.4f);
+        scene.attachChild(rIntroFondo);
+
+        //Sprites
+        final Sprite spriteIntroTitulo = new Sprite(
+                left + (ancho - mIntroTituloTextureRegion.getWidth())/2,
+                top - mIntroTituloTextureRegion.getHeight() - separaAlto,
+                mIntroTituloTextureRegion, this.getVertexBufferObjectManager());
+        spriteIntroTitulo.setOffsetCenter(0, 0);
+        scene.attachChild(spriteIntroTitulo);
+
+        //Nivel1
+        final Sprite spriteIntroNivel1 = new Sprite(
+                left + separaAncho,
+                top - mIntroTituloTextureRegion.getHeight() - 2*separaAlto - mIntroNivel1TextureRegion.getHeight(),
+                mIntroNivel1TextureRegion, this.getVertexBufferObjectManager());
+        spriteIntroNivel1.setOffsetCenter(0, 0);
+        scene.attachChild(spriteIntroNivel1);
+
+        //Nivel2
+        final Sprite spriteIntroNivel2 = new Sprite(
+                left + 2*separaAncho + mIntroNivel1TextureRegion.getWidth(),
+                top - mIntroTituloTextureRegion.getHeight() - 2*separaAlto - mIntroNivel2TextureRegion.getHeight(),
+                mIntroNivel2TextureRegion, this.getVertexBufferObjectManager());
+        spriteIntroNivel2.setOffsetCenter(0, 0);
+        scene.attachChild(spriteIntroNivel2);
+
+        //Nivel3
+        final Sprite spriteIntroNivel3 = new Sprite(
+                left + 3*separaAncho + mIntroNivel1TextureRegion.getWidth() + mIntroNivel2TextureRegion.getWidth(),
+                top - mIntroTituloTextureRegion.getHeight() - 2*separaAlto - mIntroNivel3TextureRegion.getHeight(),
+                mIntroNivel3TextureRegion, this.getVertexBufferObjectManager());
+        spriteIntroNivel3.setOffsetCenter(0, 0);
+        scene.attachChild(spriteIntroNivel3);
+
+        // Control Direccional
+        final Rectangle rNivel1 = new Rectangle(spriteIntroNivel1.getX()+spriteIntroNivel1.getWidth()/2, spriteIntroNivel1.getY()+ spriteIntroNivel1.getHeight()/2,
+                spriteIntroNivel1.getWidth(), spriteIntroNivel1.getHeight(), getVertexBufferObjectManager()){
+            public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y){
+                if(escenario.isPausa()) {
+                    if (touchEvent.isActionDown()) {
+                        rIntroFondo.setAlpha(0.0f);
+                        spriteIntroTitulo.setAlpha(0.0f);
+                        spriteIntroNivel1.setAlpha(0.0f);
+                        spriteIntroNivel2.setAlpha(0.0f);
+                        spriteIntroNivel3.setAlpha(0.0f);
+                        spriteMandoDireccional.setX(spriteMandoDireccional.getX() - ancho);
+                        spriteMandoAcciones.setX(spriteMandoAcciones.getX() - ancho);
+                        rDireccional.setX(rDireccional.getX() - ancho);
+                        hud.setAlpha(1.0f);
+                        escenario.setPausa(false);
+                        this.detachSelf();
+                        this.dispose();
+                    }
+                }
+                return true;
+            };
+        };
+        rNivel1.setAlpha(0.0f);
+
+        hud.registerTouchArea(rNivel1);
+        hud.attachChild(rNivel1);
+    }
+
+    protected void initControles(Scene scene){
+
+        float left = escenario.getCropResolutionPolicy().getLeft();
+        float bottom = escenario.getCropResolutionPolicy().getBottom();
+        float right = escenario.getCropResolutionPolicy().getRight();
+        float ancho = right - left;
+
+        //Sprites
+        spriteMandoDireccional = new Sprite(left + mMandoDireccionalTextureRegion.getWidth()/2 + Escenario.MANDO_PADDING
                 , bottom + mMandoDireccionalTextureRegion.getHeight()/2 + Escenario.MANDO_PADDING, mMandoDireccionalTextureRegion, this.getVertexBufferObjectManager());
         scene.attachChild(spriteMandoDireccional);
 
-        final Sprite spriteMandoStart = new Sprite((left+right)/2
-                , bottom + mMandoStartSelectTextureRegion.getHeight()/2 + Escenario.MANDO_PADDING, mMandoStartSelectTextureRegion, this.getVertexBufferObjectManager());
-        scene.attachChild(spriteMandoStart);
-
-        final Sprite spriteMandoAcciones = new Sprite(right - mMandoAccionesTextureRegion.getWidth()/2 - Escenario.MANDO_PADDING
+        spriteMandoAcciones = new Sprite(right - mMandoAccionesTextureRegion.getWidth()/2 - Escenario.MANDO_PADDING
                 , bottom + mMandoAccionesTextureRegion.getHeight()/2 + Escenario.MANDO_PADDING, mMandoAccionesTextureRegion, this.getVertexBufferObjectManager());
         scene.attachChild(spriteMandoAcciones);
 
-        // Touch Area
-        HUD hud = new HUD();
-
         // Control Direccional
-        final Rectangle rDireccional = new Rectangle(spriteMandoDireccional.getX(), spriteMandoDireccional.getY(),
+        rDireccional = new Rectangle(spriteMandoDireccional.getX(), spriteMandoDireccional.getY(),
                 spriteMandoDireccional.getWidth(), spriteMandoDireccional.getHeight(), getVertexBufferObjectManager()){
             public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y){
-                jugador.setAction(touchEvent, X, Y, spriteMandoDireccional.getWidth(), spriteMandoDireccional.getHeight());
+                if(!escenario.isPausa()) {
+                    jugador.setAction(touchEvent, X, Y, spriteMandoDireccional.getWidth(), spriteMandoDireccional.getHeight());
+                }
                 return true;
             };
         };
         rDireccional.setAlpha(0.0f);
 
-        // Control Select Start
-        final Rectangle rSelect = new Rectangle(spriteMandoStart.getX() - spriteMandoStart.getWidth()/4, spriteMandoStart.getY(),
-                spriteMandoStart.getWidth()/2, spriteMandoStart.getHeight(), getVertexBufferObjectManager()){
-            public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y){
-
-                return true;
-            };
-        };
-        rSelect.setAlpha(0.0f);
-        final Rectangle rStart = new Rectangle(spriteMandoStart.getX() + spriteMandoStart.getWidth()/4, spriteMandoStart.getY(),
-                spriteMandoStart.getWidth()/2, spriteMandoStart.getHeight(), getVertexBufferObjectManager()){
-            public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y){
-
-                return true;
-            };
-        };
-        rStart.setAlpha(0.00f);
-
         // Control Acciones
         final Rectangle rY = new Rectangle(spriteMandoAcciones.getX() - spriteMandoAcciones.getWidth()/3, spriteMandoAcciones.getY(),
                 spriteMandoAcciones.getWidth()/3, spriteMandoAcciones.getHeight()/3, getVertexBufferObjectManager()){
             public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y){
-                if(touchEvent.isActionDown()) {
-                    jugador.shoot();
+                if(!escenario.isPausa()) {
+                    if (touchEvent.isActionDown()) {
+                        jugador.shoot();
+                    }
                 }
                 return true;
             };
         };
         rY.setAlpha(0.0f);
         final Rectangle rA = new Rectangle(spriteMandoAcciones.getX() + spriteMandoAcciones.getWidth()/3, spriteMandoAcciones.getY(),
-                spriteMandoAcciones.getWidth()/3, spriteMandoAcciones.getHeight()/3, getVertexBufferObjectManager()){
-            public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y){
-                return true;
-            };
-        };
+                spriteMandoAcciones.getWidth()/3, spriteMandoAcciones.getHeight()/3, getVertexBufferObjectManager());
         rA.setAlpha(0.0f);
         final Rectangle rX = new Rectangle(spriteMandoAcciones.getX(), spriteMandoAcciones.getY() + spriteMandoAcciones.getHeight()/3 - Escenario.MANDO_PADDING/2,
-                spriteMandoAcciones.getWidth()/3, spriteMandoAcciones.getHeight()/3 + Escenario.MANDO_PADDING, getVertexBufferObjectManager()){
-            public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y){
-
-                return true;
-            };
-        };
+                spriteMandoAcciones.getWidth()/3, spriteMandoAcciones.getHeight()/3 + Escenario.MANDO_PADDING, getVertexBufferObjectManager());
         rX.setAlpha(0.0f);
         final Rectangle rB = new Rectangle(spriteMandoAcciones.getX(), spriteMandoAcciones.getY() - spriteMandoAcciones.getHeight()/3 + Escenario.MANDO_PADDING/2,
                 spriteMandoAcciones.getWidth()/3, spriteMandoAcciones.getHeight()/3 + Escenario.MANDO_PADDING, getVertexBufferObjectManager()){
             public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y){
-                jugador.setAction(Personaje.ACTION_JUMP, touchEvent);
+                if(!escenario.isPausa()) {
+                    if (touchEvent.isActionDown()) {
+                        jugador.setAction(Personaje.ACTION_JUMP, touchEvent);
+                    }
+                }
                 return true;
             };
         };
         rB.setAlpha(0.0f);
 
+        spriteMandoDireccional.setX(spriteMandoDireccional.getX() + ancho);
+        spriteMandoAcciones.setX(spriteMandoAcciones.getX() + ancho);
+        rDireccional.setX(rDireccional.getX() + ancho);
+
         hud.registerTouchArea(rDireccional);
-        hud.registerTouchArea(rSelect);
-        hud.registerTouchArea(rStart);
         hud.registerTouchArea(rY);
         hud.registerTouchArea(rA);
         hud.registerTouchArea(rX);
         hud.registerTouchArea(rB);
         hud.attachChild(rDireccional);
-        hud.attachChild(rSelect);
-        hud.attachChild(rStart);
         hud.attachChild(rY);
         hud.attachChild(rA);
         hud.attachChild(rX);
         hud.attachChild(rB);
 
-        hud.setZIndex(9);
-
-        camera.setHUD(hud);
-        hud.setOnSceneTouchListener(this);
-
-        return scene;
     }
-
 
     @Override
     public boolean onSceneTouchEvent(final Scene pScene, final TouchEvent pSceneTouchEvent) {
@@ -261,4 +355,6 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
         }
         return true;
     }
+
+
 }

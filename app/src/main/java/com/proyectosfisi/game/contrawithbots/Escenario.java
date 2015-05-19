@@ -25,6 +25,10 @@ public class Escenario {
     protected Sprite parallaxLayerBackSprite;
     protected Entity layerPlayer;
     protected Entity layerBullets;
+    
+    protected Personaje jugador;
+    protected BotFactory botFactory;
+    protected boolean pausa;
 
     public static final float PISO_ALTO = 84;
     public static final float ESCALONES_ALTO[] = new float[]{/*1*/ 56, 128, 96,/*2*/ 56, 96, 56, 128, 96, 56,/*3*/ 96, 56, 128, 96, 56,/*4*/ 46, 86};
@@ -33,6 +37,7 @@ public class Escenario {
 
     public void onCreateEngineOptions(){
         cropResolutionPolicy = new CropResolutionPolicy(CAMARA_ANCHO, CAMARA_ALTO);
+        pausa = true;
     }
 
     public void onCreateEscene(Scene scene, ITextureRegion mParallaxLayerBackTextureRegion,VertexBufferObjectManager vertexBufferObjectManager){
@@ -94,4 +99,27 @@ public class Escenario {
         return parallaxLayerBackSprite;
     }
 
+    public Personaje getJugador() {
+        return jugador;
+    }
+
+    public void setJugador(Personaje jugador) {
+        this.jugador = jugador;
+    }
+
+    public BotFactory getBotFactory() {
+        return botFactory;
+    }
+
+    public void setBotFactory(BotFactory botFactory) {
+        this.botFactory = botFactory;
+    }
+
+    public boolean isPausa() {
+        return pausa;
+    }
+
+    public void setPausa(boolean pausa) {
+        this.pausa = pausa;
+    }
 }

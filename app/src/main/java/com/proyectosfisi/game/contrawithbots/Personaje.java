@@ -46,6 +46,7 @@ public class Personaje extends AnimatedSprite {
     
     protected boolean flagDead;
     protected float countDead;
+    protected float countDead2;
 
     protected int selectBoton;
     protected int orientation;
@@ -63,19 +64,24 @@ public class Personaje extends AnimatedSprite {
     protected int activePointerID;
     protected int pisoEscalon;
 
-    protected Personaje enemigo;
     protected Vida vida;
-
     protected ArrayList<Personaje> enemigos;
 
-    public Personaje(Escenario escenario, final float relativeX, final float relativeY, final TiledTextureRegion pTextureRegion, final TiledTextureRegion mBulletTextureRegion, final VertexBufferObjectManager pVertexBufferObjectManager) {
+    public Personaje(Escenario escenario, float relativeX, float relativeY, final TiledTextureRegion pTextureRegion, final TiledTextureRegion mBulletTextureRegion, final VertexBufferObjectManager pVertexBufferObjectManager) {
         super(0, 0, pTextureRegion, pVertexBufferObjectManager);
 
         this.escenario = escenario;
         this.mBulletTextureRegion = mBulletTextureRegion;
         moveLayerBackSprite = false;
 
-        vida = new Vida(escenario.getLayerPlayer(), getX(), getY(), getWidth(), pVertexBufferObjectManager);
+        enemigos = null;
+
+        init(relativeX, relativeY);
+
+    }
+
+    public void init(float relativeX, float relativeY){
+        vida = new Vida(escenario.getLayerPlayer(), getX(), getY(), getWidth(), getVertexBufferObjectManager());
 
         setRelativeX(relativeX);
         setRelativeY(relativeY);
@@ -90,197 +96,198 @@ public class Personaje extends AnimatedSprite {
         initFlagsAndCounts();
 
         activePointerID = TouchEvent.INVALID_POINTER_ID;
+        setAlpha(1.0f);
 
-        enemigo = null;
-        enemigos = null;
     }
 
     public synchronized void setAction(int action){
-        switch (state){
-            case STATE_Q0:
-                switch (action){
-                    case ACTION_LEFT:
-                        if(!actionLeft) {
-                            actionLeft = true;
-                            setStateQ2();
-                        }
-                        break;
-                    case ACTION_RIGHT:
-                        if(!actionRight) {
-                            actionRight = true;
-                            setStateQ2();
-                        }
-                        break;
-                    case ACTION_JUMP:
-                        setStateQ1();
-                        setVelocityY(VELOCITY_Y);
-                        break;
-                    case ACTION_DOWN:
-                        setStateQ3();
-                        break;
-                    case ACTION_UP:
-                        setStateQ4();
-                        break;
-                }
-                break;
-            case STATE_Q1:
-                switch (action) {
-                    case ACTION_LEFT:
-                        if(!actionLeft) {
-                            actionLeft = true;
-                            actionJump = false;
-                            orientation = ORIENTATION_LEFT;
+        if(!escenario.isPausa()) {
+            switch (state) {
+                case STATE_Q0:
+                    switch (action) {
+                        case ACTION_LEFT:
+                            if (!actionLeft) {
+                                actionLeft = true;
+                                setStateQ2();
+                            }
+                            break;
+                        case ACTION_RIGHT:
+                            if (!actionRight) {
+                                actionRight = true;
+                                setStateQ2();
+                            }
+                            break;
+                        case ACTION_JUMP:
                             setStateQ1();
-                            setVelocityX(-VELOCITY_X);
-                        }
-                        break;
-                    case ACTION_RIGHT:
-                        if(!actionRight) {
-                            actionRight = true;
-                            actionJump = false;
-                            orientation = ORIENTATION_RIGHT;
-                            setStateQ1();
-                            setVelocityX(VELOCITY_X);
-                        }
-                        break;
-                    case ACTION_UP:
-                        actionUp = true;
-                        break;
-                    case ACTION_DOWN:
-                        actionDown = true;
-                        break;
-                    case -ACTION_LEFT:
-                    case -ACTION_RIGHT:
-                        actionLeft = false;
-                        actionRight = false;
-                        break;
-                    case -ACTION_UP:
-                    case -ACTION_DOWN:
-                        actionUp = false;
-                        actionDown = false;
-                        break;
-                }
-                break;
-            case STATE_Q2:
-                switch (action){
-                    case -ACTION_LEFT:
-                    case -ACTION_RIGHT:
-                        setStateQ0();
-                        break;
-                    case ACTION_UP:
-                        if(!actionUp) {
+                            setVelocityY(VELOCITY_Y);
+                            break;
+                        case ACTION_DOWN:
+                            setStateQ3();
+                            break;
+                        case ACTION_UP:
+                            setStateQ4();
+                            break;
+                    }
+                    break;
+                case STATE_Q1:
+                    switch (action) {
+                        case ACTION_LEFT:
+                            if (!actionLeft) {
+                                actionLeft = true;
+                                actionJump = false;
+                                orientation = ORIENTATION_LEFT;
+                                setStateQ1();
+                                setVelocityX(-VELOCITY_X);
+                            }
+                            break;
+                        case ACTION_RIGHT:
+                            if (!actionRight) {
+                                actionRight = true;
+                                actionJump = false;
+                                orientation = ORIENTATION_RIGHT;
+                                setStateQ1();
+                                setVelocityX(VELOCITY_X);
+                            }
+                            break;
+                        case ACTION_UP:
                             actionUp = true;
-                            setStateQ2();
-                        }
-                        break;
-                    case ACTION_DOWN:
-                        if(!actionDown) {
+                            break;
+                        case ACTION_DOWN:
                             actionDown = true;
+                            break;
+                        case -ACTION_LEFT:
+                        case -ACTION_RIGHT:
+                            actionLeft = false;
+                            actionRight = false;
+                            break;
+                        case -ACTION_UP:
+                        case -ACTION_DOWN:
+                            actionUp = false;
+                            actionDown = false;
+                            break;
+                    }
+                    break;
+                case STATE_Q2:
+                    switch (action) {
+                        case -ACTION_LEFT:
+                        case -ACTION_RIGHT:
+                            setStateQ0();
+                            break;
+                        case ACTION_UP:
+                            if (!actionUp) {
+                                actionUp = true;
+                                setStateQ2();
+                            }
+                            break;
+                        case ACTION_DOWN:
+                            if (!actionDown) {
+                                actionDown = true;
+                                setStateQ2();
+                            }
+                            break;
+                        case -ACTION_UP:
+                        case -ACTION_DOWN:
+                            resetActionsUpDown();
                             setStateQ2();
-                        }
-                        break;
-                    case -ACTION_UP:
-                    case -ACTION_DOWN:
-                        resetActionsUpDown();
-                        setStateQ2();
-                        break;
-                    case ACTION_JUMP:
-                        setStateQ1();
-                        setVelocityY(VELOCITY_Y);
-                        break;
-                }
-                break;
-            case STATE_Q3:
-                switch (action) {
-                    case -ACTION_DOWN:
-                        setStateQ0();
-                        break;
-                    case ACTION_JUMP:
-                        setStateQ1();
-                        setVelocityY(VELOCITY_Y);
-                        break;
-                }
-                break;
-            case STATE_Q4:
-                switch (action) {
-                    case -ACTION_UP:
-                        setStateQ0();
-                        break;
-                    case ACTION_JUMP:
-                        setStateQ1();
-                        setVelocityY(VELOCITY_Y);
-                        break;
-                }
-                break;
-            case STATE_Q6:
-                switch (action) {
-                    case ACTION_UP:
-                        actionUp = true;
-                        actionDown = false;
-                        if(actionLeft){
-                            stopAnimation(50);
-                        }else if(actionRight){
-                            stopAnimation(61);
-                        }else{
-                            if(getOrientation() == ORIENTATION_LEFT){
-                                stopAnimation(65);
-                            }else{
-                                stopAnimation(78);
+                            break;
+                        case ACTION_JUMP:
+                            setStateQ1();
+                            setVelocityY(VELOCITY_Y);
+                            break;
+                    }
+                    break;
+                case STATE_Q3:
+                    switch (action) {
+                        case -ACTION_DOWN:
+                            setStateQ0();
+                            break;
+                        case ACTION_JUMP:
+                            setStateQ1();
+                            setVelocityY(VELOCITY_Y);
+                            break;
+                    }
+                    break;
+                case STATE_Q4:
+                    switch (action) {
+                        case -ACTION_UP:
+                            setStateQ0();
+                            break;
+                        case ACTION_JUMP:
+                            setStateQ1();
+                            setVelocityY(VELOCITY_Y);
+                            break;
+                    }
+                    break;
+                case STATE_Q6:
+                    switch (action) {
+                        case ACTION_UP:
+                            actionUp = true;
+                            actionDown = false;
+                            if (actionLeft) {
+                                stopAnimation(50);
+                            } else if (actionRight) {
+                                stopAnimation(61);
+                            } else {
+                                if (getOrientation() == ORIENTATION_LEFT) {
+                                    stopAnimation(65);
+                                } else {
+                                    stopAnimation(78);
+                                }
                             }
-                        }
-                        break;
-                    case ACTION_DOWN:
-                        actionUp = false;
-                        actionDown = true;
-                        if(actionLeft){
-                            stopAnimation(49);
-                        }else if(actionRight){
-                            stopAnimation(62);
-                        }else{
-                            if(getOrientation() == ORIENTATION_LEFT){
-                                stopAnimation(64);
-                            }else{
-                                stopAnimation(79);
+                            break;
+                        case ACTION_DOWN:
+                            actionUp = false;
+                            actionDown = true;
+                            if (actionLeft) {
+                                stopAnimation(49);
+                            } else if (actionRight) {
+                                stopAnimation(62);
+                            } else {
+                                if (getOrientation() == ORIENTATION_LEFT) {
+                                    stopAnimation(64);
+                                } else {
+                                    stopAnimation(79);
+                                }
                             }
-                        }
-                        break;
-                    case ACTION_LEFT:
-                        actionLeft = true;
-                        actionRight = false;
-                        setVelocityX(-VELOCITY_X);
-                        setOrientation(ORIENTATION_LEFT);
-                        stopAnimation(48);
-                        break;
-                    case ACTION_RIGHT:
-                        actionLeft = false;
-                        actionRight = true;
-                        setVelocityX(VELOCITY_X);
-                        setOrientation(ORIENTATION_RIGHT);
-                        stopAnimation(63);
-                        break;
-                    case -ACTION_UP:
-                        actionUp = false;
-                        if(getOrientation() == ORIENTATION_LEFT){
+                            break;
+                        case ACTION_LEFT:
+                            actionLeft = true;
+                            actionRight = false;
+                            setVelocityX(-VELOCITY_X);
+                            setOrientation(ORIENTATION_LEFT);
                             stopAnimation(48);
-                        }else{
+                            break;
+                        case ACTION_RIGHT:
+                            actionLeft = false;
+                            actionRight = true;
+                            setVelocityX(VELOCITY_X);
+                            setOrientation(ORIENTATION_RIGHT);
                             stopAnimation(63);
-                        }
-                        break;
-                    case -ACTION_DOWN:
-                        actionDown = false;
-                        if(getOrientation() == ORIENTATION_LEFT){
-                            stopAnimation(48);
-                        }else{
-                            stopAnimation(63);
-                        }
-                        break;
-                    case -ACTION_LEFT:
-                        actionLeft = false;
-                        break;
-                    case -ACTION_RIGHT:
-                        actionRight = false;
-                        break;
-                }
+                            break;
+                        case -ACTION_UP:
+                            actionUp = false;
+                            if (getOrientation() == ORIENTATION_LEFT) {
+                                stopAnimation(48);
+                            } else {
+                                stopAnimation(63);
+                            }
+                            break;
+                        case -ACTION_DOWN:
+                            actionDown = false;
+                            if (getOrientation() == ORIENTATION_LEFT) {
+                                stopAnimation(48);
+                            } else {
+                                stopAnimation(63);
+                            }
+                            break;
+                        case -ACTION_LEFT:
+                            actionLeft = false;
+                            break;
+                        case -ACTION_RIGHT:
+                            actionRight = false;
+                            break;
+                    }
+            }
         }
     }
 
@@ -320,8 +327,13 @@ public class Personaje extends AnimatedSprite {
                 break;
             case STATE_Q5:
                 if(!flagDead) {
-                    if (getRelativeY() + getVelocityY() <= 0) { // Validamos que toco el piso
-                        setRelativeY(0);
+                    int escalon = escenario.tocoPisoOEscalon(this);
+                    if (escalon >= 0) { // Validamos que toco el piso
+                        if(escalon > 0) {
+                            setRelativeY(Escenario.ESCALONES_ALTO[escalon-1]);
+                        }else{
+                            setRelativeY(0);
+                        }
                         setVelocityX(0);
                         setVelocityY(0);
                         flagDead = true;
@@ -340,10 +352,25 @@ public class Personaje extends AnimatedSprite {
                             countDead = -1;
                             vida.setVisible(false);
                         }else if(countDead >= 0){
-                            countDead++;
+                            countDead+=pSecondsElapsed;
                         }
                         setRelativeY(getRelativeY() + getVelocityY());
                         setVelocityY(getVelocityY() + GRAVEDAD);
+                    }
+                }else{
+                    if(countDead2 >= 1.5) {
+                        countDead2 = -1;
+                        setAlpha(0.0f);
+                        despuesDeMorir();
+                    }else if(countDead2 >= 0){
+                        float frac = 1.5f/15;
+                        int multiplo = (int)(10*(countDead2 / frac));
+                        if(multiplo % 2 == 0){
+                            setAlpha(0.75f);
+                        }else{
+                            setAlpha(0.25f);
+                        }
+                        countDead2 += pSecondsElapsed;
                     }
                 }
                 break;
@@ -565,7 +592,7 @@ public class Personaje extends AnimatedSprite {
         }
     }
 
-    private void updateLeftRight(){
+    protected void updateLeftRight(){
         if(getVelocityX() != 0){
             if(moveLayerBackSprite) {
                 float left = escenario.getCropResolutionPolicy().getLeft();
@@ -618,6 +645,7 @@ public class Personaje extends AnimatedSprite {
     public void initFlagsAndCounts(){
         flagDead = false;
         countDead = 0;
+        countDead2 = 0;
     }
     public synchronized void setAction(int action, TouchEvent touchEvent){
         if(touchEvent.isActionDown() || touchEvent.isActionMove()){
@@ -749,6 +777,10 @@ public class Personaje extends AnimatedSprite {
         }
     }
 
+    protected void despuesDeMorir(){
+
+    }
+
     public void shoot(){
         if(!actionDie) {
             Bala bala = BalaFactory.getInstance().getBala(escenario, mBulletTextureRegion, getVertexBufferObjectManager());
@@ -757,27 +789,39 @@ public class Personaje extends AnimatedSprite {
             bala.initBala();
             switch (state){
                 case STATE_Q0:
-                    if(orientation == ORIENTATION_RIGHT){
-                        animate(new long[]{Bala.FRAME_TIME_CHISPA, Bala.FRAME_TIME_CHISPA}, new int[]{9, 8}, 1);
-                    }else{
-                        animate(new long[]{Bala.FRAME_TIME_CHISPA, Bala.FRAME_TIME_CHISPA}, 6, 7, 1);
-                    }
+                    animateStateQ0();
                     break;
                 case STATE_Q3:
-                    if(orientation == ORIENTATION_RIGHT) {
-                        animate(new long[]{Bala.FRAME_TIME_CHISPA, Bala.FRAME_TIME_CHISPA}, new int[]{41, 40}, 1);
-                    }else{
-                        animate(new long[]{Bala.FRAME_TIME_CHISPA, Bala.FRAME_TIME_CHISPA}, 38, 39, 1);
-                    }
+                    animateStateQ3();
                     break;
                 case STATE_Q4:
-                    if(orientation == ORIENTATION_RIGHT) {
-                        animate(new long[]{Bala.FRAME_TIME_CHISPA, Bala.FRAME_TIME_CHISPA}, new int[]{25, 24}, 1);
-                    }else{
-                        animate(new long[]{Bala.FRAME_TIME_CHISPA, Bala.FRAME_TIME_CHISPA}, 22, 23, 1);
-                    }
+                    animateStateQ4();
                     break;
             }
+        }
+    }
+
+    protected void animateStateQ0(){
+        if(orientation == ORIENTATION_RIGHT){
+            animate(new long[]{Bala.FRAME_TIME_CHISPA, Bala.FRAME_TIME_CHISPA}, new int[]{9, 8}, 1);
+        }else{
+            animate(new long[]{Bala.FRAME_TIME_CHISPA, Bala.FRAME_TIME_CHISPA}, 6, 7, 1);
+        }
+    }
+
+    protected void animateStateQ3() {
+        if (orientation == ORIENTATION_RIGHT) {
+            animate(new long[]{Bala.FRAME_TIME_CHISPA, Bala.FRAME_TIME_CHISPA}, new int[]{41, 40}, 1);
+        } else {
+            animate(new long[]{Bala.FRAME_TIME_CHISPA, Bala.FRAME_TIME_CHISPA}, 38, 39, 1);
+        }
+    }
+
+    protected void animateStateQ4(){
+        if(orientation == ORIENTATION_RIGHT) {
+            animate(new long[]{Bala.FRAME_TIME_CHISPA, Bala.FRAME_TIME_CHISPA}, new int[]{25, 24}, 1);
+        }else{
+            animate(new long[]{Bala.FRAME_TIME_CHISPA, Bala.FRAME_TIME_CHISPA}, 22, 23, 1);
         }
     }
 
@@ -865,16 +909,6 @@ public class Personaje extends AnimatedSprite {
         this.orientation = orientation;
     }
 
-    public Personaje getEnemigo() {
-        return enemigo;
-    }
-
-    public void setEnemigo(Personaje enemigo) {
-        this.enemigo = enemigo;
-        enemigos = new ArrayList<>();
-        enemigos.add(enemigo);
-    }
-
     public Vida getVida() {
         return vida;
     }
@@ -889,5 +923,13 @@ public class Personaje extends AnimatedSprite {
 
     public void setActionDie(boolean actionDie) {
         this.actionDie = actionDie;
+    }
+
+    public ArrayList<Personaje> getEnemigos() {
+        return enemigos;
+    }
+
+    public void setEnemigos(ArrayList<Personaje> enemigos) {
+        this.enemigos = enemigos;
     }
 }

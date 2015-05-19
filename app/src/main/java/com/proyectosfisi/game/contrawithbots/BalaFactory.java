@@ -58,4 +58,12 @@ public class BalaFactory {
         pilaBalasInactivas.push(bala);
     }
 
+    public void inactivar(){
+        while(!listaBalasActivas.isEmpty()){
+            Bala bala = listaBalasActivas.remove(0);
+            bala.inactivar();
+            pilaBalasInactivas.push(bala);
+        }
+    }
+
 }

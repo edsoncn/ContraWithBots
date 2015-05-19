@@ -124,7 +124,11 @@ public class Bala extends TiledSprite{
                 }
                 break;
             case Personaje.STATE_Q3: // Down
-                pi = 2;
+                if(personaje instanceof PersonajeEnemigo && ((PersonajeEnemigo)personaje).getTipo() == PersonajeEnemigo.TIPO_CIMA){
+                    pi = 1;
+                }else {
+                    pi = 2;
+                }
                 break;
             case Personaje.STATE_Q4: // Up
                 pi = 1;
@@ -214,13 +218,18 @@ public class Bala extends TiledSprite{
                 }
                 break;
             case Personaje.STATE_Q3: // Down
-                pi = 2;
-                if(personaje.getOrientation() == Personaje.ORIENTATION_LEFT){
-                    velocityX = -VELOCITY_X;
+                if(personaje instanceof PersonajeEnemigo && ((PersonajeEnemigo)personaje).tipo == PersonajeEnemigo.TIPO_CIMA){
+                    pi = 6;
+                    velocityY = -VELOCITY_Y;
                 }else {
-                    velocityX = VELOCITY_X;
+                    pi = 2;
+                    if (personaje.getOrientation() == Personaje.ORIENTATION_LEFT) {
+                        velocityX = -VELOCITY_X;
+                    } else {
+                        velocityX = VELOCITY_X;
+                    }
+                    velocityY = 0.0f;
                 }
-                velocityY = 0.0f;
                 break;
             case Personaje.STATE_Q4: // Up
                 pi = 1;
@@ -251,8 +260,8 @@ public class Bala extends TiledSprite{
             float right = escenario.getCropResolutionPolicy().getRight();
             float top = escenario.getCropResolutionPolicy().getTop();
             float bottom = escenario.getCropResolutionPolicy().getBottom();
-            if (left > getX() || getX() > right
-                    || top < getY() || getY() < bottom
+            if (left - personaje.getWidth() /2 > getX() || getX() > right + personaje.getWidth()/2
+                    || top + personaje.getHeight()/2 < getY() || getY() < bottom
                     || validCollisions()) {
                 inactivar();
             } else {
@@ -277,7 +286,11 @@ public class Bala extends TiledSprite{
         for(Personaje enemigo : enemigos){
             if(enemigo.getState() != Personaje.STATE_Q5){
                 if (validarColision(enemigo)){
-                    if(enemigo.getVida().restarVidaOMorir(20.0f)) {
+                    float restar = 10.0f;
+                    if(enemigo instanceof PersonajeEnemigo){
+                        restar = 25.0f;
+                    }
+                    if(enemigo.getVida().restarVidaOMorir(restar)) {
                         enemigo.setStateQ5();
                     }
                     return true;
