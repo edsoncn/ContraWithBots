@@ -23,6 +23,7 @@ public class CropResolutionPolicy extends BaseResolutionPolicy {
 	private float right; 
 	private float top;
 	private float bottom;
+    private float scaleRatio;
 
 	public CropResolutionPolicy(float pWidth, float pHeight) {
 		desiredWidth = pWidth;
@@ -40,7 +41,6 @@ public class CropResolutionPolicy extends BaseResolutionPolicy {
 		final int measuredHeight = MeasureSpec.getSize(pHeightMeasureSpec);
 		
 		final float desiredRatio = (float) desiredWidth / (float) desiredHeight;
-		float scaleRatio;
 
 		float resultWidth;
 		float resultHeight;
@@ -99,4 +99,7 @@ public class CropResolutionPolicy extends BaseResolutionPolicy {
 	}
 
 
+    public float getScaleRatio() {
+        return scaleRatio;
+    }
 }

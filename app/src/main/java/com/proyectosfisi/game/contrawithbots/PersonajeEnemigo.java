@@ -6,7 +6,7 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 /**
  * Created by edson on 28/04/2015.
  */
-public class PersonajeEnemigo extends Personaje {
+public class PersonajeEnemigo extends PersonajeJugador {
 
     protected float countBullets;
     protected float countMove;
@@ -28,7 +28,7 @@ public class PersonajeEnemigo extends Personaje {
         this.tipo = tipo;
     }
 
-    public void init(){
+    public void initEnemigo(){
         countBullets = (float)(0.0f - tipo * 0.2f - 0.2 * Math.random());
         countMove = 0.0f;
         flagCima = -1;
@@ -37,93 +37,94 @@ public class PersonajeEnemigo extends Personaje {
 
     @Override
     public void init(float relativeX, float relativeY){
+        initEnemigo();
         super.init(relativeX, relativeY);
-        init();
     }
 
     @Override
     protected void onManagedUpdate(final float pSecondsElapsed) {
-        if (getState() != STATE_Q5) {
-            Personaje enemigo = getEnemigos().get(0);
-            countBullets += pSecondsElapsed;
-            if (countBullets > 1.5) {
-                shoot();
-                countBullets = 0;
-            }
-            switch (tipo) {
-                case TIPO_NORMAL:
-                    countMove += pSecondsElapsed;
-                    if (countMove > 0.25) {
-                        if (Math.abs(getRelativeX() - enemigo.getRelativeX()) > destanciaMedia) {
-                            if (getRelativeX() > enemigo.getRelativeX()) {
-                                setAction(ACTION_LEFT);
+        if(!escenario.isPausa()) {
+            if (getState() != STATE_Q5) {
+                Personaje enemigo = getEnemigos().get(0);
+                countBullets += pSecondsElapsed;
+                if (countBullets > 1.5) {
+                    shoot();
+                    countBullets = 0;
+                }
+                switch (tipo) {
+                    case TIPO_NORMAL:
+                        countMove += pSecondsElapsed;
+                        if (countMove > 0.25) {
+                            if (Math.abs(getRelativeX() - enemigo.getRelativeX()) > destanciaMedia) {
+                                if (getRelativeX() > enemigo.getRelativeX()) {
+                                    setAction(ACTION_LEFT);
+                                } else {
+                                    setAction(ACTION_RIGHT);
+                                }
                             } else {
-                                setAction(ACTION_RIGHT);
+                                setAction(-ACTION_LEFT);
+                                setAction(-ACTION_RIGHT);
                             }
-                        } else {
-                            setAction(-ACTION_LEFT);
-                            setAction(-ACTION_RIGHT);
+                            countMove = 0;
                         }
-                        countMove = 0;
-                    }
-                    if (getRelativeX() > enemigo.getRelativeX() && getOrientation() == ORIENTATION_RIGHT) {
-                        setAction(ACTION_LEFT);
-                        setAction(-ACTION_LEFT);
-                    }
-                    if (getRelativeX() < enemigo.getRelativeX() && getOrientation() == ORIENTATION_LEFT) {
-                        setAction(ACTION_RIGHT);
-                        setAction(-ACTION_RIGHT);
-                    }
-                    break;
-                case TIPO_AGACHADO:
-                    if(validarEnDentroDeEscena()) {
                         if (getRelativeX() > enemigo.getRelativeX() && getOrientation() == ORIENTATION_RIGHT) {
-                            setOrientation(ORIENTATION_LEFT);
-                            actionDown = false;
-                            setAction(ACTION_DOWN);
+                            setAction(ACTION_LEFT);
+                            setAction(-ACTION_LEFT);
                         }
                         if (getRelativeX() < enemigo.getRelativeX() && getOrientation() == ORIENTATION_LEFT) {
-                            setOrientation(ORIENTATION_RIGHT);
-                            actionDown = false;
+                            setAction(ACTION_RIGHT);
+                            setAction(-ACTION_RIGHT);
+                        }
+                        break;
+                    case TIPO_AGACHADO:
+                        if (validarEnDentroDeEscena()) {
+                            if (getRelativeX() > enemigo.getRelativeX() && getOrientation() == ORIENTATION_RIGHT) {
+                                setOrientation(ORIENTATION_LEFT);
+                                actionDown = false;
+                                setAction(ACTION_DOWN);
+                            }
+                            if (getRelativeX() < enemigo.getRelativeX() && getOrientation() == ORIENTATION_LEFT) {
+                                setOrientation(ORIENTATION_RIGHT);
+                                actionDown = false;
+                                setAction(ACTION_DOWN);
+                            }
                             setAction(ACTION_DOWN);
                         }
-                        setAction(ACTION_DOWN);
-                    }
-                    break;
-                case TIPO_CIMA:
-                    if(validarEnDentroDeEscena()) {
-                        float dx = enemigo.getRelativeX() - getRelativeX();
-                        float dy = enemigo.getRelativeY() - getRelativeY();
-                        float adx = Math.abs(dx);
-                        float ady = Math.abs(dy);
-                        float tanPi8 = (float) Math.tan(Math.PI / 8);
-                        float tan3Pi8 = (float) Math.tan((3 * Math.PI) / 8);
-                        float tan = ady / adx;
-                        int aux = flagCima;
-                        if (getWidth() / 2 > adx && adx >= 0 && getHeight() / 2 > ady && ady >= 0) {
-                            cimaDispararLeftRight(dx);
-                        } else if (adx == 0) {
-                            cimaDispararUpdown(dy);
-                        } else {
-                            if (tan <= tanPi8) {
+                        break;
+                    case TIPO_CIMA:
+                        if (validarEnDentroDeEscena()) {
+                            float dx = enemigo.getRelativeX() - getRelativeX();
+                            float dy = enemigo.getRelativeY() - getRelativeY();
+                            float adx = Math.abs(dx);
+                            float ady = Math.abs(dy);
+                            float tanPi8 = (float) Math.tan(Math.PI / 8);
+                            float tan3Pi8 = (float) Math.tan((3 * Math.PI) / 8);
+                            float tan = ady / adx;
+                            int aux = flagCima;
+                            if (getWidth() / 2 > adx && adx >= 0 && getHeight() / 2 > ady && ady >= 0) {
                                 cimaDispararLeftRight(dx);
-                            } else if (tan <= tan3Pi8) {
-                                cimaDispararLeftRightUpDown(dx, dy);
-                            } else {
+                            } else if (adx == 0) {
                                 cimaDispararUpdown(dy);
+                            } else {
+                                if (tan <= tanPi8) {
+                                    cimaDispararLeftRight(dx);
+                                } else if (tan <= tan3Pi8) {
+                                    cimaDispararLeftRightUpDown(dx, dy);
+                                } else {
+                                    cimaDispararUpdown(dy);
+                                }
                             }
                         }
-                    }
-                    break;
+                        break;
+                }
             }
+            super.onManagedUpdate(pSecondsElapsed);
         }
-        super.onManagedUpdate(pSecondsElapsed);
     }
 
     private boolean validarEnDentroDeEscena(){
         float right = escenario.getCropResolutionPolicy().getRight();
         float left = escenario.getCropResolutionPolicy().getLeft();
-
         return left - getWidth()/2 < getX() && getX() < right + getWidth()/2;
     }
 
@@ -253,14 +254,15 @@ public class PersonajeEnemigo extends Personaje {
         if(tipo == TIPO_NORMAL){
             float right = escenario.getCropResolutionPolicy().getRight();
             float left = escenario.getCropResolutionPolicy().getLeft();
+            float ancho = right - left;
             float backLayerX = escenario.getParallaxLayerBackSprite().getX();
             float backLayerW = escenario.getParallaxLayerBackSprite().getWidth();
 
-            if((left - backLayerX) + (5 * (right - left) / 2) < backLayerW) {
+            if((left - backLayerX) + (5.5f * ancho / 2) < backLayerW) {
                 if (Math.random() >= 0.5) {
-                    init((left - backLayerX) + (-3.5f * (right - left) / 2), 0);
+                    init((left - backLayerX) + (-3.5f * ancho / 2), 0);
                 } else {
-                    init((left - backLayerX) + (5.5f * (right - left) / 2), 0);
+                    init((left - backLayerX) + (5.5f * ancho / 2), 0);
                 }
             }
         }

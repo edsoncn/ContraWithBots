@@ -30,9 +30,14 @@ public class Vida extends Rectangle{
         vidaRestante.setAlpha(ALFA);
         layaut.attachChild(vidaRestante);
 
+        anchoInicial = pWidth;
+    }
+
+    public void init(){
         vida = VIDA_DEFAULT;
         vidaInicial = vida;
-        anchoInicial = pWidth;
+        vidaRestante.setWidth(anchoInicial);
+        setVisible(true);
     }
 
     public boolean restarVidaOMorir(float danio){

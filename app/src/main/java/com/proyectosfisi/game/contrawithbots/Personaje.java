@@ -43,12 +43,11 @@ public class Personaje extends AnimatedSprite {
     protected boolean actionJump;
     protected boolean actionDie;
     protected boolean actionCayendo;
-    
+
     protected boolean flagDead;
     protected float countDead;
     protected float countDead2;
 
-    protected int selectBoton;
     protected int orientation;
     protected int state;
 
@@ -61,11 +60,13 @@ public class Personaje extends AnimatedSprite {
     protected TiledTextureRegion mBulletTextureRegion; // Textura de la bala
 
     protected boolean moveLayerBackSprite;
-    protected int activePointerID;
     protected int pisoEscalon;
 
     protected Vida vida;
     protected ArrayList<Personaje> enemigos;
+
+    protected float relativeXInicial;
+    protected float relativeYInicial;
 
     public Personaje(Escenario escenario, float relativeX, float relativeY, final TiledTextureRegion pTextureRegion, final TiledTextureRegion mBulletTextureRegion, final VertexBufferObjectManager pVertexBufferObjectManager) {
         super(0, 0, pTextureRegion, pVertexBufferObjectManager);
@@ -75,14 +76,19 @@ public class Personaje extends AnimatedSprite {
         moveLayerBackSprite = false;
 
         enemigos = null;
+        vida = new Vida(escenario.getLayerPlayer(), getX(), getY(), getWidth(), getVertexBufferObjectManager());
 
+        relativeXInicial = relativeX;
+        relativeYInicial = relativeY;
         init(relativeX, relativeY);
 
     }
 
-    public void init(float relativeX, float relativeY){
-        vida = new Vida(escenario.getLayerPlayer(), getX(), getY(), getWidth(), getVertexBufferObjectManager());
+    public void init(){
+        init(relativeXInicial, relativeYInicial);
+    }
 
+    public void init(float relativeX, float relativeY){
         setRelativeX(relativeX);
         setRelativeY(relativeY);
         setVelocityX(0);
@@ -92,12 +98,10 @@ public class Personaje extends AnimatedSprite {
         setStateQ0();
         pisoEscalon = -1;
 
-        initSelectBoton();
         initFlagsAndCounts();
 
-        activePointerID = TouchEvent.INVALID_POINTER_ID;
         setAlpha(1.0f);
-
+        vida.init();
     }
 
     public synchronized void setAction(int action){
@@ -202,8 +206,16 @@ public class Personaje extends AnimatedSprite {
                             setStateQ0();
                             break;
                         case ACTION_JUMP:
-                            setStateQ1();
-                            setVelocityY(VELOCITY_Y);
+                            pisoEscalon = escenario.tocoPisoOEscalon(this);
+                            if(pisoEscalon <= 0) {
+                                setStateQ1();
+                                setVelocityY(VELOCITY_Y);
+                            }else{
+                                setVelocityY(getVelocityY() + GRAVEDAD);
+                                setRelativeY(getRelativeY() + getVelocityY());
+                                actionCayendo = false;
+                                setStateQ6();
+                            }
                             break;
                     }
                     break;
@@ -293,127 +305,129 @@ public class Personaje extends AnimatedSprite {
 
     @Override
     protected void onManagedUpdate(final float pSecondsElapsed) {
-        switch (state){
-            case STATE_Q1:
-                pisoEscalon = escenario.tocoPisoOEscalon(this);
-                if(pisoEscalon < 0) {
-                    setRelativeY(getRelativeY() + getVelocityY());
-                    setVelocityY(getVelocityY() + GRAVEDAD);
-                }else{
-                    if(pisoEscalon == 0) {
-                        setRelativeY(0.0f);
-                    }else{
-                        setRelativeY(Escenario.ESCALONES_ALTO[pisoEscalon - 1]);
-                    }
-                    setVelocityY(0.0f);
-                    actionJump = false;
-                    state = STATE_Q0;
-                    if(actionLeft){
-                        actionLeft = false;
-                        setAction(ACTION_LEFT);
-                    }else if(actionRight){
-                        actionRight = false;
-                        setAction(ACTION_RIGHT);
-                    }else if(actionUp){
-                        actionUp = false;
-                        setAction(ACTION_UP);
-                    }else if(actionDown) {
-                        actionDown = false;
-                        setAction(ACTION_DOWN);
-                    }else{
-                        setStateQ0();
-                    }
-                }
-                break;
-            case STATE_Q5:
-                if(!flagDead) {
-                    int escalon = escenario.tocoPisoOEscalon(this);
-                    if (escalon >= 0) { // Validamos que toco el piso
-                        if(escalon > 0) {
-                            setRelativeY(Escenario.ESCALONES_ALTO[escalon-1]);
-                        }else{
-                            setRelativeY(0);
-                        }
-                        setVelocityX(0);
-                        setVelocityY(0);
-                        flagDead = true;
-                        if(getOrientation() == ORIENTATION_LEFT){
-                            stopAnimation(66);
-                        }else{
-                            stopAnimation(77);
-                        }
-                    } else {
-                        if(countDead >= 0.2){
-                            if(getOrientation() == ORIENTATION_LEFT){
-                                animate(new long[]{FRAME_TIME, FRAME_TIME, FRAME_TIME, FRAME_TIME}, new int[]{70, 69, 68, 67}, true);
-                            }else{
-                                animate(new long[]{FRAME_TIME, FRAME_TIME, FRAME_TIME, FRAME_TIME}, 73, 76, true);
-                            }
-                            countDead = -1;
-                            vida.setVisible(false);
-                        }else if(countDead >= 0){
-                            countDead+=pSecondsElapsed;
-                        }
+        if(!escenario.isPausa()) {
+            switch (state) {
+                case STATE_Q1:
+                    pisoEscalon = escenario.tocoPisoOEscalon(this);
+                    if (pisoEscalon < 0) {
                         setRelativeY(getRelativeY() + getVelocityY());
                         setVelocityY(getVelocityY() + GRAVEDAD);
-                    }
-                }else{
-                    if(countDead2 >= 1.5) {
-                        countDead2 = -1;
-                        setAlpha(0.0f);
-                        despuesDeMorir();
-                    }else if(countDead2 >= 0){
-                        float frac = 1.5f/15;
-                        int multiplo = (int)(10*(countDead2 / frac));
-                        if(multiplo % 2 == 0){
-                            setAlpha(0.75f);
-                        }else{
-                            setAlpha(0.25f);
-                        }
-                        countDead2 += pSecondsElapsed;
-                    }
-                }
-                break;
-            default:
-                int pisoEscalonAux = escenario.tocoPisoOEscalon(this);
-                if(pisoEscalonAux == -2){
-                    if(pisoEscalon != pisoEscalonAux) {
-                        setStateQ6();
-                    }
-                    setRelativeY(getRelativeY() + getVelocityY());
-                    setVelocityY(getVelocityY() + GRAVEDAD);
-                }else if(pisoEscalonAux >= 0){
-                    if(pisoEscalon != pisoEscalonAux) {
-                        if (pisoEscalonAux == 0) {
+                    } else {
+                        if (pisoEscalon == 0) {
                             setRelativeY(0.0f);
                         } else {
-                            setRelativeY(Escenario.ESCALONES_ALTO[pisoEscalonAux - 1]);
+                            setRelativeY(Escenario.ESCALONES_ALTO[pisoEscalon - 1]);
                         }
                         setVelocityY(0.0f);
-                        actionCayendo = false;
+                        actionJump = false;
                         state = STATE_Q0;
-                        if(actionLeft){
+                        if (actionLeft) {
                             actionLeft = false;
                             setAction(ACTION_LEFT);
-                        }else if(actionRight){
+                        } else if (actionRight) {
                             actionRight = false;
                             setAction(ACTION_RIGHT);
-                        }else if(actionUp){
+                        } else if (actionUp) {
                             actionUp = false;
                             setAction(ACTION_UP);
-                        }else if(actionDown) {
+                        } else if (actionDown) {
                             actionDown = false;
                             setAction(ACTION_DOWN);
-                        }else{
+                        } else {
                             setStateQ0();
                         }
                     }
-                }
-                pisoEscalon = pisoEscalonAux;
-                break;
+                    break;
+                case STATE_Q5:
+                    if (!flagDead) {
+                        int escalon = escenario.tocoPisoOEscalon(this);
+                        if (escalon >= 0) { // Validamos que toco el piso
+                            if (escalon > 0) {
+                                setRelativeY(Escenario.ESCALONES_ALTO[escalon - 1]);
+                            } else {
+                                setRelativeY(0);
+                            }
+                            setVelocityX(0);
+                            setVelocityY(0);
+                            flagDead = true;
+                            if (getOrientation() == ORIENTATION_LEFT) {
+                                stopAnimation(66);
+                            } else {
+                                stopAnimation(77);
+                            }
+                        } else {
+                            if (countDead >= 0.2) {
+                                if (getOrientation() == ORIENTATION_LEFT) {
+                                    animate(new long[]{FRAME_TIME, FRAME_TIME, FRAME_TIME, FRAME_TIME}, new int[]{70, 69, 68, 67}, true);
+                                } else {
+                                    animate(new long[]{FRAME_TIME, FRAME_TIME, FRAME_TIME, FRAME_TIME}, 73, 76, true);
+                                }
+                                countDead = -1;
+                                vida.setVisible(false);
+                            } else if (countDead >= 0) {
+                                countDead += pSecondsElapsed;
+                            }
+                            setRelativeY(getRelativeY() + getVelocityY());
+                            setVelocityY(getVelocityY() + GRAVEDAD);
+                        }
+                    } else {
+                        if (countDead2 >= 1.5) {
+                            countDead2 = -1;
+                            setAlpha(0.0f);
+                            despuesDeMorir();
+                        } else if (countDead2 >= 0) {
+                            float frac = 1.5f / 15;
+                            int multiplo = (int) (10 * (countDead2 / frac));
+                            if (multiplo % 2 == 0) {
+                                setAlpha(0.75f);
+                            } else {
+                                setAlpha(0.25f);
+                            }
+                            countDead2 += pSecondsElapsed;
+                        }
+                    }
+                    break;
+                default:
+                    int pisoEscalonAux = escenario.tocoPisoOEscalon(this);
+                    if (pisoEscalonAux == -2) {
+                        if (pisoEscalon != pisoEscalonAux) {
+                            setStateQ6();
+                        }
+                        setRelativeY(getRelativeY() + getVelocityY());
+                        setVelocityY(getVelocityY() + GRAVEDAD);
+                    } else if (pisoEscalonAux >= 0) {
+                        if (pisoEscalon != pisoEscalonAux) {
+                            if (pisoEscalonAux == 0) {
+                                setRelativeY(0.0f);
+                            } else {
+                                setRelativeY(Escenario.ESCALONES_ALTO[pisoEscalonAux - 1]);
+                            }
+                            setVelocityY(0.0f);
+                            actionCayendo = false;
+                            state = STATE_Q0;
+                            if (actionLeft) {
+                                actionLeft = false;
+                                setAction(ACTION_LEFT);
+                            } else if (actionRight) {
+                                actionRight = false;
+                                setAction(ACTION_RIGHT);
+                            } else if (actionUp) {
+                                actionUp = false;
+                                setAction(ACTION_UP);
+                            } else if (actionDown) {
+                                actionDown = false;
+                                setAction(ACTION_DOWN);
+                            } else {
+                                setStateQ0();
+                            }
+                        }
+                    }
+                    pisoEscalon = pisoEscalonAux;
+                    break;
+            }
+            updateLeftRight();
+            super.onManagedUpdate(pSecondsElapsed);
         }
-        updateLeftRight();
-        super.onManagedUpdate(pSecondsElapsed);
     }
 
     public void resetActionsAndStates(){
@@ -436,7 +450,6 @@ public class Personaje extends AnimatedSprite {
                 }
                 break;
         }
-        activePointerID = TouchEvent.INVALID_POINTER_ID;
     }
 
     public void setStateQ0(){
@@ -548,8 +561,8 @@ public class Personaje extends AnimatedSprite {
             state = STATE_Q6;
             switch (orientation) {
                 case ORIENTATION_LEFT:
-                    setVelocityX(-VELOCITY_X);
                     if(actionLeft){
+                        setVelocityX(-VELOCITY_X);
                         if(actionUp){
                             stopAnimation(50);
                         }else if(actionDown){
@@ -568,8 +581,8 @@ public class Personaje extends AnimatedSprite {
                     }
                     break;
                 case ORIENTATION_RIGHT:
-                    setVelocityX(VELOCITY_X);
                     if(actionRight){
+                        setVelocityX(VELOCITY_X);
                         if(actionUp){
                             stopAnimation(61);
                         }else if(actionDown){
@@ -595,29 +608,39 @@ public class Personaje extends AnimatedSprite {
     protected void updateLeftRight(){
         if(getVelocityX() != 0){
             if(moveLayerBackSprite) {
-                float left = escenario.getCropResolutionPolicy().getLeft();
-                float right = escenario.getCropResolutionPolicy().getRight();
-                float anchoEscena = escenario.getParallaxLayerBackSprite().getWidth();
-                float velocityX = getVelocityX();
-                if(getX() + getVelocityX() <= left + getWidth()/2){ // Aseguramos que el personaje no salga de la escena por la izquierda
-                    velocityX = left + getWidth()/2 - getX() - getVelocityX();
-                }else if(getRelativeX() + getVelocityX() >= anchoEscena - Escenario.ESCENARIO_PAGGING_RIGHT - getWidth()/2){/// y por la derecha de la pantalla
-                    velocityX = anchoEscena - Escenario.ESCENARIO_PAGGING_RIGHT - getWidth()/2 - getRelativeX() - getVelocityX();
-                }
-                setRelativeX(getRelativeX() + velocityX);
-                if(velocityX > 0) {
-                    if (getRelativeX() > anchoEscena - (right - left) / 2) {
-                        escenario.getParallaxLayerBackSprite().setX(right - anchoEscena);
-                    } else if(getX() > (left+right) /2){
-                        escenario.getParallaxLayerBackSprite().setX((left + right) / 2 - getRelativeX());
-                    }
-                }
+                moverEscenaRespectoPersonaje();
             }else{
                 setRelativeX(getRelativeX() + getVelocityX());
             }
         }else{
             setRelativeX(getRelativeX());
         }
+    }
+
+    public void moverEscenaRespectoPersonaje(){
+        float left = escenario.getCropResolutionPolicy().getLeft();
+        float right = escenario.getCropResolutionPolicy().getRight();
+        float anchoEscena = escenario.getParallaxLayerBackSprite().getWidth();
+        float velocityX = getVelocityX();
+        if(getX() + getVelocityX() <= left + getWidth()/2){ // Aseguramos que el personaje no salga de la escena por la izquierda
+            velocityX = left + getWidth()/2 - getX() - getVelocityX();
+        }else if(getRelativeX() + getVelocityX() >= anchoEscena - Escenario.ESCENARIO_PAGGING_RIGHT - getWidth()/2){/// y por la derecha de la pantalla
+            velocityX = anchoEscena - Escenario.ESCENARIO_PAGGING_RIGHT - getWidth()/2 - getRelativeX() - getVelocityX();
+        }
+        setRelativeX(getRelativeX() + velocityX);
+        if(velocityX > 0) {
+            if (getRelativeX() > anchoEscena - (right - left) / 2) {
+                escenario.getParallaxLayerBackSprite().setX(right - anchoEscena);
+            } else if(getX() > (left+right) /2){
+                escenario.getParallaxLayerBackSprite().setX((left + right) / 2 - getRelativeX());
+            }
+        }
+    }
+
+    public void centrarEscenaAPersonaje(){
+        float left = escenario.getCropResolutionPolicy().getLeft();
+        float right = escenario.getCropResolutionPolicy().getRight();
+        escenario.getParallaxLayerBackSprite().setX(escenario.getParallaxLayerBackSprite().getX() + (left + right) / 2 - getX());
     }
 
     public void resetActions(){
@@ -638,143 +661,10 @@ public class Personaje extends AnimatedSprite {
         actionUp = false;
     }
 
-    public void initSelectBoton(){
-        selectBoton = -1;
-    }
-
     public void initFlagsAndCounts(){
         flagDead = false;
         countDead = 0;
         countDead2 = 0;
-    }
-    public synchronized void setAction(int action, TouchEvent touchEvent){
-        if(touchEvent.isActionDown() || touchEvent.isActionMove()){
-            activePointerID = touchEvent.getPointerID();
-            setAction(action);
-        } else if (touchEvent.isActionUp() || touchEvent.isActionOutside()){
-            setAction(-action);
-            activePointerID = TouchEvent.INVALID_POINTER_ID;
-            selectBoton = -1;
-        }
-    }
-
-    public synchronized void setAction(TouchEvent touchEvent, float x, float y, float width, float height){
-        if(touchEvent.getPointerID() != touchEvent.getPointerID()){
-            return;
-        }
-        int div = 3;
-        float m = width / div;
-        float n = height / div;
-        int i = (int)(x / m);
-        int j = (int)(y / n);
-        int selectBotonAux = i + div * j;
-        switch (selectBotonAux){
-            case 0: case 1: case 2: case 3: case 5: case 6: case 7: case 8:
-                break;
-            default:
-                selectBotonAux = -1;
-                break;
-        }
-        if(selectBoton < 0) {
-            if(selectBotonAux != -1) {
-                if (touchEvent.isActionDown() || touchEvent.isActionMove()) {
-                    pressBoton(selectBotonAux);
-                    activePointerID = touchEvent.getPointerID();
-                }
-            }else{
-                resetActionsAndStates();
-            }
-            selectBoton = selectBotonAux;
-        }else if(selectBoton >= 0){
-            if(selectBotonAux != -1) {
-                if (selectBoton == selectBotonAux) {
-                    if (touchEvent.isActionUp() || touchEvent.isActionOutside()) {
-                        unpressBoton(selectBoton);
-                        activePointerID = TouchEvent.INVALID_POINTER_ID;
-                        selectBoton = -1;
-                    }
-                } else {
-                    if (touchEvent.isActionMove()) {
-                        unpressBoton(selectBoton);
-                        pressBoton(selectBotonAux);
-                        selectBoton = selectBotonAux;
-                        activePointerID = touchEvent.getPointerID();
-                    }
-                }
-            }else{
-                if (touchEvent.isActionMove()) {
-                    unpressBoton(selectBoton);
-                    activePointerID = TouchEvent.INVALID_POINTER_ID;
-                    selectBoton = -1;
-                }
-            }
-        }
-    }
-
-    public void pressBoton(int selectBotonAux){
-        switch (selectBotonAux) {
-            case 0:
-                setAction(ACTION_LEFT);
-                setAction(ACTION_DOWN);
-                break;
-            case 1:
-                setAction(ACTION_DOWN);
-                break;
-            case 2:
-                setAction(ACTION_RIGHT);
-                setAction(ACTION_DOWN);
-                break;
-            case 3:
-                setAction(ACTION_LEFT);
-                break;
-            case 5:
-                setAction(ACTION_RIGHT);
-                break;
-            case 6:
-                setAction(ACTION_LEFT);
-                setAction(ACTION_UP);
-                break;
-            case 7:
-                setAction(ACTION_UP);
-                break;
-            case 8:
-                setAction(ACTION_RIGHT);
-                setAction(ACTION_UP);
-                break;
-        }
-    }
-
-    public void unpressBoton(int selectBotonAux){
-        switch (selectBotonAux) {
-            case 0:
-                setAction(-ACTION_LEFT);
-                setAction(-ACTION_DOWN);
-                break;
-            case 1:
-                setAction(-ACTION_DOWN);
-                break;
-            case 2:
-                setAction(-ACTION_RIGHT);
-                setAction(-ACTION_DOWN);
-                break;
-            case 3:
-                setAction(-ACTION_LEFT);
-                break;
-            case 5:
-                setAction(-ACTION_RIGHT);
-                break;
-            case 6:
-                setAction(-ACTION_LEFT);
-                setAction(-ACTION_UP);
-                break;
-            case 7:
-                setAction(-ACTION_UP);
-                break;
-            case 8:
-                setAction(-ACTION_RIGHT);
-                setAction(-ACTION_UP);
-                break;
-        }
     }
 
     protected void despuesDeMorir(){
@@ -845,14 +735,6 @@ public class Personaje extends AnimatedSprite {
         vida.actualizarPosicionY(getY() + getHeight() / 2);
     }
 
-    public int getActivePointerID() {
-        return activePointerID;
-    }
-
-    public void setActivePointerID(int activePointerID) {
-        this.activePointerID = activePointerID;
-    }
-
     public float getVelocityY() {
         return velocityY;
     }
@@ -867,10 +749,6 @@ public class Personaje extends AnimatedSprite {
 
     public void setVelocityX(float velocityX) {
         this.velocityX = velocityX;
-    }
-
-    public boolean isMoveLayerBackSprite() {
-        return moveLayerBackSprite;
     }
 
     public void setMoveLayerBackSprite(boolean moveLayerBackSprite) {

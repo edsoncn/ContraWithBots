@@ -1,5 +1,6 @@
 package com.proyectosfisi.game.contrawithbots;
 
+import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.options.resolutionpolicy.CropResolutionPolicy;
 import org.andengine.entity.Entity;
 import org.andengine.entity.scene.Scene;
@@ -16,7 +17,7 @@ public class Escenario {
 
     public static final int CAMARA_ANCHO = 1024;
     public static final int CAMARA_ALTO = 256;
-    public static final float MANDO_PADDING = 4;
+    public static final float MANDO_PADDING = 6;
     public static final float ESCENARIO_PAGGING_RIGHT = 58;
 
     protected CropResolutionPolicy cropResolutionPolicy;
@@ -25,8 +26,11 @@ public class Escenario {
     protected Sprite parallaxLayerBackSprite;
     protected Entity layerPlayer;
     protected Entity layerBullets;
+    protected HUD hud;
     
-    protected Personaje jugador;
+    protected PersonajeJugador jugador;;
+    protected Intro intro;
+    protected Controles controles;
     protected BotFactory botFactory;
     protected boolean pausa;
 
@@ -46,7 +50,7 @@ public class Escenario {
         scene.setBackground(autoParallaxBackground);
 
         // Fondo
-        parallaxLayerBackSprite = new Sprite(cropResolutionPolicy.getLeft(), 0, mParallaxLayerBackTextureRegion, vertexBufferObjectManager);
+        parallaxLayerBackSprite = new Sprite(cropResolutionPolicy.getLeft(), cropResolutionPolicy.getBottom(), mParallaxLayerBackTextureRegion, vertexBufferObjectManager);
         parallaxLayerBackSprite.setOffsetCenter(0, 0);
         autoParallaxBackground.attachParallaxEntity(new ParallaxBackground.ParallaxEntity(0.0f, parallaxLayerBackSprite));
 
@@ -99,11 +103,11 @@ public class Escenario {
         return parallaxLayerBackSprite;
     }
 
-    public Personaje getJugador() {
+    public PersonajeJugador getJugador() {
         return jugador;
     }
 
-    public void setJugador(Personaje jugador) {
+    public void setJugador(PersonajeJugador jugador) {
         this.jugador = jugador;
     }
 
@@ -119,7 +123,31 @@ public class Escenario {
         return pausa;
     }
 
-    public void setPausa(boolean pausa) {
+    public synchronized void setPausa(boolean pausa) {
         this.pausa = pausa;
+    }
+
+    public HUD getHud() {
+        return hud;
+    }
+
+    public void setHud(HUD hud) {
+        this.hud = hud;
+    }
+
+    public Intro getIntro() {
+        return intro;
+    }
+
+    public void setIntro(Intro intro) {
+        this.intro = intro;
+    }
+
+    public Controles getControles() {
+        return controles;
+    }
+
+    public void setControles(Controles controles) {
+        this.controles = controles;
     }
 }

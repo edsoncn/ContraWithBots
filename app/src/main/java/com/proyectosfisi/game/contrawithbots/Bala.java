@@ -1,13 +1,9 @@
 package com.proyectosfisi.game.contrawithbots;
 
-import android.widget.BaseExpandableListAdapter;
-
-import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.entity.sprite.TiledSprite;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
-import org.andengine.util.adt.color.Color;
 
 import java.util.ArrayList;
 
@@ -124,7 +120,7 @@ public class Bala extends TiledSprite{
                 }
                 break;
             case Personaje.STATE_Q3: // Down
-                if(personaje instanceof PersonajeEnemigo && ((PersonajeEnemigo)personaje).getTipo() == PersonajeEnemigo.TIPO_CIMA){
+                if(personaje instanceof PersonajeEnemigo && ((PersonajeEnemigo) personaje).getTipo() == PersonajeEnemigo.TIPO_CIMA){
                     pi = 1;
                 }else {
                     pi = 2;
@@ -144,7 +140,7 @@ public class Bala extends TiledSprite{
         switch (personaje.getState()){
             case Personaje.STATE_Q0:
                 velocityY = 0.0f;
-                if(personaje.getOrientation() == Personaje.ORIENTATION_LEFT){
+                if(personaje.getOrientation() == personaje.ORIENTATION_LEFT){
                     velocityX = -VELOCITY_X;
                 }else {
                     velocityX = VELOCITY_X;
@@ -163,7 +159,7 @@ public class Bala extends TiledSprite{
                     velocityY = -VELOCITY_Y;
                 }else{
                     velocityY = 0.0f;
-                    if(personaje.getOrientation() == Personaje.ORIENTATION_LEFT){
+                    if(personaje.getOrientation() == personaje.ORIENTATION_LEFT){
                         velocityX = -VELOCITY_X;
                     }else {
                         velocityX = VELOCITY_X;
@@ -188,7 +184,7 @@ public class Bala extends TiledSprite{
                 }else{
                     pi = 0;
                     velocityY = 0.0f;
-                    if(personaje.getOrientation() == Personaje.ORIENTATION_LEFT){
+                    if(personaje.getOrientation() == personaje.ORIENTATION_LEFT){
                         velocityX = -VELOCITY_X;
                     }else {
                         velocityX = VELOCITY_X;
@@ -211,19 +207,19 @@ public class Bala extends TiledSprite{
                     pi = 0;
                     velocityY = 0.0f;
                 }
-                if(personaje.getOrientation() == Personaje.ORIENTATION_LEFT){
+                if(personaje.getOrientation() == personaje.ORIENTATION_LEFT){
                     velocityX = -VELOCITY_X;
                 }else {
                     velocityX = VELOCITY_X;
                 }
                 break;
             case Personaje.STATE_Q3: // Down
-                if(personaje instanceof PersonajeEnemigo && ((PersonajeEnemigo)personaje).tipo == PersonajeEnemigo.TIPO_CIMA){
+                if(personaje instanceof PersonajeEnemigo && ((PersonajeEnemigo) personaje).tipo == PersonajeEnemigo.TIPO_CIMA){
                     pi = 6;
                     velocityY = -VELOCITY_Y;
                 }else {
                     pi = 2;
-                    if (personaje.getOrientation() == Personaje.ORIENTATION_LEFT) {
+                    if (personaje.getOrientation() == personaje.ORIENTATION_LEFT) {
                         velocityX = -VELOCITY_X;
                     } else {
                         velocityX = VELOCITY_X;
@@ -238,7 +234,7 @@ public class Bala extends TiledSprite{
                 break;
         }
         float[] position = new float[4];
-        if(personaje.getOrientation() == Personaje.ORIENTATION_LEFT){
+        if(personaje.getOrientation() == personaje.ORIENTATION_LEFT){
             position[0] = -MOVING_X[pi];
         }else{
             position[0] = MOVING_X[pi];
@@ -246,7 +242,7 @@ public class Bala extends TiledSprite{
         position[1] = MOVING_Y[pi];
         position[2] = velocityX;
         position[3] = velocityY;
-        if(personaje.getState() == Personaje.STATE_Q1){
+        if(personaje.getState() == personaje.STATE_Q1){
             position[0] += (velocityX != 0 ? (-velocityX/Math.abs(velocityX)) : 0) * MOVING_Y[pi];
             position[1] += (velocityY != 0 ? (-velocityY/Math.abs(velocityY)) : 0) * MOVING_Y[pi];
         }
@@ -255,30 +251,35 @@ public class Bala extends TiledSprite{
 
     @Override
     protected void onManagedUpdate(final float pSecondsElapsed) {
-        if(active) {
-            float left = escenario.getCropResolutionPolicy().getLeft();
-            float right = escenario.getCropResolutionPolicy().getRight();
-            float top = escenario.getCropResolutionPolicy().getTop();
-            float bottom = escenario.getCropResolutionPolicy().getBottom();
-            if (left - personaje.getWidth() /2 > getX() || getX() > right + personaje.getWidth()/2
-                    || top + personaje.getHeight()/2 < getY() || getY() < bottom
-                    || validCollisions()) {
-                inactivar();
-            } else {
-                setRelativeX(getRelativeX() + velocityX);
-                setRelativeY(getRelativeY() + velocityY);
-                if(chispa != null){
-                    if(countChispa > 0.05f){
-                        chispa.setVisible(false);
-                    }else {
-                        float[] position = initPositionsAndVelocity(personaje);
-                        chispa.setX(personaje.getX() + position[0]);
-                        chispa.setY(personaje.getY() + position[1]);
-                        countChispa += pSecondsElapsed;
+        if(!escenario.isPausa()) {
+            if (active) {
+                float left = escenario.getCropResolutionPolicy().getLeft();
+                float right = escenario.getCropResolutionPolicy().getRight();
+                float top = escenario.getCropResolutionPolicy().getTop();
+                float bottom = escenario.getCropResolutionPolicy().getBottom();
+                if (left - personaje.getWidth() / 2 > getX() || getX() > right + personaje.getWidth() / 2
+                        || top + personaje.getHeight() / 2 < getY() || getY() < bottom
+                        || validCollisions()) {
+                    inactivar();
+                } else {
+                    setRelativeX(getRelativeX() + velocityX);
+                    setRelativeY(getRelativeY() + velocityY);
+                    if (chispa != null) {
+                        if (countChispa > 0.05f) {
+                            chispa.setVisible(false);
+                        } else {
+                            float[] position = initPositionsAndVelocity(personaje);
+                            chispa.setX(personaje.getX() + position[0]);
+                            chispa.setY(personaje.getY() + position[1]);
+                            countChispa += pSecondsElapsed;
+                            chispa.setIgnoreUpdate(false);
+                        }
                     }
+                    super.onManagedUpdate(pSecondsElapsed);
                 }
-                super.onManagedUpdate(pSecondsElapsed);
             }
+        }else{
+            chispa.setIgnoreUpdate(true);
         }
     }
 
