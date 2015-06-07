@@ -16,14 +16,18 @@ import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.util.FPSLogger;
 import org.andengine.input.touch.TouchEvent;
+import org.andengine.opengl.font.Font;
+import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.texture.ITexture;
 import org.andengine.opengl.texture.TextureOptions;
+import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.bitmap.AssetBitmapTexture;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.TextureRegionFactory;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
+import org.andengine.util.adt.color.Color;
 
 import java.io.IOException;
 
@@ -71,6 +75,7 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
     protected PersonajeJugador jugador;
     protected Intro intro;
     protected Controles controles;
+    protected Font font;
 
     protected HUD hud;
 
@@ -132,7 +137,7 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
         hud = new HUD();
         escenario.setHud(hud);
         // Touch Area
-        intro = new Intro(escenario, mIntroTituloTextureRegion, mIntroNivel1TextureRegion, mIntroNivel2TextureRegion, mIntroNivel3TextureRegion, getVertexBufferObjectManager());
+        intro = new Intro(escenario, mIntroTituloTextureRegion, mIntroNivel1TextureRegion, mIntroNivel2TextureRegion, mIntroNivel3TextureRegion, font, getVertexBufferObjectManager());
         scene.attachChild(intro);
         escenario.setIntro(intro);
         // Intro
@@ -263,6 +268,9 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
         this.mIntroNivel3TextureRegion = TextureRegionFactory.extractFromTexture(this.mIntroNivel3Texture);
         this.mIntroNivel3Texture.load();
 
+        final ITexture fontTexture = new BitmapTextureAtlas(this.getTextureManager(), 256, 256, TextureOptions.DEFAULT);
+        font = FontFactory.createFromAsset(this.getFontManager(), fontTexture, this.getAssets(), "font/ufonts.com_showcard-gothic.ttf", 36, true, new Color(0.7647f, 0.2157f, 0.0627f).getARGBPackedInt());
+        font.load();
     }
 
     @Override

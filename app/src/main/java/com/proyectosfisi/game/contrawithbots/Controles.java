@@ -253,16 +253,24 @@ public class Controles extends Entity{
 
     public void pausa(){
         escenario.setPausa(true);
-        rFondoPausa.setVisible(true);
+        mostrarFondoPausa();
         ocultarControles();
         mostrarBotonesPausa();
     }
 
     public void reanudar(){
-        rFondoPausa.setVisible(false);
+        ocultarFondoPausa();
         ocultarBotonesPausa();
         mostrarControles();
         escenario.setPausa(false);
+    }
+
+    public void mostrarFondoPausa(){
+        rFondoPausa.setVisible(true);
+    }
+
+    public void ocultarFondoPausa(){
+        rFondoPausa.setVisible(false);
     }
 
     public void mostrarBotonesPausa(){

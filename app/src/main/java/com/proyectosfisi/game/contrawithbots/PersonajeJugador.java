@@ -167,6 +167,11 @@ public class PersonajeJugador extends Personaje {
         }
     }
 
+    @Override
+    protected void despuesDeMorir(){
+        //escenario.getIntro().setStateQ4();
+    }
+
     public int getActivePointerID() {
         return activePointerID;
     }
