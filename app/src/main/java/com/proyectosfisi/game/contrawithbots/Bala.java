@@ -287,7 +287,7 @@ public class Bala extends TiledSprite{
         for(Personaje enemigo : enemigos){
             if(enemigo.getState() != Personaje.STATE_Q5){
                 if (validarColision(enemigo)){
-                    float restar = 10.0f;
+                    float restar = 2.50f;
                     if(enemigo instanceof PersonajeEnemigo){
                         restar = 25.0f;
                     }

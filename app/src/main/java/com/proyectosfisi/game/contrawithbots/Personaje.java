@@ -44,6 +44,8 @@ public class Personaje extends AnimatedSprite {
     protected boolean actionDie;
     protected boolean actionCayendo;
 
+    protected boolean dead;
+
     protected boolean flagDead;
     protected float countDead;
     protected float countDead2;
@@ -59,7 +61,6 @@ public class Personaje extends AnimatedSprite {
     protected Escenario escenario;
     protected TiledTextureRegion mBulletTextureRegion; // Textura de la bala
 
-    protected boolean moveLayerBackSprite;
     protected int pisoEscalon;
 
     protected Vida vida;
@@ -73,7 +74,6 @@ public class Personaje extends AnimatedSprite {
 
         this.escenario = escenario;
         this.mBulletTextureRegion = mBulletTextureRegion;
-        moveLayerBackSprite = false;
 
         enemigos = null;
         vida = new Vida(escenario.getLayerPlayer(), getX(), getY(), getWidth(), getVertexBufferObjectManager());
@@ -81,7 +81,6 @@ public class Personaje extends AnimatedSprite {
         relativeXInicial = relativeX;
         relativeYInicial = relativeY;
         init(relativeX, relativeY);
-
     }
 
     public void init(){
@@ -339,51 +338,54 @@ public class Personaje extends AnimatedSprite {
                     }
                     break;
                 case STATE_Q5:
-                    if (!flagDead) {
-                        int escalon = escenario.tocoPisoOEscalon(this);
-                        if (escalon >= 0) { // Validamos que toco el piso
-                            if (escalon > 0) {
-                                setRelativeY(Escenario.ESCALONES_ALTO[escalon - 1]);
+                    if(!dead) {
+                        if (!flagDead) {
+                            int escalon = escenario.tocoPisoOEscalon(this);
+                            if (escalon >= 0) { // Validamos que toco el piso
+                                if (escalon > 0) {
+                                    setRelativeY(Escenario.ESCALONES_ALTO[escalon - 1]);
+                                } else {
+                                    setRelativeY(0);
+                                }
+                                setVelocityX(0);
+                                setVelocityY(0);
+                                flagDead = true;
+                                if (getOrientation() == ORIENTATION_LEFT) {
+                                    stopAnimation(66);
+                                } else {
+                                    stopAnimation(77);
+                                }
                             } else {
-                                setRelativeY(0);
-                            }
-                            setVelocityX(0);
-                            setVelocityY(0);
-                            flagDead = true;
-                            if (getOrientation() == ORIENTATION_LEFT) {
-                                stopAnimation(66);
-                            } else {
-                                stopAnimation(77);
+                                if (countDead >= 0.2) {
+                                    if (getOrientation() == ORIENTATION_LEFT) {
+                                        animate(new long[]{FRAME_TIME, FRAME_TIME, FRAME_TIME, FRAME_TIME}, new int[]{70, 69, 68, 67}, true);
+                                    } else {
+                                        animate(new long[]{FRAME_TIME, FRAME_TIME, FRAME_TIME, FRAME_TIME}, 73, 76, true);
+                                    }
+                                    countDead = -1;
+                                    vida.setVisible(false);
+                                } else if (countDead >= 0) {
+                                    countDead += pSecondsElapsed;
+                                }
+                                setRelativeY(getRelativeY() + getVelocityY());
+                                setVelocityY(getVelocityY() + GRAVEDAD);
                             }
                         } else {
-                            if (countDead >= 0.2) {
-                                if (getOrientation() == ORIENTATION_LEFT) {
-                                    animate(new long[]{FRAME_TIME, FRAME_TIME, FRAME_TIME, FRAME_TIME}, new int[]{70, 69, 68, 67}, true);
+                            if (countDead2 >= 1.5) {
+                                countDead2 = -1;
+                                setAlpha(0.0f);
+                                dead = true;
+                                despuesDeMorir();
+                            } else if (countDead2 >= 0) {
+                                float frac = 1.5f / 15;
+                                int multiplo = (int) (10 * (countDead2 / frac));
+                                if (multiplo % 2 == 0) {
+                                    setAlpha(0.75f);
                                 } else {
-                                    animate(new long[]{FRAME_TIME, FRAME_TIME, FRAME_TIME, FRAME_TIME}, 73, 76, true);
+                                    setAlpha(0.25f);
                                 }
-                                countDead = -1;
-                                vida.setVisible(false);
-                            } else if (countDead >= 0) {
-                                countDead += pSecondsElapsed;
+                                countDead2 += pSecondsElapsed;
                             }
-                            setRelativeY(getRelativeY() + getVelocityY());
-                            setVelocityY(getVelocityY() + GRAVEDAD);
-                        }
-                    } else {
-                        if (countDead2 >= 1.5) {
-                            countDead2 = -1;
-                            setAlpha(0.0f);
-                            despuesDeMorir();
-                        } else if (countDead2 >= 0) {
-                            float frac = 1.5f / 15;
-                            int multiplo = (int) (10 * (countDead2 / frac));
-                            if (multiplo % 2 == 0) {
-                                setAlpha(0.75f);
-                            } else {
-                                setAlpha(0.25f);
-                            }
-                            countDead2 += pSecondsElapsed;
                         }
                     }
                     break;
@@ -606,41 +608,7 @@ public class Personaje extends AnimatedSprite {
     }
 
     protected void updateLeftRight(){
-        if(getVelocityX() != 0){
-            if(moveLayerBackSprite) {
-                moverEscenaRespectoPersonaje();
-            }else{
-                setRelativeX(getRelativeX() + getVelocityX());
-            }
-        }else{
-            setRelativeX(getRelativeX());
-        }
-    }
-
-    public void moverEscenaRespectoPersonaje(){
-        float left = escenario.getCropResolutionPolicy().getLeft();
-        float right = escenario.getCropResolutionPolicy().getRight();
-        float anchoEscena = escenario.getParallaxLayerBackSprite().getWidth();
-        float velocityX = getVelocityX();
-        if(getX() + getVelocityX() <= left + getWidth()/2){ // Aseguramos que el personaje no salga de la escena por la izquierda
-            velocityX = left + getWidth()/2 - getX() - getVelocityX();
-        }else if(getRelativeX() + getVelocityX() >= anchoEscena - Escenario.ESCENARIO_PAGGING_RIGHT - getWidth()/2){/// y por la derecha de la pantalla
-            velocityX = anchoEscena - Escenario.ESCENARIO_PAGGING_RIGHT - getWidth()/2 - getRelativeX() - getVelocityX();
-        }
-        setRelativeX(getRelativeX() + velocityX);
-        if(velocityX > 0) {
-            if (getRelativeX() > anchoEscena - (right - left) / 2) {
-                escenario.getParallaxLayerBackSprite().setX(right - anchoEscena);
-            } else if(getX() > (left+right) /2){
-                escenario.getParallaxLayerBackSprite().setX((left + right) / 2 - getRelativeX());
-            }
-        }
-    }
-
-    public void centrarEscenaAPersonaje(){
-        float left = escenario.getCropResolutionPolicy().getLeft();
-        float right = escenario.getCropResolutionPolicy().getRight();
-        escenario.getParallaxLayerBackSprite().setX(escenario.getParallaxLayerBackSprite().getX() + (left + right) / 2 - getX());
+        setRelativeX(getRelativeX() + getVelocityX());
     }
 
     public void resetActions(){
@@ -663,6 +631,7 @@ public class Personaje extends AnimatedSprite {
 
     public void initFlagsAndCounts(){
         flagDead = false;
+        dead = false;
         countDead = 0;
         countDead2 = 0;
     }
@@ -751,10 +720,6 @@ public class Personaje extends AnimatedSprite {
         this.velocityX = velocityX;
     }
 
-    public void setMoveLayerBackSprite(boolean moveLayerBackSprite) {
-        this.moveLayerBackSprite = moveLayerBackSprite;
-    }
-
     public int getState() {
         return state;
     }
@@ -809,5 +774,9 @@ public class Personaje extends AnimatedSprite {
 
     public void setEnemigos(ArrayList<Personaje> enemigos) {
         this.enemigos = enemigos;
+    }
+
+    public boolean isDead() {
+        return dead;
     }
 }

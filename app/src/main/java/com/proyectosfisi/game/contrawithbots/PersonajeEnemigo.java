@@ -6,7 +6,7 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 /**
  * Created by edson on 28/04/2015.
  */
-public class PersonajeEnemigo extends PersonajeJugador {
+public class PersonajeEnemigo extends Personaje {
 
     protected float countBullets;
     protected float countMove;
@@ -100,7 +100,6 @@ public class PersonajeEnemigo extends PersonajeJugador {
                             float tanPi8 = (float) Math.tan(Math.PI / 8);
                             float tan3Pi8 = (float) Math.tan((3 * Math.PI) / 8);
                             float tan = ady / adx;
-                            int aux = flagCima;
                             if (getWidth() / 2 > adx && adx >= 0 && getHeight() / 2 > ady && ady >= 0) {
                                 cimaDispararLeftRight(dx);
                             } else if (adx == 0) {

@@ -75,7 +75,8 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
     protected PersonajeJugador jugador;
     protected Intro intro;
     protected Controles controles;
-    protected Font font;
+    protected Font fontTitulo;
+    protected Font fontParrafo;
 
     protected HUD hud;
 
@@ -121,9 +122,10 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
         BotFactory botFactory = new BotFactory(escenario, this.mEnemyTextureRegion, this.mBulletTextureRegion, vertexBufferObjectManager);
         escenario.setBotFactory(botFactory);
 
+        BalaFactory.getInstance().reset();
+
         // Principal
         jugador = new PersonajeJugador(escenario, (right - left)/2, 0, this.mPlayerTextureRegion, this.mBulletTextureRegion, vertexBufferObjectManager);
-        jugador.setMoveLayerBackSprite(true);
 
         Log.i("Contra", "Jugador: " + jugador.hashCode());
 
@@ -137,11 +139,11 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
         hud = new HUD();
         escenario.setHud(hud);
         // Touch Area
-        intro = new Intro(escenario, mIntroTituloTextureRegion, mIntroNivel1TextureRegion, mIntroNivel2TextureRegion, mIntroNivel3TextureRegion, font, getVertexBufferObjectManager());
+        intro = new Intro(escenario, mIntroTituloTextureRegion, mIntroNivel1TextureRegion, mIntroNivel2TextureRegion, mIntroNivel3TextureRegion, getVertexBufferObjectManager());
         scene.attachChild(intro);
         escenario.setIntro(intro);
         // Intro
-        controles = new Controles(escenario, scale, mMandoDireccionalTextureRegion, mMandoAccionesTextureRegion, mMandoPausaTextureRegion, mBotonContinuarTextureRegion, mBotonMenuTextureRegion, getVertexBufferObjectManager());
+        controles = new Controles(escenario, scale, mMandoDireccionalTextureRegion, mMandoAccionesTextureRegion, mMandoPausaTextureRegion, mBotonContinuarTextureRegion, mBotonMenuTextureRegion, fontTitulo, fontParrafo, getVertexBufferObjectManager());
         controles.ocultarControles();
         scene.attachChild(controles);
         escenario.setControles(controles);
@@ -200,6 +202,8 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
         double screenInches = Math.sqrt(x2+y2);
         if(y > SCALE_REF_HEIGHT) {
             scale = 0.75f;
+        } else {
+            scale = 1.00f;
         }
         Log.i("debug", "Screen inches : " + screenInches + " w:"+x+" h:"+y+" si:"+screenInches);
     }
@@ -268,9 +272,13 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
         this.mIntroNivel3TextureRegion = TextureRegionFactory.extractFromTexture(this.mIntroNivel3Texture);
         this.mIntroNivel3Texture.load();
 
-        final ITexture fontTexture = new BitmapTextureAtlas(this.getTextureManager(), 256, 256, TextureOptions.DEFAULT);
-        font = FontFactory.createFromAsset(this.getFontManager(), fontTexture, this.getAssets(), "font/ufonts.com_showcard-gothic.ttf", 36, true, new Color(0.7647f, 0.2157f, 0.0627f).getARGBPackedInt());
-        font.load();
+        final ITexture fontTextureTitulo = new BitmapTextureAtlas(this.getTextureManager(), 256, 256, TextureOptions.BILINEAR);
+        fontTitulo = FontFactory.createFromAsset(this.getFontManager(), fontTextureTitulo, this.getAssets(), "font/ufonts.com_showcard-gothic.ttf", 24, true, new Color(0.7647f, 0.2157f, 0.0627f).getARGBPackedInt());
+        fontTitulo.load();
+
+        final ITexture fontTextureParrafo = new BitmapTextureAtlas(this.getTextureManager(), 256, 256, TextureOptions.BILINEAR);
+        fontParrafo = FontFactory.createFromAsset(this.getFontManager(), fontTextureParrafo, this.getAssets(), "font/ufonts.com_showcard-gothic.ttf", 14, true, new Color(1.0f, 1.0f, 1.0f).getARGBPackedInt());
+        fontParrafo.load();
     }
 
     @Override

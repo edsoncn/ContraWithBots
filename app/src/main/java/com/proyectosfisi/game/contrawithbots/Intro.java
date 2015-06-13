@@ -41,24 +41,20 @@ public class Intro extends Entity {
 
     protected Escenario escenario;
 
-    private float velocidad;
-    private float aceleracion;
-    private float separa;
+    protected float velocidad;
+    protected float aceleracion;
+    protected float separa;
 
-    private float velocidadEscena;
-    private float aceleracionEscena;
+    protected float velocidadEscena;
+    protected float aceleracionEscena;
 
-    private int nivelSelec;
-
-    private Text tGameOver;
-    private Text tGameOver2;
+    protected int nivelSelec;
 
     public Intro(final Escenario escenario,
                  final ITextureRegion mIntroTituloTextureRegion,
                  final ITextureRegion mIntroNivel1TextureRegion,
                  final ITextureRegion mIntroNivel2TextureRegion,
                  final ITextureRegion mIntroNivel3TextureRegion,
-                 final Font font,
                  final VertexBufferObjectManager pVertexBufferObjectManager) {
         super();
         this.escenario = escenario;
@@ -96,17 +92,6 @@ public class Intro extends Entity {
 
         spriteIntroNivel3.setOffsetCenter(0, 0);
         this.attachChild(spriteIntroNivel3);
-
-        tGameOver = new Text(left + ancho/2, bottom + alto/2, font, "Game Over", new TextOptions(HorizontalAlign.CENTER), pVertexBufferObjectManager);
-        tGameOver.setVisible(false);
-
-        tGameOver2 = new Text(left + ancho/2 + 2, bottom + alto/2 - 2, font, "Game Over", new TextOptions(HorizontalAlign.CENTER), pVertexBufferObjectManager);
-        tGameOver2.setVisible(false);
-        tGameOver2.setColor(Color.WHITE);
-        tGameOver2.setAlpha(0.25f);
-
-        escenario.getHud().attachChild(tGameOver2);
-        escenario.getHud().attachChild(tGameOver);
 
         // Nivel 1
         rNivel1 = new Rectangle(0, 0, spriteIntroNivel1.getWidth(), spriteIntroNivel1.getHeight(), pVertexBufferObjectManager){
@@ -245,8 +230,6 @@ public class Intro extends Entity {
 
         mostrarIntro();
 
-        BalaFactory.getInstance().reset();
-
         separa = escenario.getCropResolutionPolicy().getTop() - spriteIntroTitulo.getY();
 
         //Determinando la velocidad y acelaracion de la escena
@@ -270,15 +253,6 @@ public class Intro extends Entity {
         escenario.setPausa(false);
 
         estado = ESTADO_Q2;
-    }
-
-    public void setStateQ4(){
-        escenario.setPausa(true);
-        escenario.getControles().ocultarControles();
-        escenario.getControles().mostrarFondoPausa();
-        tGameOver.setVisible(true);
-        tGameOver2.setVisible(true);
-        estado = ESTADO_Q4;
     }
 
     public void initPosiciones(){
@@ -336,6 +310,14 @@ public class Intro extends Entity {
 
     public int getEstado() {
         return estado;
+    }
+
+    public int getNivelSelec() {
+        return nivelSelec;
+    }
+
+    public void setNivelSelec(int nivelSelec) {
+        this.nivelSelec = nivelSelec;
     }
 }
 

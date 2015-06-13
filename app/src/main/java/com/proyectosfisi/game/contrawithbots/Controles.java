@@ -3,9 +3,13 @@ package com.proyectosfisi.game.contrawithbots;
 import org.andengine.entity.Entity;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.sprite.Sprite;
+import org.andengine.entity.text.Text;
+import org.andengine.entity.text.TextOptions;
 import org.andengine.input.touch.TouchEvent;
+import org.andengine.opengl.font.Font;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
+import org.andengine.util.adt.align.HorizontalAlign;
 import org.andengine.util.adt.color.Color;
 
 /**
@@ -28,6 +32,10 @@ public class Controles extends Entity{
     protected Rectangle rContinuar;
     protected Rectangle rMenu;
 
+    private Text tTitulo;
+    private Text tParrafoDerecha;
+    private Text tParrafoIzquierda;
+
     protected Escenario escenario;
     protected float escala;
 
@@ -37,6 +45,8 @@ public class Controles extends Entity{
                      final ITextureRegion mMandoPausaTextureRegion,
                      final ITextureRegion mBotonContinuarTextureRegion,
                      final ITextureRegion mBotonMenuTextureRegion,
+                     final Font fontTitulo,
+                     final Font fontParrafo,
                      final VertexBufferObjectManager pVertexBufferObjectManager) {
         super();
 
@@ -47,6 +57,14 @@ public class Controles extends Entity{
         float ancho = right - left;
         float alto = top - bottom;
         this.escala = escala;
+
+        //Fondo de la pausa
+        rFondoPausa = new Rectangle(left, bottom, ancho, alto, pVertexBufferObjectManager);
+        rFondoPausa.setColor(new Color(0.0313f, 0.0471f, 0.1128f));
+        rFondoPausa.setOffsetCenter(0.0f, 0.0f);
+        rFondoPausa.setAlpha(Intro.ALFA_FONDO);
+        rFondoPausa.setVisible(false);
+        this.attachChild(rFondoPausa);
 
         //Sprites
         spriteMandoDireccional = new Sprite(0, 0, mMandoDireccionalTextureRegion, pVertexBufferObjectManager);
@@ -69,13 +87,20 @@ public class Controles extends Entity{
         spriteBotonMenu.setSize(spriteBotonMenu.getWidth()*escala, spriteBotonMenu.getHeight()*escala);
         this.attachChild(spriteBotonMenu);
 
-        //Fondo de la pausa
-        rFondoPausa = new Rectangle(left, bottom, ancho, alto, pVertexBufferObjectManager);
-        rFondoPausa.setColor(new Color(0.0313f, 0.0471f, 0.1128f));
-        rFondoPausa.setOffsetCenter(0.0f, 0.0f);
-        rFondoPausa.setAlpha(Intro.ALFA_FONDO);
-        rFondoPausa.setVisible(false);
-        this.attachChild(rFondoPausa);
+        tTitulo = new Text(left + ancho/2, top - alto/4, fontTitulo, "Perdiste el Juego", new TextOptions(HorizontalAlign.CENTER), pVertexBufferObjectManager);
+        tTitulo.setVisible(false);
+
+        tParrafoDerecha = new Text(left + ancho/2 - Escenario.MANDO_PADDING, top - alto/2, fontParrafo, "Score:\r\nBots caidos:\r\nAvance:", new TextOptions(HorizontalAlign.RIGHT), pVertexBufferObjectManager);
+        tParrafoDerecha.setOffsetCenterX(1);
+        tParrafoDerecha.setVisible(false);
+
+        tParrafoIzquierda = new Text(left + ancho/2 + Escenario.MANDO_PADDING, top - alto/2, fontParrafo, "800\r\n16\r\n45%", new TextOptions(HorizontalAlign.LEFT), pVertexBufferObjectManager);
+        tParrafoIzquierda.setOffsetCenterX(0);
+        tParrafoIzquierda.setVisible(false);
+
+        escenario.getHud().attachChild(tTitulo);
+        escenario.getHud().attachChild(tParrafoDerecha);
+        escenario.getHud().attachChild(tParrafoIzquierda);
 
         // Control Direccional
         rDireccional = new Rectangle(0, 0, spriteMandoDireccional.getWidth(), spriteMandoDireccional.getHeight(), pVertexBufferObjectManager){
@@ -153,10 +178,7 @@ public class Controles extends Entity{
         rMenu = new Rectangle(0, 0, spriteBotonMenu.getWidth(), spriteBotonMenu.getHeight(), pVertexBufferObjectManager){
             public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y){
                 if (escenario.isPausa() && touchEvent.isActionDown()) {
-                    pausa();
-                    ocultarBotonesPausa();
-                    ocultarControles();
-                    escenario.getIntro().setStateQ0();
+                    menu();
                 }
                 return true;
             };
@@ -186,6 +208,53 @@ public class Controles extends Entity{
         initPosiciones();
         ocultarBotonesPausa();
 
+    }
+
+    public void pausa(){
+        escenario.setPausa(true);
+        ocultarControles();
+        ocultarTitulos();
+        mostrarFondoPausa();
+        mostrarBotonesPausa();
+    }
+
+    public void menu(){
+        escenario.setPausa(true);
+        ocultarControles();
+        ocultarTitulos();
+        ocultarBotonesPausa();
+        ocultarControles();
+        ocultarFondoPausa();
+        escenario.getIntro().setStateQ0();
+    }
+
+    public void reanudar(){
+        ocultarFondoPausa();
+        ocultarBotonesPausa();
+        ocultarTitulos();
+        mostrarControles();
+        escenario.setPausa(false);
+    }
+
+    public void perdiste(){
+        tTitulo.setText("Perdiste el nivel "+escenario.getIntro().getNivelSelec());
+        score();
+    }
+
+    public void ganaste(){
+        tTitulo.setText("Ganaste el nivel "+escenario.getIntro().getNivelSelec());
+        score();
+    }
+
+    public void score(){
+        escenario.setPausa(true);
+        ocultarControles();
+        mostrarFondoPausa();
+        mostrarTitulos();
+    }
+
+    public void setScore(int score, int botsCaidos, float avance){
+        tParrafoIzquierda.setText(score + "\r\n" + botsCaidos + "\r\n" + ((int)(avance*100 + 0.5f))+"%");
     }
 
     public void initPosiciones(){
@@ -251,20 +320,6 @@ public class Controles extends Entity{
         }
     }
 
-    public void pausa(){
-        escenario.setPausa(true);
-        mostrarFondoPausa();
-        ocultarControles();
-        mostrarBotonesPausa();
-    }
-
-    public void reanudar(){
-        ocultarFondoPausa();
-        ocultarBotonesPausa();
-        mostrarControles();
-        escenario.setPausa(false);
-    }
-
     public void mostrarFondoPausa(){
         rFondoPausa.setVisible(true);
     }
@@ -276,12 +331,16 @@ public class Controles extends Entity{
     public void mostrarBotonesPausa(){
         float left = escenario.getCropResolutionPolicy().getLeft();
         float right = escenario.getCropResolutionPolicy().getRight();
+        float bottom = escenario.getCropResolutionPolicy().getBottom();
+        float top = escenario.getCropResolutionPolicy().getTop();
         float ancho = right - left;
+        float alto = top - bottom;
+
+        spriteBotonMenu.setX(spriteBotonMenu.getX() - ancho);spriteBotonMenu.setPosition(left + ancho/2, bottom + alto/2 - 3*spriteBotonMenu.getHeight()/4);
+        rMenu.setPosition(spriteBotonMenu.getX(), spriteBotonMenu.getY());
         if(spriteBotonContinuar.getX() > right){
             spriteBotonContinuar.setX(spriteBotonContinuar.getX() - ancho);
-            spriteBotonMenu.setX(spriteBotonMenu.getX() - ancho);
-            rContinuar.setX(rContinuar.getX() - ancho);
-            rMenu.setX(rMenu.getX() - ancho);
+            rContinuar.setX(spriteBotonContinuar.getX());
             spriteBotonContinuar.setVisible(true);
             spriteBotonMenu.setVisible(true);
         }
@@ -300,4 +359,36 @@ public class Controles extends Entity{
             rMenu.setX(rMenu.getX() + ancho);
         }
     }
+
+    public void mostrarTitulos(){
+        float left = escenario.getCropResolutionPolicy().getLeft();
+        float right = escenario.getCropResolutionPolicy().getRight();
+        float bottom = escenario.getCropResolutionPolicy().getBottom();
+        float top = escenario.getCropResolutionPolicy().getTop();
+        float ancho = right - left;
+        float alto = top - bottom;
+
+        spriteBotonMenu.setPosition(left + ancho/2, bottom + alto/4);
+        rMenu.setPosition(spriteBotonMenu.getX(), spriteBotonMenu.getY());
+
+        tTitulo.setVisible(true);
+        tParrafoIzquierda.setVisible(true);
+        tParrafoDerecha.setVisible(true);
+        spriteBotonMenu.setVisible(true);
+    }
+
+    public void ocultarTitulos(){
+        float left = escenario.getCropResolutionPolicy().getLeft();
+        float right = escenario.getCropResolutionPolicy().getRight();
+        float ancho = right - left;
+        if(spriteBotonMenu.getX() > right) {
+            spriteBotonMenu.setX(spriteBotonMenu.getX() - ancho);
+            rMenu.setX(spriteBotonMenu.getX());
+        }
+        tTitulo.setVisible(false);
+        tParrafoIzquierda.setVisible(false);
+        tParrafoDerecha.setVisible(false);
+        spriteBotonMenu.setVisible(false);
+    }
+
 }
