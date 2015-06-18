@@ -1,5 +1,7 @@
 package com.proyectosfisi.game.contrawithbots;
 
+import android.util.Log;
+
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
@@ -24,8 +26,8 @@ public class Personaje extends AnimatedSprite {
     public static final int STATE_Q0 = 0; // Reposo
     public static final int STATE_Q1 = 1; // Saltando
     public static final int STATE_Q2 = 2; // Correr Izq&Der
-    public static final int STATE_Q3 = 3; // Arriba
-    public static final int STATE_Q4 = 4; // Abajo
+    public static final int STATE_Q3 = 3; // Abajo
+    public static final int STATE_Q4 = 4; // Arriba
     public static final int STATE_Q5 = 5; // Muerto
     public static final int STATE_Q6 = 6; // Cayendo
 

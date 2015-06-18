@@ -1,5 +1,7 @@
 package com.proyectosfisi.game.contrawithbots;
 
+import android.util.Log;
+
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
@@ -239,6 +241,12 @@ public class PersonajeJugador extends Personaje {
 
     public int getActivePointerID() {
         return activePointerID;
+    }
+
+    @Override
+    public synchronized void setAction(int action){
+        Log.i("jug", "Action: " + action);
+        super.setAction(action);
     }
 
 }

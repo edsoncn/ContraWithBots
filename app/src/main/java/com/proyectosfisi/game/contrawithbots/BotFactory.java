@@ -39,11 +39,13 @@ public class BotFactory {
         float left = escenario.getCropResolutionPolicy().getLeft();
         float backLayer = escenario.getParallaxLayerBackSprite().getWidth();
 
-        bots.add(crearBotEnemigo(-1 * (right - left) / 2, 0, PersonajeEnemigo.TIPO_NORMAL, PersonajeJugador.ORIENTATION_RIGHT)); //0
-        bots.add(crearBotEnemigo( 3 * (right - left) / 2, 0, PersonajeEnemigo.TIPO_NORMAL, PersonajeJugador.ORIENTATION_LEFT)); //1
-        bots.add(crearBotEnemigo( backLayer / 4, 0, PersonajeEnemigo.TIPO_NORMAL, PersonajeJugador.ORIENTATION_LEFT)); //2
+        //bots.add(crearBotEnemigo(-1 * (right - left) / 2, 0, PersonajeEnemigo.TIPO_NORMAL, PersonajeJugador.ORIENTATION_RIGHT)); //0
+        //bots.add(crearBotEnemigo( 3 * (right - left) / 2, 0, PersonajeEnemigo.TIPO_NORMAL, PersonajeJugador.ORIENTATION_LEFT)); //1
+        //bots.add(crearBotEnemigo( backLayer / 4, 0, PersonajeEnemigo.TIPO_NORMAL, PersonajeJugador.ORIENTATION_LEFT)); //2
 
-        bots.add(crearBotEnemigo( 715, 0, PersonajeEnemigo.TIPO_AGACHADO, PersonajeJugador.ORIENTATION_LEFT)); //3
+        bots.add(crearRNBotEnemigo( 3 * (right - left) / 2, 0, PersonajeJugador.ORIENTATION_LEFT)); //1
+
+        /*bots.add(crearBotEnemigo( 715, 0, PersonajeEnemigo.TIPO_AGACHADO, PersonajeJugador.ORIENTATION_LEFT)); //3
         bots.add(crearBotEnemigo( 1645, 0, PersonajeEnemigo.TIPO_AGACHADO, PersonajeJugador.ORIENTATION_LEFT)); //4
         bots.add(crearBotEnemigo( 2300, 0, PersonajeEnemigo.TIPO_AGACHADO, PersonajeJugador.ORIENTATION_LEFT)); //5
         bots.add(crearBotEnemigo( 3025, 0, PersonajeEnemigo.TIPO_AGACHADO, PersonajeJugador.ORIENTATION_LEFT)); //6
@@ -59,7 +61,7 @@ public class BotFactory {
 
         bots.add(crearBotEnemigo( 4265, 46, PersonajeEnemigo.TIPO_CIMA, PersonajeJugador.ORIENTATION_LEFT)); //13
         bots.add(crearBotEnemigo( 4261, 86, PersonajeEnemigo.TIPO_CIMA, PersonajeJugador.ORIENTATION_LEFT)); //14
-
+*/
         for (Personaje p : bots) {
             escenario.getLayerPlayer().attachChild(p);
         }
@@ -67,6 +69,14 @@ public class BotFactory {
 
     public PersonajeEnemigo crearBotEnemigo(float x, float y, int tipo, int orientacion){
         PersonajeEnemigo enemigo = new PersonajeEnemigo(tipo, escenario, x, y, pTextureRegion, mBulletTexture, pVertexBufferObjectManager);
+        enemigo.setOrientation(orientacion);
+        enemigo.setEnemigos(personajeJugador);
+        enemigo.init();
+        return enemigo;
+    }
+
+    public PersonajeRNBot crearRNBotEnemigo(float x, float y, int orientacion){
+        PersonajeRNBot enemigo = new PersonajeRNBot(escenario, x, y, pTextureRegion, mBulletTexture, pVertexBufferObjectManager);
         enemigo.setOrientation(orientacion);
         enemigo.setEnemigos(personajeJugador);
         enemigo.init();

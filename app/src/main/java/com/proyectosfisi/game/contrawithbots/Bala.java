@@ -27,13 +27,13 @@ public class Bala extends TiledSprite{
 
     protected int id;
 
-    protected float relativeX;
-    protected float relativeY;
-    protected float velocityX;
-    protected float velocityY;
+    private float relativeX;
+    private float relativeY;
+    private float velocityX;
+    private float velocityY;
 
     protected Escenario escenario;
-    protected Personaje personaje;
+    private Personaje personaje;
     protected ArrayList<Personaje> enemigos;
 
     protected AnimatedSprite chispa;
@@ -61,10 +61,10 @@ public class Bala extends TiledSprite{
     public void initBala(){
         this.active = true;
 
-        setRelativeX(personaje.getRelativeX());
-        setRelativeY(personaje.getRelativeY());
+        setRelativeX(getPersonaje().getRelativeX());
+        setRelativeY(getPersonaje().getRelativeY());
 
-        float[] position = initPositionsAndVelocity(personaje);
+        float[] position = initPositionsAndVelocity(getPersonaje());
         setRelativeX(getRelativeX() + position[0]);
         setRelativeY(getRelativeY() + position[1]);
         velocityX = position[2];
@@ -257,20 +257,20 @@ public class Bala extends TiledSprite{
                 float right = escenario.getCropResolutionPolicy().getRight();
                 float top = escenario.getCropResolutionPolicy().getTop();
                 float bottom = escenario.getCropResolutionPolicy().getBottom();
-                if (left - personaje.getWidth() / 2 > getX() || getX() > right + personaje.getWidth() / 2
-                        || top + personaje.getHeight() / 2 < getY() || getY() < bottom
+                if (left - getPersonaje().getWidth() / 2 > getX() || getX() > right + getPersonaje().getWidth() / 2
+                        || top + getPersonaje().getHeight() / 2 < getY() || getY() < bottom
                         || validCollisions()) {
                     inactivar();
                 } else {
-                    setRelativeX(getRelativeX() + velocityX);
-                    setRelativeY(getRelativeY() + velocityY);
+                    setRelativeX(getRelativeX() + getVelocityX());
+                    setRelativeY(getRelativeY() + getVelocityY());
                     if (chispa != null) {
                         if (countChispa > 0.05f) {
                             chispa.setVisible(false);
                         } else {
-                            float[] position = initPositionsAndVelocity(personaje);
-                            chispa.setX(personaje.getX() + position[0]);
-                            chispa.setY(personaje.getY() + position[1]);
+                            float[] position = initPositionsAndVelocity(getPersonaje());
+                            chispa.setX(getPersonaje().getX() + position[0]);
+                            chispa.setY(getPersonaje().getY() + position[1]);
                             countChispa += pSecondsElapsed;
                             chispa.setIgnoreUpdate(false);
                         }
@@ -352,5 +352,17 @@ public class Bala extends TiledSprite{
 
     public void setEnemigos(ArrayList<Personaje> enemigos) {
         this.enemigos = enemigos;
+    }
+
+    public Personaje getPersonaje() {
+        return personaje;
+    }
+
+    public float getVelocityX() {
+        return velocityX;
+    }
+
+    public float getVelocityY() {
+        return velocityY;
     }
 }

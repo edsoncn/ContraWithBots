@@ -46,15 +46,17 @@ public class BalaFactory {
         if(pilaBalasInactivas.isEmpty()){
             Bala bala = new Bala(escenario, mBulletTextureRegion, pVertexBufferObjectManager);
             escenario.getLayerBullets().attachChild(bala);
-            listaBalasActivas.add(bala);
+            getListaBalasActivas().add(bala);
             return bala;
         }else{
-            return pilaBalasInactivas.pop();
+            Bala bala = pilaBalasInactivas.pop();
+            getListaBalasActivas().add(bala);
+            return bala;
         }
     }
 
     public synchronized void removeBala(Bala bala){
-        listaBalasActivas.remove(bala);
+        getListaBalasActivas().remove(bala);
         pilaBalasInactivas.push(bala);
     }
 
@@ -62,4 +64,7 @@ public class BalaFactory {
         instance = null;
     }
 
+    public ArrayList<Bala> getListaBalasActivas() {
+        return listaBalasActivas;
+    }
 }
