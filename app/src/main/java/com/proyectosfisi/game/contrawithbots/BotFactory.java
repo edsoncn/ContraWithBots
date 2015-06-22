@@ -38,14 +38,14 @@ public class BotFactory {
         float right = escenario.getCropResolutionPolicy().getRight();
         float left = escenario.getCropResolutionPolicy().getLeft();
         float backLayer = escenario.getParallaxLayerBackSprite().getWidth();
-
-        //bots.add(crearBotEnemigo(-1 * (right - left) / 2, 0, PersonajeEnemigo.TIPO_NORMAL, PersonajeJugador.ORIENTATION_RIGHT)); //0
-        //bots.add(crearBotEnemigo( 3 * (right - left) / 2, 0, PersonajeEnemigo.TIPO_NORMAL, PersonajeJugador.ORIENTATION_LEFT)); //1
-        //bots.add(crearBotEnemigo( backLayer / 4, 0, PersonajeEnemigo.TIPO_NORMAL, PersonajeJugador.ORIENTATION_LEFT)); //2
-
+/*
+        bots.add(crearBotEnemigo(-1 * (right - left) / 2, 0, PersonajeEnemigo.TIPO_NORMAL, PersonajeJugador.ORIENTATION_RIGHT)); //0
+        bots.add(crearBotEnemigo( 3 * (right - left) / 2, 0, PersonajeEnemigo.TIPO_NORMAL, PersonajeJugador.ORIENTATION_LEFT)); //1
+        bots.add(crearBotEnemigo( backLayer / 4, 0, PersonajeEnemigo.TIPO_NORMAL, PersonajeJugador.ORIENTATION_LEFT)); //2
+*/
         bots.add(crearRNBotEnemigo( 3 * (right - left) / 2, 0, PersonajeJugador.ORIENTATION_LEFT)); //1
-
-        /*bots.add(crearBotEnemigo( 715, 0, PersonajeEnemigo.TIPO_AGACHADO, PersonajeJugador.ORIENTATION_LEFT)); //3
+/*
+        bots.add(crearBotEnemigo( 715, 0, PersonajeEnemigo.TIPO_AGACHADO, PersonajeJugador.ORIENTATION_LEFT)); //3
         bots.add(crearBotEnemigo( 1645, 0, PersonajeEnemigo.TIPO_AGACHADO, PersonajeJugador.ORIENTATION_LEFT)); //4
         bots.add(crearBotEnemigo( 2300, 0, PersonajeEnemigo.TIPO_AGACHADO, PersonajeJugador.ORIENTATION_LEFT)); //5
         bots.add(crearBotEnemigo( 3025, 0, PersonajeEnemigo.TIPO_AGACHADO, PersonajeJugador.ORIENTATION_LEFT)); //6

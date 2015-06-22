@@ -1,5 +1,7 @@
 package com.proyectosfisi.game.contrawithbots;
 
+import org.andengine.audio.music.Music;
+import org.andengine.audio.sound.Sound;
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.options.resolutionpolicy.CropResolutionPolicy;
 import org.andengine.entity.Entity;
@@ -33,6 +35,9 @@ public class Escenario {
     protected Controles controles;
     protected BotFactory botFactory;
     protected boolean pausa;
+
+    protected Sound sDisparo;
+    protected Music mMusic;
 
     public static final float PISO_ALTO = 84;
     public static final float ESCALONES_ALTO[] = new float[]{/*1*/ 56, 128, 96,/*2*/ 56, 96, 56, 128, 96, 56,/*3*/ 96, 56, 128, 96, 56,/*4*/ 46, 86};
@@ -149,5 +154,21 @@ public class Escenario {
 
     public void setControles(Controles controles) {
         this.controles = controles;
+    }
+
+    public Sound getsDisparo() {
+        return sDisparo;
+    }
+
+    public void setsDisparo(Sound sDisparo) {
+        this.sDisparo = sDisparo;
+    }
+
+    public Music getmMusic() {
+        return mMusic;
+    }
+
+    public void setmMusic(Music mMusic) {
+        this.mMusic = mMusic;
     }
 }

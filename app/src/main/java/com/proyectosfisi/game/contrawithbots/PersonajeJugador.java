@@ -17,9 +17,11 @@ public class PersonajeJugador extends Personaje {
     protected int selectBoton;
     protected int activePointerID;
     protected boolean flagGano;
+    private Puntajes puntajes;
 
     public PersonajeJugador(Escenario escenario, float relativeX, float relativeY, final TiledTextureRegion pTextureRegion, final TiledTextureRegion mBulletTextureRegion, final VertexBufferObjectManager pVertexBufferObjectManager) {
         super(escenario, relativeX, relativeY, pTextureRegion, mBulletTextureRegion, pVertexBufferObjectManager);
+        puntajes = new Puntajes(escenario.getIntro());
     }
 
     @Override
@@ -28,6 +30,9 @@ public class PersonajeJugador extends Personaje {
         setIgnoreUpdate(false);
         activePointerID = TouchEvent.INVALID_POINTER_ID;
         initSelectBoton();
+        if(puntajes != null){
+            puntajes.resetPuntaje();
+        }
     }
 
     @Override
@@ -230,23 +235,59 @@ public class PersonajeJugador extends Personaje {
 
     @Override
     protected void despuesDeMorir(){
-        escenario.getControles().setScore(123, 13, 0.52f);
+        calcularScore();
         escenario.getControles().perdiste();
     }
 
     protected void gane(){
-        escenario.getControles().setScore(123, 13, 0.52f);
+        calcularScore();
         escenario.getControles().ganaste();
+    }
+
+    @Override
+    protected void disparoAcertado(Personaje victima){
+        Puntaje puntaje = getPuntajes().getPuntaje();
+        if(puntaje != null) {
+            puntaje.setBotsCaidos(puntaje.getBotsCaidos() + 1);
+            int puntos = 20;
+            if (victima instanceof PersonajeEnemigo) {
+                int tipo = ((PersonajeEnemigo) victima).getTipo();
+                switch (tipo) {
+                    case PersonajeEnemigo.TIPO_AGACHADO:
+                        puntos = 20;
+                        break;
+                    case PersonajeEnemigo.TIPO_CIMA:
+                        puntos = 25;
+                        break;
+                    case PersonajeEnemigo.TIPO_NORMAL:
+                        puntos = 15;
+                        break;
+                }
+            }
+            puntaje.setPuntaje(puntaje.getPuntaje() + puntos);
+        }
+    }
+
+    protected void calcularScore(){
+        float anchoEscena = escenario.getParallaxLayerBackSprite().getWidth();
+        Puntaje puntaje = getPuntajes().getPuntaje();
+        float avance = relativeX / (anchoEscena - Escenario.ESCENARIO_PAGGING_RIGHT - getWidth());
+        if(avance >= 1){
+            if(isDead()) {
+                avance = 0.99f;
+            }else{
+                avance = 1.0f;
+            }
+        }
+        int porcentaje = (int)(100 * avance);
+        escenario.getControles().setScore(puntaje.getPuntaje() + porcentaje * 4, puntaje.getBotsCaidos(), avance);
     }
 
     public int getActivePointerID() {
         return activePointerID;
     }
 
-    @Override
-    public synchronized void setAction(int action){
-        Log.i("jug", "Action: " + action);
-        super.setAction(action);
+    public Puntajes getPuntajes() {
+        return puntajes;
     }
-
 }

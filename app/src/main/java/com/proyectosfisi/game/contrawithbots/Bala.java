@@ -1,5 +1,6 @@
 package com.proyectosfisi.game.contrawithbots;
 
+import org.andengine.audio.sound.Sound;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.entity.sprite.TiledSprite;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
@@ -27,18 +28,20 @@ public class Bala extends TiledSprite{
 
     protected int id;
 
-    private float relativeX;
-    private float relativeY;
-    private float velocityX;
-    private float velocityY;
+    protected float relativeX;
+    protected float relativeY;
+    protected float velocityX;
+    protected float velocityY;
 
     protected Escenario escenario;
-    private Personaje personaje;
+    protected Personaje personaje;
     protected ArrayList<Personaje> enemigos;
 
     protected AnimatedSprite chispa;
     protected float countChispa;
     protected boolean active;
+
+    protected Sound sDisparo;
 
     public Bala(Escenario escenario, final TiledTextureRegion mBulletTextureRegion, final VertexBufferObjectManager pVertexBufferObjectManager) {
         super(0.0f, 0.0f, mBulletTextureRegion, pVertexBufferObjectManager);
@@ -56,15 +59,16 @@ public class Bala extends TiledSprite{
 
         id = BalaFactory.getInstance().getNextId();
 
+        this.sDisparo = escenario.getsDisparo();
     }
 
     public void initBala(){
         this.active = true;
 
-        setRelativeX(getPersonaje().getRelativeX());
-        setRelativeY(getPersonaje().getRelativeY());
+        setRelativeX(personaje.getRelativeX());
+        setRelativeY(personaje.getRelativeY());
 
-        float[] position = initPositionsAndVelocity(getPersonaje());
+        float[] position = initPositionsAndVelocity(personaje);
         setRelativeX(getRelativeX() + position[0]);
         setRelativeY(getRelativeY() + position[1]);
         velocityX = position[2];
@@ -257,20 +261,20 @@ public class Bala extends TiledSprite{
                 float right = escenario.getCropResolutionPolicy().getRight();
                 float top = escenario.getCropResolutionPolicy().getTop();
                 float bottom = escenario.getCropResolutionPolicy().getBottom();
-                if (left - getPersonaje().getWidth() / 2 > getX() || getX() > right + getPersonaje().getWidth() / 2
-                        || top + getPersonaje().getHeight() / 2 < getY() || getY() < bottom
+                if (left - personaje.getWidth() / 2 > getX() || getX() > right + personaje.getWidth() / 2
+                        || top + personaje.getHeight() / 2 < getY() || getY() < bottom
                         || validCollisions()) {
                     inactivar();
                 } else {
-                    setRelativeX(getRelativeX() + getVelocityX());
-                    setRelativeY(getRelativeY() + getVelocityY());
+                    setRelativeX(getRelativeX() + velocityX);
+                    setRelativeY(getRelativeY() + velocityY);
                     if (chispa != null) {
                         if (countChispa > 0.05f) {
                             chispa.setVisible(false);
                         } else {
-                            float[] position = initPositionsAndVelocity(getPersonaje());
-                            chispa.setX(getPersonaje().getX() + position[0]);
-                            chispa.setY(getPersonaje().getY() + position[1]);
+                            float[] position = initPositionsAndVelocity(personaje);
+                            chispa.setX(personaje.getX() + position[0]);
+                            chispa.setY(personaje.getY() + position[1]);
                             countChispa += pSecondsElapsed;
                             chispa.setIgnoreUpdate(false);
                         }
@@ -287,12 +291,13 @@ public class Bala extends TiledSprite{
         for(Personaje enemigo : enemigos){
             if(enemigo.getState() != Personaje.STATE_Q5){
                 if (validarColision(enemigo)){
-                    float restar = 2.50f;
+                    float restar = 5.00f;
                     if(enemigo instanceof PersonajeEnemigo){
                         restar = 25.0f;
                     }
                     if(enemigo.getVida().restarVidaOMorir(restar)) {
                         enemigo.setStateQ5();
+                        personaje.disparoAcertado(enemigo);
                     }
                     return true;
                 }
@@ -352,6 +357,10 @@ public class Bala extends TiledSprite{
 
     public void setEnemigos(ArrayList<Personaje> enemigos) {
         this.enemigos = enemigos;
+    }
+
+    public Sound getsDisparo() {
+        return sDisparo;
     }
 
     public Personaje getPersonaje() {

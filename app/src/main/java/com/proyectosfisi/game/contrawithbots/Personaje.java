@@ -123,8 +123,8 @@ public class Personaje extends AnimatedSprite {
                             }
                             break;
                         case ACTION_JUMP:
-                            setStateQ1();
                             setVelocityY(VELOCITY_Y);
+                            setStateQ1();
                             break;
                         case ACTION_DOWN:
                             setStateQ3();
@@ -141,8 +141,8 @@ public class Personaje extends AnimatedSprite {
                                 actionLeft = true;
                                 actionJump = false;
                                 orientation = ORIENTATION_LEFT;
-                                setStateQ1();
                                 setVelocityX(-VELOCITY_X);
+                                setStateQ1();
                             }
                             break;
                         case ACTION_RIGHT:
@@ -150,8 +150,8 @@ public class Personaje extends AnimatedSprite {
                                 actionRight = true;
                                 actionJump = false;
                                 orientation = ORIENTATION_RIGHT;
-                                setStateQ1();
                                 setVelocityX(VELOCITY_X);
+                                setStateQ1();
                             }
                             break;
                         case ACTION_UP:
@@ -196,8 +196,8 @@ public class Personaje extends AnimatedSprite {
                             setStateQ2();
                             break;
                         case ACTION_JUMP:
-                            setStateQ1();
                             setVelocityY(VELOCITY_Y);
+                            setStateQ1();
                             break;
                     }
                     break;
@@ -209,8 +209,8 @@ public class Personaje extends AnimatedSprite {
                         case ACTION_JUMP:
                             pisoEscalon = escenario.tocoPisoOEscalon(this);
                             if(pisoEscalon <= 0) {
-                                setStateQ1();
                                 setVelocityY(VELOCITY_Y);
+                                setStateQ1();
                             }else{
                                 setVelocityY(getVelocityY() + GRAVEDAD);
                                 setRelativeY(getRelativeY() + getVelocityY());
@@ -226,8 +226,8 @@ public class Personaje extends AnimatedSprite {
                             setStateQ0();
                             break;
                         case ACTION_JUMP:
-                            setStateQ1();
                             setVelocityY(VELOCITY_Y);
+                            setStateQ1();
                             break;
                     }
                     break;
@@ -639,7 +639,9 @@ public class Personaje extends AnimatedSprite {
     }
 
     protected void despuesDeMorir(){
+    }
 
+    protected void disparoAcertado(Personaje victima){
     }
 
     public void shoot(){
@@ -648,6 +650,7 @@ public class Personaje extends AnimatedSprite {
             bala.setPersonaje(this);
             bala.setEnemigos(enemigos);
             bala.initBala();
+            bala.getsDisparo().play();
             switch (state){
                 case STATE_Q0:
                     animateStateQ0();

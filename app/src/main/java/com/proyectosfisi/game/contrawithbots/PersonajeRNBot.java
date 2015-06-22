@@ -206,4 +206,5 @@ public class PersonajeRNBot extends Personaje {
         Log.i("bot", "Action: "+action);
         super.setAction(action);
     }
+
 }

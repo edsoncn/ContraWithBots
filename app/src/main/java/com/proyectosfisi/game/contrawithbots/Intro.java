@@ -1,5 +1,7 @@
 package com.proyectosfisi.game.contrawithbots;
 
+import android.text.TextPaint;
+
 import org.andengine.entity.Entity;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.sprite.Sprite;
@@ -50,11 +52,16 @@ public class Intro extends Entity {
 
     protected int nivelSelec;
 
+    private Text[] tNivel;
+    private Text[] tScoreNivel;
+
     public Intro(final Escenario escenario,
                  final ITextureRegion mIntroTituloTextureRegion,
                  final ITextureRegion mIntroNivel1TextureRegion,
                  final ITextureRegion mIntroNivel2TextureRegion,
                  final ITextureRegion mIntroNivel3TextureRegion,
+                 final Font fontNivel,
+                 final Font fontScoreNivel,
                  final VertexBufferObjectManager pVertexBufferObjectManager) {
         super();
         this.escenario = escenario;
@@ -89,9 +96,30 @@ public class Intro extends Entity {
 
         //Nivel3
         spriteIntroNivel3 = new Sprite(0, 0, mIntroNivel3TextureRegion, pVertexBufferObjectManager);
-
         spriteIntroNivel3.setOffsetCenter(0, 0);
         this.attachChild(spriteIntroNivel3);
+
+        tNivel = new Text[3];
+        tNivel[0] = new Text(0, 0, fontNivel, "Nivel 1", new TextOptions(HorizontalAlign.LEFT), pVertexBufferObjectManager);
+        tNivel[0].setOffsetCenter(0, 0);
+        this.attachChild(tNivel[0]);
+        tNivel[1] = new Text(0, 0, fontNivel, "Nivel 2", new TextOptions(HorizontalAlign.LEFT), pVertexBufferObjectManager);
+        tNivel[1].setOffsetCenter(0, 0);
+        this.attachChild(tNivel[1]);
+        tNivel[2] = new Text(0, 0, fontNivel, "Nivel 3", new TextOptions(HorizontalAlign.LEFT), pVertexBufferObjectManager);
+        tNivel[2].setOffsetCenter(0, 0);
+        this.attachChild(tNivel[2]);
+
+        tScoreNivel = new Text[3];
+        tScoreNivel[0] = new Text(0, 0, fontScoreNivel, "SCORE: 0000", new TextOptions(HorizontalAlign.RIGHT), pVertexBufferObjectManager);
+        tScoreNivel[0].setOffsetCenter(1, 1);
+        this.attachChild(tScoreNivel[0]);
+        tScoreNivel[1] = new Text(0, 0, fontScoreNivel, "SCORE: 0000", new TextOptions(HorizontalAlign.RIGHT), pVertexBufferObjectManager);
+        tScoreNivel[1].setOffsetCenter(1, 1);
+        this.attachChild(tScoreNivel[1]);
+        tScoreNivel[2] = new Text(0, 0, fontScoreNivel, "SCORE: 0000", new TextOptions(HorizontalAlign.RIGHT), pVertexBufferObjectManager);
+        tScoreNivel[2].setOffsetCenter(1, 1);
+        this.attachChild(tScoreNivel[2]);
 
         // Nivel 1
         rNivel1 = new Rectangle(0, 0, spriteIntroNivel1.getWidth(), spriteIntroNivel1.getHeight(), pVertexBufferObjectManager){
@@ -99,11 +127,11 @@ public class Intro extends Entity {
                 if(escenario.isPausa() && estado == ESTADO_Q0) {
                     if (touchEvent.isActionDown()) {
                         nivelSelec = 1;
-                        estado = ESTADO_Q1;
+                        setStateQ1();
                     }
                 }
                 return true;
-            };
+            }
         };
         rNivel1.setVisible(false);
 
@@ -113,7 +141,7 @@ public class Intro extends Entity {
                 if(escenario.isPausa() && estado == ESTADO_Q0) {
                     if (touchEvent.isActionDown()) {
                         nivelSelec = 2;
-                        estado = ESTADO_Q1;
+                        setStateQ1();
                     }
                 }
                 return true;
@@ -127,7 +155,7 @@ public class Intro extends Entity {
                 if(escenario.isPausa() && estado == ESTADO_Q0) {
                     if (touchEvent.isActionDown()) {
                         nivelSelec = 3;
-                        estado = ESTADO_Q1;
+                        setStateQ1();
                     }
                 }
                 return true;
@@ -143,7 +171,6 @@ public class Intro extends Entity {
         escenario.getHud().attachChild(rNivel3);
 
         initPosiciones();
-        setStateQ0();
         this.setZIndex(20);
 
     }
@@ -229,6 +256,7 @@ public class Intro extends Entity {
         nivelSelec = 0;
 
         mostrarIntro();
+        mostrarScores();
 
         separa = escenario.getCropResolutionPolicy().getTop() - spriteIntroTitulo.getY();
 
@@ -239,8 +267,16 @@ public class Intro extends Entity {
         velocidadEscena = 2*(j.getRelativeX() - ancho / 2) / t;
         aceleracionEscena = -velocidadEscena / t;
 
+        escenario.getmMusic().play();
+
         estado = ESTADO_Q0;
     }
+
+    public void setStateQ1(){
+        ocultarScores();
+        estado = ESTADO_Q1;
+    }
+
     public void setStateQ2(){
         ocultarIntro();
 
@@ -269,9 +305,18 @@ public class Intro extends Entity {
         spriteIntroNivel1.setPosition(left + separaAncho, top - spriteIntroTitulo.getHeight() - 2*separaAlto - spriteIntroNivel1.getHeight());
         spriteIntroNivel2.setPosition(left + 2*separaAncho + spriteIntroNivel1.getWidth(), top - spriteIntroTitulo.getHeight() - 2*separaAlto - spriteIntroNivel2.getHeight());
         spriteIntroNivel3.setPosition(left + 3*separaAncho + spriteIntroNivel1.getWidth() + spriteIntroNivel2.getWidth(), top - spriteIntroTitulo.getHeight() - 2*separaAlto - spriteIntroNivel3.getHeight());
+
         rNivel1.setPosition(spriteIntroNivel1.getX()+spriteIntroNivel1.getWidth()/2, spriteIntroNivel1.getY()+ spriteIntroNivel1.getHeight()/2);
         rNivel2.setPosition(spriteIntroNivel2.getX()+spriteIntroNivel2.getWidth()/2, spriteIntroNivel2.getY()+ spriteIntroNivel2.getHeight()/2);
         rNivel3.setPosition(spriteIntroNivel3.getX()+spriteIntroNivel3.getWidth()/2, spriteIntroNivel3.getY()+ spriteIntroNivel3.getHeight()/2);
+
+        tNivel[0].setPosition(spriteIntroNivel1.getX() + Escenario.MANDO_PADDING, spriteIntroNivel1.getY() + spriteIntroNivel1.getHeight() - Escenario.MANDO_PADDING/2);
+        tNivel[1].setPosition(spriteIntroNivel2.getX() + Escenario.MANDO_PADDING, spriteIntroNivel2.getY() + spriteIntroNivel2.getHeight() - Escenario.MANDO_PADDING/2);
+        tNivel[2].setPosition(spriteIntroNivel3.getX() + Escenario.MANDO_PADDING, spriteIntroNivel3.getY() + spriteIntroNivel3.getHeight() - Escenario.MANDO_PADDING/2);
+
+        tScoreNivel[0].setPosition(spriteIntroNivel1.getX() + spriteIntroNivel1.getWidth() - Escenario.MANDO_PADDING, spriteIntroNivel1.getY());
+        tScoreNivel[1].setPosition(spriteIntroNivel2.getX() + spriteIntroNivel1.getWidth() - Escenario.MANDO_PADDING, spriteIntroNivel2.getY());
+        tScoreNivel[2].setPosition(spriteIntroNivel3.getX() + spriteIntroNivel1.getWidth() - Escenario.MANDO_PADDING, spriteIntroNivel3.getY());
     }
 
     public void ocultarIntro(){
@@ -306,6 +351,30 @@ public class Intro extends Entity {
         spriteIntroNivel2.setVisible(true);
         spriteIntroNivel3.setVisible(true);
         rIntroFondo.setVisible(true);
+    }
+
+    public void mostrarScores(){
+        tNivel[0].setVisible(true);
+        tNivel[1].setVisible(true);
+        tNivel[2].setVisible(true);
+        tScoreNivel[0].setVisible(true);
+        tScoreNivel[1].setVisible(true);
+        tScoreNivel[2].setVisible(true);
+    }
+
+    public void ocultarScores(){
+        tNivel[0].setVisible(false);
+        tNivel[1].setVisible(false);
+        tNivel[2].setVisible(false);
+        tScoreNivel[0].setVisible(false);
+        tScoreNivel[1].setVisible(false);
+        tScoreNivel[2].setVisible(false);
+    }
+
+    public void setScore(int score){
+        if(nivelSelec != 0) {
+            tScoreNivel[nivelSelec - 1].setText("SCORE: " + String.format("%4d", score).replace(" ", "0"));
+        }
     }
 
     public int getEstado() {

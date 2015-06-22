@@ -48,7 +48,9 @@ public class PersonajeEnemigo extends Personaje {
                 Personaje enemigo = getEnemigos().get(0);
                 countBullets += pSecondsElapsed;
                 if (countBullets > 1.5) {
-                    shoot();
+                    if(validarEnDentroDeEscena()) {
+                        shoot();
+                    }
                     countBullets = 0;
                 }
                 switch (tipo) {

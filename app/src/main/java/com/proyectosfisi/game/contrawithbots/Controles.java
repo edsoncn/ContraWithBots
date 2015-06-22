@@ -90,11 +90,11 @@ public class Controles extends Entity{
         tTitulo = new Text(left + ancho/2, top - alto/4, fontTitulo, "Perdiste el Juego", new TextOptions(HorizontalAlign.CENTER), pVertexBufferObjectManager);
         tTitulo.setVisible(false);
 
-        tParrafoDerecha = new Text(left + ancho/2 - Escenario.MANDO_PADDING, top - alto/2, fontParrafo, "Score:\r\nBots caidos:\r\nAvance:", new TextOptions(HorizontalAlign.RIGHT), pVertexBufferObjectManager);
+        tParrafoDerecha = new Text(left + ancho/2, top - alto/2 - Escenario.MANDO_PADDING, fontParrafo, "Score:\r\nBots caidos:\r\nAvance:\r\n", new TextOptions(HorizontalAlign.RIGHT), pVertexBufferObjectManager);
         tParrafoDerecha.setOffsetCenterX(1);
         tParrafoDerecha.setVisible(false);
 
-        tParrafoIzquierda = new Text(left + ancho/2 + Escenario.MANDO_PADDING, top - alto/2, fontParrafo, "800\r\n16\r\n45%", new TextOptions(HorizontalAlign.LEFT), pVertexBufferObjectManager);
+        tParrafoIzquierda = new Text(left + ancho/2 + Escenario.MANDO_PADDING, top - alto/2 - Escenario.MANDO_PADDING, fontParrafo, "9999\r\n16\r\n100%\r\n", new TextOptions(HorizontalAlign.LEFT), pVertexBufferObjectManager);
         tParrafoIzquierda.setOffsetCenterX(0);
         tParrafoIzquierda.setVisible(false);
 
@@ -237,12 +237,12 @@ public class Controles extends Entity{
     }
 
     public void perdiste(){
-        tTitulo.setText("Perdiste el nivel "+escenario.getIntro().getNivelSelec());
+        tTitulo.setText("Perdiste\r\nel nivel "+escenario.getIntro().getNivelSelec());
         score();
     }
 
     public void ganaste(){
-        tTitulo.setText("Ganaste el nivel "+escenario.getIntro().getNivelSelec());
+        tTitulo.setText("Ganaste\r\nel nivel "+escenario.getIntro().getNivelSelec());
         score();
     }
 
@@ -254,7 +254,8 @@ public class Controles extends Entity{
     }
 
     public void setScore(int score, int botsCaidos, float avance){
-        tParrafoIzquierda.setText(score + "\r\n" + botsCaidos + "\r\n" + ((int)(avance*100 + 0.5f))+"%");
+        tParrafoIzquierda.setText(String.format("%4d", score).replace(" ", "0") + "\r\n" + botsCaidos + "\r\n" + ((int)(avance*100))+"%\r\n");
+        escenario.getIntro().setScore(score);
     }
 
     public void initPosiciones(){
