@@ -246,9 +246,13 @@ public class Intro extends Entity {
 
     public void setStateQ0(){
 
+        escenario.setPausa(true);
         escenario.getLayerPlayer().setVisible(false);
         escenario.getLayerBullets().setVisible(false);
-        escenario.setPausa(true);
+
+        escenario.getBotFactory().inactivar();
+        escenario.getJugador().inactivar();
+        BalaFactory.getInstance().inactivarBalasActivas();
 
         countQ0 = 0.0f;
         velocidad = -2.56f;
@@ -282,10 +286,13 @@ public class Intro extends Entity {
 
         PersonajeJugador j = escenario.getJugador();
         j.init();
+        j.activar();
         escenario.getBotFactory().init();
+
         escenario.getLayerPlayer().setVisible(true);
         escenario.getLayerBullets().setVisible(true);
         escenario.getControles().mostrarControles();
+
         escenario.setPausa(false);
 
         estado = ESTADO_Q2;
@@ -314,9 +321,9 @@ public class Intro extends Entity {
         tNivel[1].setPosition(spriteIntroNivel2.getX() + Escenario.MANDO_PADDING, spriteIntroNivel2.getY() + spriteIntroNivel2.getHeight() - Escenario.MANDO_PADDING/2);
         tNivel[2].setPosition(spriteIntroNivel3.getX() + Escenario.MANDO_PADDING, spriteIntroNivel3.getY() + spriteIntroNivel3.getHeight() - Escenario.MANDO_PADDING/2);
 
-        tScoreNivel[0].setPosition(spriteIntroNivel1.getX() + spriteIntroNivel1.getWidth() - Escenario.MANDO_PADDING, spriteIntroNivel1.getY());
-        tScoreNivel[1].setPosition(spriteIntroNivel2.getX() + spriteIntroNivel1.getWidth() - Escenario.MANDO_PADDING, spriteIntroNivel2.getY());
-        tScoreNivel[2].setPosition(spriteIntroNivel3.getX() + spriteIntroNivel1.getWidth() - Escenario.MANDO_PADDING, spriteIntroNivel3.getY());
+        tScoreNivel[0].setPosition(spriteIntroNivel1.getX() + spriteIntroNivel1.getWidth() - 3, spriteIntroNivel1.getY());
+        tScoreNivel[1].setPosition(spriteIntroNivel2.getX() + spriteIntroNivel1.getWidth() - 3, spriteIntroNivel2.getY());
+        tScoreNivel[2].setPosition(spriteIntroNivel3.getX() + spriteIntroNivel1.getWidth() - 3, spriteIntroNivel3.getY());
     }
 
     public void ocultarIntro(){

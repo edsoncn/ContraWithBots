@@ -19,25 +19,43 @@ public class Vida extends Rectangle{
 
     public Vida(Entity layaut, final float pX, final float pY, final float pWidth, final VertexBufferObjectManager pVertexBufferObjectManager) {
         super(pX, pY, pWidth, Vida.VIDA_ALTO, pVertexBufferObjectManager);
-        super.setColor(0.96f, 0.05f, 0.05f);
-        setOffsetCenter(0 , 0);
+
+        setColor(0.96f, 0.05f, 0.05f);
+        setOffsetCenter(0, 0);
         setAlpha(ALFA);
         layaut.attachChild(this);
 
         vidaRestante = new Rectangle(pX, pY, pWidth, Vida.VIDA_ALTO, pVertexBufferObjectManager);
         vidaRestante.setColor(0.05f, 0.96f, 0.05f);
-        vidaRestante.setOffsetCenter(0 , 0);
-        vidaRestante.setAlpha(ALFA);
+        vidaRestante.setOffsetCenter(0, 0);
         layaut.attachChild(vidaRestante);
 
         anchoInicial = pWidth;
+
+        init();
     }
 
     public void init(){
         vida = VIDA_DEFAULT;
         vidaInicial = vida;
         vidaRestante.setWidth(anchoInicial);
+
+        setAlpha(ALFA);
+        vidaRestante.setAlpha(ALFA);
+    }
+
+    public void inactivar(){
+        setVisible(false);
+        vidaRestante.setVisible(false);
+    }
+
+    public boolean isInactivo(){
+        return isVisible() ;
+    }
+
+    public void activar(){
         setVisible(true);
+        vidaRestante.setVisible(true);
     }
 
     public boolean restarVidaOMorir(float danio){

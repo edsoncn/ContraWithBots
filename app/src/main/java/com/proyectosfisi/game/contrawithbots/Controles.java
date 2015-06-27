@@ -90,7 +90,7 @@ public class Controles extends Entity{
         tTitulo = new Text(left + ancho/2, top - alto/4, fontTitulo, "Perdiste el Juego", new TextOptions(HorizontalAlign.CENTER), pVertexBufferObjectManager);
         tTitulo.setVisible(false);
 
-        tParrafoDerecha = new Text(left + ancho/2, top - alto/2 - Escenario.MANDO_PADDING, fontParrafo, "Score:\r\nBots caidos:\r\nAvance:\r\n", new TextOptions(HorizontalAlign.RIGHT), pVertexBufferObjectManager);
+        tParrafoDerecha = new Text(left + ancho/2, top - alto/2 - Escenario.MANDO_PADDING, fontParrafo, "SCORE:\r\nBOTS CAIDOS:\r\nAVANCE:\r\n", new TextOptions(HorizontalAlign.RIGHT), pVertexBufferObjectManager);
         tParrafoDerecha.setOffsetCenterX(1);
         tParrafoDerecha.setVisible(false);
 
@@ -118,7 +118,7 @@ public class Controles extends Entity{
             public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y){
                 if(!escenario.isPausa()) {
                     if (touchEvent.isActionDown()) {
-                        escenario.getJugador().shoot();
+                        escenario.getJugador().setAction(Personaje.ACTION_SHOOT);
                     }
                 }
                 return true;

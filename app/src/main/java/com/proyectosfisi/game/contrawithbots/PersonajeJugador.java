@@ -27,7 +27,6 @@ public class PersonajeJugador extends Personaje {
     @Override
     public void init(float relativeX, float relativeY){
         super.init(relativeX, relativeY);
-        setIgnoreUpdate(false);
         activePointerID = TouchEvent.INVALID_POINTER_ID;
         initSelectBoton();
         if(puntajes != null){
@@ -69,64 +68,75 @@ public class PersonajeJugador extends Personaje {
     }
 
     public synchronized void setAction(int action, TouchEvent touchEvent){
-        if(touchEvent.isActionDown() || touchEvent.isActionMove()){
-            activePointerID = touchEvent.getPointerID();
-            setAction(action);
-        } else if (touchEvent.isActionUp() || touchEvent.isActionOutside()){
-            setAction(-action);
-            activePointerID = TouchEvent.INVALID_POINTER_ID;
-            selectBoton = -1;
+        if(!isIgnoreUpdate()) {
+            if (touchEvent.isActionDown() || touchEvent.isActionMove()) {
+                activePointerID = touchEvent.getPointerID();
+                setAction(action);
+            } else if (touchEvent.isActionUp() || touchEvent.isActionOutside()) {
+                setAction(-action);
+                activePointerID = TouchEvent.INVALID_POINTER_ID;
+                selectBoton = -1;
+            }
         }
     }
 
     public synchronized void setAction(TouchEvent touchEvent, float x, float y, float width, float height){
-        if(touchEvent.getPointerID() != touchEvent.getPointerID()){
-            return;
-        }
-        int div = 3;
-        float m = width / div;
-        float n = height / div;
-        int i = (int)(x / m);
-        int j = (int)(y / n);
-        int selectBotonAux = i + div * j;
-        switch (selectBotonAux){
-            case 0: case 1: case 2: case 3: case 5: case 6: case 7: case 8:
-                break;
-            default:
-                selectBotonAux = -1;
-                break;
-        }
-        if(selectBoton < 0) {
-            if(selectBotonAux != -1) {
-                if (touchEvent.isActionDown() || touchEvent.isActionMove()) {
-                    pressBoton(selectBotonAux);
-                    activePointerID = touchEvent.getPointerID();
-                }
-            }else{
-                resetActionsAndStates();
+        if(!isIgnoreUpdate()) {
+            if (touchEvent.getPointerID() != touchEvent.getPointerID()) {
+                return;
             }
-            selectBoton = selectBotonAux;
-        }else if(selectBoton >= 0){
-            if(selectBotonAux != -1) {
-                if (selectBoton == selectBotonAux) {
-                    if (touchEvent.isActionUp() || touchEvent.isActionOutside()) {
-                        unpressBoton(selectBoton);
-                        activePointerID = TouchEvent.INVALID_POINTER_ID;
-                        selectBoton = -1;
+            int div = 3;
+            float m = width / div;
+            float n = height / div;
+            int i = (int) (x / m);
+            int j = (int) (y / n);
+            int selectBotonAux = i + div * j;
+            switch (selectBotonAux) {
+                case 0:
+                case 1:
+                case 2:
+                case 3:
+                case 5:
+                case 6:
+                case 7:
+                case 8:
+                    break;
+                default:
+                    selectBotonAux = -1;
+                    break;
+            }
+            if (selectBoton < 0) {
+                if (selectBotonAux != -1) {
+                    if (touchEvent.isActionDown() || touchEvent.isActionMove()) {
+                        pressBoton(selectBotonAux);
+                        activePointerID = touchEvent.getPointerID();
+                    }
+                } else {
+                    resetActionsAndStates();
+                }
+                selectBoton = selectBotonAux;
+            } else if (selectBoton >= 0) {
+                if (selectBotonAux != -1) {
+                    if (selectBoton == selectBotonAux) {
+                        if (touchEvent.isActionUp() || touchEvent.isActionOutside()) {
+                            unpressBoton(selectBoton);
+                            activePointerID = TouchEvent.INVALID_POINTER_ID;
+                            selectBoton = -1;
+                        }
+                    } else {
+                        if (touchEvent.isActionMove()) {
+                            unpressBoton(selectBoton);
+                            pressBoton(selectBotonAux);
+                            selectBoton = selectBotonAux;
+                            activePointerID = touchEvent.getPointerID();
+                        }
                     }
                 } else {
                     if (touchEvent.isActionMove()) {
                         unpressBoton(selectBoton);
-                        pressBoton(selectBotonAux);
-                        selectBoton = selectBotonAux;
-                        activePointerID = touchEvent.getPointerID();
+                        activePointerID = TouchEvent.INVALID_POINTER_ID;
+                        selectBoton = -1;
                     }
-                }
-            }else{
-                if (touchEvent.isActionMove()) {
-                    unpressBoton(selectBoton);
-                    activePointerID = TouchEvent.INVALID_POINTER_ID;
-                    selectBoton = -1;
                 }
             }
         }
@@ -245,7 +255,7 @@ public class PersonajeJugador extends Personaje {
     }
 
     @Override
-    protected void disparoAcertado(Personaje victima){
+    protected void asesinar(Actor victima){
         Puntaje puntaje = getPuntajes().getPuntaje();
         if(puntaje != null) {
             puntaje.setBotsCaidos(puntaje.getBotsCaidos() + 1);

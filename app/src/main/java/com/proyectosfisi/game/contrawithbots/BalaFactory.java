@@ -55,6 +55,13 @@ public class BalaFactory {
         }
     }
 
+    public synchronized void inactivarBalasActivas(){
+        Bala[] balas = listaBalasActivas.toArray(new Bala[listaBalasActivas.size()]);
+        for(Bala bala : balas){
+            bala.inactivar();
+        }
+    }
+
     public synchronized void removeBala(Bala bala){
         getListaBalasActivas().remove(bala);
         pilaBalasInactivas.push(bala);
@@ -64,7 +71,7 @@ public class BalaFactory {
         instance = null;
     }
 
-    public ArrayList<Bala> getListaBalasActivas() {
+    public synchronized ArrayList<Bala> getListaBalasActivas() {
         return listaBalasActivas;
     }
 }

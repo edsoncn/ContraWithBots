@@ -45,11 +45,11 @@ public class PersonajeEnemigo extends Personaje {
     protected void onManagedUpdate(final float pSecondsElapsed) {
         if(!escenario.isPausa()) {
             if (getState() != STATE_Q5) {
-                Personaje enemigo = getEnemigos().get(0);
+                Actor enemigo = getEnemigos().get(0);
                 countBullets += pSecondsElapsed;
                 if (countBullets > 1.5) {
                     if(validarEnDentroDeEscena()) {
-                        shoot();
+                        setAction(ACTION_SHOOT);
                     }
                     countBullets = 0;
                 }
@@ -123,14 +123,8 @@ public class PersonajeEnemigo extends Personaje {
         }
     }
 
-    private boolean validarEnDentroDeEscena(){
-        float right = escenario.getCropResolutionPolicy().getRight();
-        float left = escenario.getCropResolutionPolicy().getLeft();
-        return left - getWidth()/2 < getX() && getX() < right + getWidth()/2;
-    }
-
     @Override
-    public void setStateQ2(){
+    protected void setStateQ2(){
         if(tipo == TIPO_CIMA) {
             if (actionLeft) {
                 resetActionsLeftRight();
@@ -162,7 +156,7 @@ public class PersonajeEnemigo extends Personaje {
     }
 
     @Override
-    public void setStateQ3(){
+    protected void setStateQ3(){
         if(tipo == TIPO_CIMA) {
             if (!actionDown) {
                 resetActionsUpDown();
@@ -195,7 +189,7 @@ public class PersonajeEnemigo extends Personaje {
         }
     }
 
-    private void cimaDispararLeftRight(float dx){
+    protected void cimaDispararLeftRight(float dx){
         if (flagCima != 0 && flagCima != 1) {
             setStateQ0();
         }
@@ -214,7 +208,7 @@ public class PersonajeEnemigo extends Personaje {
         }
     }
 
-    private void cimaDispararUpdown(float dy){
+    protected void cimaDispararUpdown(float dy){
         if (flagCima != 2 && flagCima != 3) {
             setStateQ0();
         }
@@ -233,7 +227,7 @@ public class PersonajeEnemigo extends Personaje {
         }
     }
 
-    private void cimaDispararLeftRightUpDown(float dx, float dy){
+    protected void cimaDispararLeftRightUpDown(float dx, float dy){
         if(flagCima != -1){
             setStateQ0();
         }
@@ -265,6 +259,7 @@ public class PersonajeEnemigo extends Personaje {
                 } else {
                     init((left - backLayerX) + (5.5f * ancho / 2), 0);
                 }
+                activar();
             }
         }
     }

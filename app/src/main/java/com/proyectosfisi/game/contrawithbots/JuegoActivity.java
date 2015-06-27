@@ -51,6 +51,8 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
     protected TiledTextureRegion mPlayerTextureRegion;
     protected ITexture mEnemyTexture;
     protected TiledTextureRegion mEnemyTextureRegion;
+    protected ITexture mEnemyFrancotiradorTexture;
+    protected TiledTextureRegion mEnemyFrancotiradorTextureRegion;
     protected ITexture mBulletTexture;
     protected TiledTextureRegion mBulletTextureRegion;
 
@@ -148,7 +150,7 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
         hud.setZIndex(9);
         hud.setOnSceneTouchListener(this);
 
-        BotFactory botFactory = new BotFactory(escenario, this.mEnemyTextureRegion, this.mBulletTextureRegion, vertexBufferObjectManager);
+        BotFactory botFactory = new BotFactory(escenario, this.mEnemyTextureRegion, this.mEnemyFrancotiradorTextureRegion, this.mBulletTextureRegion, vertexBufferObjectManager);
         escenario.setBotFactory(botFactory);
 
         BalaFactory.reset();
@@ -162,7 +164,7 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
 
         botFactory.initBots();
 
-        jugador.setEnemigos(botFactory.getBots());
+        jugador.setEnemigos(botFactory.getAllBots());
         escenario.getLayerPlayer().attachChild(jugador);
 
         intro.setStateQ0();
@@ -258,10 +260,15 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
         this.mPlayerTextureRegion = TextureRegionFactory.extractTiledFromTexture(this.mPlayerTexture, 16, 5);
         this.mPlayerTexture.load();
 
-        // Personaje principal
+        // Personaje Enemigo
         this.mEnemyTexture = new AssetBitmapTexture(this.getTextureManager(), this.getAssets(), "gfx/sprite-personaje-enemigo-2.png");
         this.mEnemyTextureRegion = TextureRegionFactory.extractTiledFromTexture(this.mEnemyTexture, 16, 5);
         this.mEnemyTexture.load();
+
+        // Personaje Enemigo Francotirador
+        this.mEnemyFrancotiradorTexture = new AssetBitmapTexture(this.getTextureManager(), this.getAssets(), "gfx/sprite-personaje-francotirador2.png");
+        this.mEnemyFrancotiradorTextureRegion = TextureRegionFactory.extractTiledFromTexture(this.mEnemyFrancotiradorTexture, 12, 4);
+        this.mEnemyFrancotiradorTexture.load();
 
         // Bullet
         this.mBulletTexture = new AssetBitmapTexture(this.getTextureManager(), this.getAssets(), "gfx/sprite-bala.png");
@@ -297,11 +304,11 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
         fontParrafo.load();
 
         final ITexture fontTextureNivel = new BitmapTextureAtlas(this.getTextureManager(), 256, 256, TextureOptions.NEAREST);
-        fontNivel = FontFactory.createFromAsset(this.getFontManager(), fontTextureNivel, this.getAssets(), "font/ufonts.com_showcard-gothic.ttf", 10, true, new Color(1.0f, 1.0f, 1.0f).getARGBPackedInt());
+        fontNivel = FontFactory.createFromAsset(this.getFontManager(), fontTextureNivel, this.getAssets(), "font/ufonts.com_showcard-gothic.ttf", 12, true, new Color(1.0f, 1.0f, 1.0f).getARGBPackedInt());
         fontNivel.load();
 
         final ITexture fontTextureScoreNivel = new BitmapTextureAtlas(this.getTextureManager(), 256, 256, TextureOptions.NEAREST);
-        fontScoreNivel = FontFactory.createFromAsset(this.getFontManager(), fontTextureScoreNivel, this.getAssets(), "font/atari_full.ttf", 5, true, new Color(0.0f, 0.0f, 0.0f).getARGBPackedInt());
+        fontScoreNivel = FontFactory.createFromAsset(this.getFontManager(), fontTextureScoreNivel, this.getAssets(), "font/atari_full.ttf", 6, true, new Color(0.0f, 0.0f, 0.0f).getARGBPackedInt());
         fontScoreNivel.load();
 
         sDisparo = SoundFactory.createSoundFromAsset(this.getSoundManager(), this.getApplicationContext(), "sounds/disparo2.ogg");

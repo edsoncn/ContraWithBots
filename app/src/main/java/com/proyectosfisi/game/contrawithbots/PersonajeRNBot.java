@@ -42,7 +42,7 @@ public class PersonajeRNBot extends Personaje {
     protected void onManagedUpdate(final float pSecondsElapsed) {
         if (!escenario.isPausa()) {
             if (getState() != STATE_Q5) {
-                Personaje enemigo = getEnemigos().get(0);
+                Actor enemigo = getEnemigos().get(0);
                 countMove += pSecondsElapsed;
                 if (countMove > 0.25) {
                     if (Math.abs(getRelativeX() - enemigo.getRelativeX()) > (destanciaMedia + 20)) {
@@ -72,7 +72,7 @@ public class PersonajeRNBot extends Personaje {
                     double d = 0;
                     if(BalaFactory.getInstance().getListaBalasActivas().size()!=0){
                         for(Bala b: BalaFactory.getInstance().getListaBalasActivas()) {
-                            if (b.getPersonaje() instanceof PersonajeJugador) {
+                            if (b.getActor() instanceof PersonajeJugador) {
                                 d =  Math.sqrt( Math.pow(b.getX()-getX(),2) + Math.pow(b.getY()-getY(),2) );
                                 if(d < 100){
                                     entradas[3] = 1;
@@ -136,7 +136,7 @@ public class PersonajeRNBot extends Personaje {
 
                     if(salidas[4] == 1) {//esquivar
                         for(Bala b: BalaFactory.getInstance().getListaBalasActivas()){
-                            if(b.getPersonaje() instanceof PersonajeJugador){
+                            if(b.getActor() instanceof PersonajeJugador){
                                 Log.i("bot","vy:"+b.getVelocityY()+" vx:"+b.getVelocityX());
                                 if(b.getVelocityY()>0 && b.getVelocityX()>0){
                                     if (getX()>b.getX()) {
@@ -168,7 +168,7 @@ public class PersonajeRNBot extends Personaje {
                             setAction(ACTION_RIGHT);
                             setAction(-ACTION_RIGHT);
                         }
-                        shoot();
+                        setAction(ACTION_SHOOT);
                     }
 
                     countMove = 0;
