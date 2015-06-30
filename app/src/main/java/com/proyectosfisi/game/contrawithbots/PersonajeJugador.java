@@ -209,30 +209,28 @@ public class PersonajeJugador extends Personaje {
     }
 
     @Override
-    protected void updateLeftRight(){
-        if(getVelocityX() != 0){
-            moverEscenaRespectoPersonaje();
-        }else{
-            setRelativeX(getRelativeX());
-        }
+    protected void updateLeftRight() {
+        return;
     }
 
     public void moverEscenaRespectoPersonaje(){
-        float left = escenario.getCropResolutionPolicy().getLeft();
-        float right = escenario.getCropResolutionPolicy().getRight();
-        float anchoEscena = escenario.getParallaxLayerBackSprite().getWidth();
-        float velocityX = getVelocityX();
-        if(getX() + getVelocityX() <= left + getWidth()/2){ // Aseguramos que el personaje no salga de la escena por la izquierda
-            velocityX = left + getWidth()/2 - getX() - getVelocityX();
-        }else if(getRelativeX() + getVelocityX() >= anchoEscena - Escenario.ESCENARIO_PAGGING_RIGHT - getWidth()/2){ // y por la derecha de la pantalla
-            velocityX = anchoEscena - Escenario.ESCENARIO_PAGGING_RIGHT - getWidth()/2 - getRelativeX() - getVelocityX();
-        }
-        setRelativeX(getRelativeX() + velocityX);
-        if(velocityX > 0) {
-            if (getRelativeX() > anchoEscena - (right - left) / 2) {
-                escenario.getParallaxLayerBackSprite().setX(right - anchoEscena);
-            } else if(getX() > (left+right) /2){
-                escenario.getParallaxLayerBackSprite().setX((left + right) / 2 - getRelativeX());
+        if(getVelocityX() != 0) {
+            float left = escenario.getCropResolutionPolicy().getLeft();
+            float right = escenario.getCropResolutionPolicy().getRight();
+            float anchoEscena = escenario.getParallaxLayerBackSprite().getWidth();
+            float velocityX = getVelocityX();
+            if (getX() + getVelocityX() <= left + getWidth() / 2) { // Aseguramos que el personaje no salga de la escena por la izquierda
+                velocityX = left + getWidth() / 2 - getX() - getVelocityX();
+            } else if (getRelativeX() + getVelocityX() >= anchoEscena - Escenario.ESCENARIO_PAGGING_RIGHT - getWidth() / 2) { // y por la derecha de la pantalla
+                velocityX = anchoEscena - Escenario.ESCENARIO_PAGGING_RIGHT - getWidth() / 2 - getRelativeX() - getVelocityX();
+            }
+            setRelativeX(getRelativeX() + velocityX);
+            if (velocityX > 0) {
+                if (getRelativeX() > anchoEscena - (right - left) / 2) {
+                    escenario.getParallaxLayerBackSprite().setX(right - anchoEscena);
+                } else if (getX() > (left + right) / 2) {
+                    escenario.getParallaxLayerBackSprite().setX((left + right) / 2 - getRelativeX());
+                }
             }
         }
     }
@@ -291,6 +289,12 @@ public class PersonajeJugador extends Personaje {
         }
         int porcentaje = (int)(100 * avance);
         escenario.getControles().setScore(puntaje.getPuntaje() + porcentaje * 4, puntaje.getBotsCaidos(), avance);
+    }
+
+    @Override
+    public synchronized void setAction(int action) {
+        Log.i("Personaje", "Action: "+action);
+        super.setAction(action);
     }
 
     public int getActivePointerID() {

@@ -1,5 +1,7 @@
 package com.proyectosfisi.game.contrawithbots;
 
+import android.util.Log;
+
 import org.andengine.entity.Entity;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.sprite.Sprite;
@@ -133,6 +135,7 @@ public class Controles extends Entity{
             public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y){
                 if(!escenario.isPausa()) {
                     if (touchEvent.isActionDown()) {
+                        Log.i("Control", "JUMP");
                         escenario.getJugador().setAction(PersonajeJugador.ACTION_JUMP, touchEvent);
                     }
                 }

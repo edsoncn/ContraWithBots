@@ -28,6 +28,7 @@ public class PersonajeFrancotirador extends Actor {
     protected int flagF;
     protected float count2;
 
+    //Efecto de muerte
     protected float vx;
     protected float vy;
     protected float a;
@@ -125,12 +126,12 @@ public class PersonajeFrancotirador extends Actor {
                         }
                         //Disparo
                         count0 += pSecondsElapsed;
-                        if (count0 > 1.5) {
+                        if (count0 > BotFactory.BALA_TIME) {
                             setAction(ACTION_SHOOT);
                             count0 = 0;
                         }
                         //Efecto de iluminacion
-                        if(count2 > Bala.FRAME_TIME_CHISPA / 2){
+                        if(count2 > 0.0625){
                             if(getCurrentTileIndex() >= 24){
                                 stopAnimation(getCurrentTileIndex() - 24);
                             }
@@ -150,7 +151,7 @@ public class PersonajeFrancotirador extends Actor {
                         setRelativeX(getRelativeX() + vx);
                         setRelativeY(getRelativeY() + vy);
                         vx += a;
-                        vy += a;
+                        vy += -Math.abs(a);
                         if(count1 > 0.0625) {
                             if (!flag0) {
                                 if (orientation == ORIENTATION_LEFT) {
@@ -212,17 +213,17 @@ public class PersonajeFrancotirador extends Actor {
     protected void setStateQ1(){
         if(!isActionDie()) {
             actionDie = true;
-            if(orientation == ORIENTATION_LEFT) {
-                stopAnimation(17);
-            } else {
-                stopAnimation(18);
-            }
             flag0 = false;
             vx = 1.5f;
             vy = 1.5f;
             a = -0.125f;
             vx = orientation == ORIENTATION_RIGHT ? -vx : vx;
             a = orientation == ORIENTATION_RIGHT ? -a : a;
+            if(orientation == ORIENTATION_LEFT) {
+                stopAnimation(17);
+            } else {
+                stopAnimation(18);
+            }
             state = STATE_Q1;
         }
     }
@@ -268,9 +269,9 @@ public class PersonajeFrancotirador extends Actor {
     }
 
     @Override
-    protected void shoot() {
-        super.shoot();
-        if (!actionDie) {
+    protected boolean shoot() {
+        boolean shoot = super.shoot();
+        if (shoot) {
             if(orientation == ORIENTATION_LEFT){
                 if(isActionLeft()){
                     if(isActionUp()){
@@ -310,6 +311,7 @@ public class PersonajeFrancotirador extends Actor {
                 }
             }
         }
+        return shoot;
     }
 
     public boolean restarVidaOMorir(float danio){

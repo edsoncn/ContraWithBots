@@ -407,7 +407,6 @@ public class Personaje extends Actor {
     }
 
     protected void setStateQ0() {
-        state = STATE_Q0;
         switch (orientation) {
             case ORIENTATION_LEFT:
                 stopAnimation(7);
@@ -418,17 +417,18 @@ public class Personaje extends Actor {
         }
         resetActions();
         setVelocityX(0);
+        state = STATE_Q0;
     }
 
     protected void setStateQ1() {
         if (!actionJump) {
             actionJump = true;
-            state = STATE_Q1;
             if (orientation == ORIENTATION_RIGHT) {
                 animate(new long[]{FRAME_TIME, FRAME_TIME, FRAME_TIME, FRAME_TIME}, 56, 59, true);
             } else {
                 animate(new long[]{FRAME_TIME, FRAME_TIME, FRAME_TIME, FRAME_TIME}, new int[]{55, 54, 53, 52}, true);
             }
+            state = STATE_Q1;
         }
     }
 
@@ -465,13 +465,13 @@ public class Personaje extends Actor {
         if (!actionDown) {
             resetActionsUpDown();
             actionDown = true;
-            state = STATE_Q3;
             if (orientation == ORIENTATION_RIGHT) {
                 stopAnimation(40);
             } else {
                 stopAnimation(39);
             }
             setVelocityX(0);
+            state = STATE_Q3;
         }
     }
 
@@ -479,19 +479,18 @@ public class Personaje extends Actor {
         if (!actionUp) {
             resetActionsUpDown();
             actionUp = true;
-            state = STATE_Q4;
             if (orientation == ORIENTATION_RIGHT) {
                 stopAnimation(24);
             } else {
                 stopAnimation(23);
             }
             setVelocityX(0);
+            state = STATE_Q4;
         }
     }
 
     protected void setStateQ5() {
         if (!actionDie) {
-            state = STATE_Q5;
             resetActions();
             switch (orientation) {
                 case ORIENTATION_LEFT:
@@ -507,12 +506,12 @@ public class Personaje extends Actor {
             flag0 = false;
             count0 = 0;
             setVelocityY(VELOCITY_Y);
+            state = STATE_Q5;
         }
     }
 
     protected void setStateQ6() {
         if (!actionCayendo) {
-            state = STATE_Q6;
             switch (orientation) {
                 case ORIENTATION_LEFT:
                     if (actionLeft) {
@@ -556,6 +555,7 @@ public class Personaje extends Actor {
                     break;
             }
             actionCayendo = true;
+            state = STATE_Q6;
         }
     }
 
@@ -563,9 +563,10 @@ public class Personaje extends Actor {
 
     protected void asesinar(Actor victima){}
 
-    protected void shoot() {
-        super.shoot();
-        if (!actionDie) {
+    @Override
+    protected boolean shoot() {
+        boolean shoot = super.shoot();
+        if (shoot) {
             switch (state) {
                 case STATE_Q0:
                     animateStateQ0();
@@ -578,6 +579,7 @@ public class Personaje extends Actor {
                     break;
             }
         }
+        return shoot;
     }
 
     public PosicionYVelocidad getPosicionYVelocidadDeBala(){

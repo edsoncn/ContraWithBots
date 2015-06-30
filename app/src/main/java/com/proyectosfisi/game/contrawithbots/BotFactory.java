@@ -10,8 +10,9 @@ import java.util.ArrayList;
  */
 public class BotFactory {
 
-    public static float DISCTANCIA_MEDIA = 144;
-    public static float DISCTANCIA_MEDIA_ERROR = 20;
+    public static float DISCTANCIA_MEDIA = 110;
+    public static float DISCTANCIA_MEDIA_ERROR = 30;
+    public static float BALA_TIME = 1.25f;
 
     private ArrayList<Actor> botsLevel1;
     private ArrayList<Actor> botsLevel2;
@@ -21,13 +22,17 @@ public class BotFactory {
     private Escenario escenario;
     private TiledTextureRegion pTextureEnemyRegion;
     private TiledTextureRegion pTextureEnemyFrancotiradorRegion;
+    private TiledTextureRegion pTextureEnemyCorredorRegion;
+    private TiledTextureRegion pTextureEnemyMetrallaRegion;
     private TiledTextureRegion mBulletTexture;
     private VertexBufferObjectManager pVertexBufferObjectManager;
 
-    public BotFactory(Escenario escenario, TiledTextureRegion pEnemyTextureRegion, TiledTextureRegion pTextureEnemyFrancotiradorRegion, TiledTextureRegion mBulletTexture, VertexBufferObjectManager pVertexBufferObjectManager){
+    public BotFactory(Escenario escenario, TiledTextureRegion pEnemyTextureRegion, TiledTextureRegion pTextureEnemyFrancotiradorRegion, TiledTextureRegion pTextureEnemyCorredorRegion, TiledTextureRegion pTextureEnemyMetrallaRegion, TiledTextureRegion mBulletTexture, VertexBufferObjectManager pVertexBufferObjectManager){
         this.escenario = escenario;
         this.pTextureEnemyRegion = pEnemyTextureRegion;
         this.pTextureEnemyFrancotiradorRegion = pTextureEnemyFrancotiradorRegion;
+        this.pTextureEnemyCorredorRegion = pTextureEnemyCorredorRegion;
+        this.pTextureEnemyMetrallaRegion = pTextureEnemyMetrallaRegion;
         this.mBulletTexture = mBulletTexture;
         this.pVertexBufferObjectManager = pVertexBufferObjectManager;
 
@@ -46,17 +51,22 @@ public class BotFactory {
         float backLayer = escenario.getParallaxLayerBackSprite().getWidth();
 
         //BOTS Level 1
-        /*
-        botsLevel1.add(crearBotEnemigo(-1 * (right - left) / 2, 0, PersonajeEnemigo.TIPO_NORMAL, Actor.ORIENTATION_RIGHT)); //0
-        botsLevel1.add(crearBotEnemigo( 3 * (right - left) / 2, 0, PersonajeEnemigo.TIPO_NORMAL, Actor.ORIENTATION_LEFT)); //1
-        botsLevel1.add(crearBotEnemigo(backLayer / 4, 0, PersonajeEnemigo.TIPO_NORMAL, Actor.ORIENTATION_LEFT)); //2
 
-        botsLevel1.add(crearBotEnemigo( 715, 0, PersonajeEnemigo.TIPO_AGACHADO, Actor.ORIENTATION_LEFT)); //3
-        botsLevel1.add(crearBotEnemigo( 1645, 0, PersonajeEnemigo.TIPO_AGACHADO, Actor.ORIENTATION_LEFT)); //4
-        botsLevel1.add(crearBotEnemigo( 2300, 0, PersonajeEnemigo.TIPO_AGACHADO, Actor.ORIENTATION_LEFT)); //5
-        botsLevel1.add(crearBotEnemigo( 3025, 0, PersonajeEnemigo.TIPO_AGACHADO, Actor.ORIENTATION_LEFT)); //6
-        botsLevel1.add(crearBotEnemigo( 4263, 0, PersonajeEnemigo.TIPO_AGACHADO, Actor.ORIENTATION_LEFT)); //7
-*/
+        botsLevel1.add(crearBotEnemigoCorredor( -1 * (right - left) / 2, 0, Actor.ORIENTATION_RIGHT)); //0
+        botsLevel1.add(crearBotEnemigoCorredor( 3 * (right - left) / 2, 0, Actor.ORIENTATION_LEFT)); //1
+        botsLevel1.add(crearBotEnemigoCorredor( -1.5f * (right - left) / 2, 0, Actor.ORIENTATION_RIGHT)); //0
+        botsLevel1.add(crearBotEnemigoCorredor( 3.5f * (right - left) / 2, 0, Actor.ORIENTATION_LEFT)); //1
+        botsLevel1.add(crearBotEnemigoCorredor(backLayer / 4, 0, Actor.ORIENTATION_LEFT)); //2
+
+        //752, 1008, 1736, 2304, 2832, 3408, 3824, 3935
+        botsLevel1.add(crearBotEnemigoMetralla(752, 0, Actor.ORIENTATION_LEFT)); //3
+        botsLevel1.add(crearBotEnemigoMetralla(1008, 0, Actor.ORIENTATION_LEFT)); //3
+        botsLevel1.add(crearBotEnemigoMetralla( 1736, 0, Actor.ORIENTATION_LEFT)); //3
+        botsLevel1.add(crearBotEnemigoMetralla( 2304, 0, Actor.ORIENTATION_LEFT)); //3
+        botsLevel1.add(crearBotEnemigoMetralla( 2832, 0, Actor.ORIENTATION_LEFT)); //3
+        botsLevel1.add(crearBotEnemigoMetralla( 3408, 0, Actor.ORIENTATION_LEFT)); //3
+        botsLevel1.add(crearBotEnemigoMetralla( 3824, 0, Actor.ORIENTATION_LEFT)); //3
+        botsLevel1.add(crearBotEnemigoMetralla( 3935, 0, Actor.ORIENTATION_LEFT)); //3
 
         botsLevel1.add(crearBotEnemigoFrancotirador(860, 128, Actor.ORIENTATION_LEFT)); //8
 
@@ -68,6 +78,7 @@ public class BotFactory {
 
         botsLevel1.add(crearBotEnemigoFrancotirador(4265, 46, Actor.ORIENTATION_LEFT)); //13
         botsLevel1.add(crearBotEnemigoFrancotirador(4261, 86, Actor.ORIENTATION_LEFT)); //14
+
         //BOTS Level2
 
         botsLevel2.add(crearRNBotEnemigo( 3 * (right - left) / 2, 0, Actor.ORIENTATION_LEFT)); //1
@@ -93,6 +104,22 @@ public class BotFactory {
 
     public PersonajeFrancotirador crearBotEnemigoFrancotirador(float x, float y, int orientacion){
         PersonajeFrancotirador enemigo = new PersonajeFrancotirador(escenario, x, y, pTextureEnemyFrancotiradorRegion, mBulletTexture, pVertexBufferObjectManager);
+        enemigo.setOrientation(orientacion);
+        enemigo.setEnemigos(personajeJugador);
+        enemigo.inactivar();
+        return enemigo;
+    }
+
+    public PersonajeCorredor crearBotEnemigoCorredor(float x, float y, int orientacion){
+        PersonajeCorredor enemigo = new PersonajeCorredor(escenario, x, y, pTextureEnemyCorredorRegion, mBulletTexture, pVertexBufferObjectManager);
+        enemigo.setOrientation(orientacion);
+        enemigo.setEnemigos(personajeJugador);
+        enemigo.inactivar();
+        return enemigo;
+    }
+
+    public PersonajeMetralla crearBotEnemigoMetralla(float x, float y, int orientacion){
+        PersonajeMetralla enemigo = new PersonajeMetralla(escenario, x, y, pTextureEnemyMetrallaRegion, mBulletTexture, pVertexBufferObjectManager);
         enemigo.setOrientation(orientacion);
         enemigo.setEnemigos(personajeJugador);
         enemigo.inactivar();

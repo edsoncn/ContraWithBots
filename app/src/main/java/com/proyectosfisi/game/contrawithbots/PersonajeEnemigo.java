@@ -47,7 +47,7 @@ public class PersonajeEnemigo extends Personaje {
             if (getState() != STATE_Q5) {
                 Actor enemigo = getEnemigos().get(0);
                 countBullets += pSecondsElapsed;
-                if (countBullets > 1.5) {
+                if (countBullets > BotFactory.BALA_TIME) {
                     if(validarEnDentroDeEscena()) {
                         setAction(ACTION_SHOOT);
                     }

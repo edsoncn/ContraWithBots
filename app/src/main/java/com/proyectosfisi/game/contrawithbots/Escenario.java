@@ -10,6 +10,7 @@ import org.andengine.entity.scene.background.AutoParallaxBackground;
 import org.andengine.entity.scene.background.ParallaxBackground;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.opengl.texture.region.ITextureRegion;
+import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 /**
@@ -30,14 +31,18 @@ public class Escenario {
     protected Entity layerBullets;
     protected HUD hud;
     
-    protected PersonajeJugador jugador;;
+    protected PersonajeJugador jugador;
     protected Intro intro;
     protected Controles controles;
     protected BotFactory botFactory;
     protected boolean pausa;
 
     protected Sound sDisparo;
+    protected Sound sExplosion;
     protected Music mMusic;
+
+    protected TiledTextureRegion mBulletTextureRegion; // Textura de la bala
+    protected TiledTextureRegion mExplosionTextureRegion; // Textura de la explosion
 
     public static final float PISO_ALTO = 84;
     public static final float ESCALONES_ALTO[] = new float[]{/*1*/ 56, 128, 96,/*2*/ 56, 96, 56, 128, 96, 56,/*3*/ 96, 56, 128, 96, 56,/*4*/ 46, 86};
@@ -81,7 +86,7 @@ public class Escenario {
                     if(x_min <= personaje.getRelativeX() && personaje.getRelativeX() <= x_max){
                         float alto = ESCALONES_ALTO[i];
                         if(personaje.getRelativeY() >= alto && alto >= personaje.getRelativeY() + personaje.getVelocityY()){
-                            return i+1;
+                            return i+1; //toco un escalon
                         }
                     }
                 }
@@ -170,5 +175,29 @@ public class Escenario {
 
     public void setmMusic(Music mMusic) {
         this.mMusic = mMusic;
+    }
+
+    public TiledTextureRegion getmBulletTextureRegion() {
+        return mBulletTextureRegion;
+    }
+
+    public void setmBulletTextureRegion(TiledTextureRegion mBulletTextureRegion) {
+        this.mBulletTextureRegion = mBulletTextureRegion;
+    }
+
+    public TiledTextureRegion getmExplosionTextureRegion() {
+        return mExplosionTextureRegion;
+    }
+
+    public void setmExplosionTextureRegion(TiledTextureRegion mExplosionTextureRegion) {
+        this.mExplosionTextureRegion = mExplosionTextureRegion;
+    }
+
+    public Sound getsExplosion() {
+        return sExplosion;
+    }
+
+    public void setsExplosion(Sound sExplosion) {
+        this.sExplosion = sExplosion;
     }
 }

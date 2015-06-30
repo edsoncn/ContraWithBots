@@ -53,8 +53,14 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
     protected TiledTextureRegion mEnemyTextureRegion;
     protected ITexture mEnemyFrancotiradorTexture;
     protected TiledTextureRegion mEnemyFrancotiradorTextureRegion;
+    protected ITexture mEnemyCorredorTexture;
+    protected TiledTextureRegion mEnemyCorredorTextureRegion;
+    protected ITexture mEnemyMetrallaTexture;
+    protected TiledTextureRegion mEnemyMetrallaTextureRegion;
     protected ITexture mBulletTexture;
     protected TiledTextureRegion mBulletTextureRegion;
+    protected ITexture mExplosionTexture;
+    protected TiledTextureRegion mExplosionTextureRegion;
 
     //Mandos
     protected ITexture mMandoDireccionalTexture;
@@ -87,6 +93,7 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
     protected Font fontScoreNivel;
 
     protected Sound sDisparo;
+    protected Sound sExplosion;
     protected Music mMusic;
 
     protected HUD hud;
@@ -127,12 +134,21 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
 
         final VertexBufferObjectManager vertexBufferObjectManager = this.getVertexBufferObjectManager();
 
-        final Scene scene = new Scene();
+        final Scene scene = new Scene(){
+            @Override
+            protected void onManagedUpdate(float pSecondsElapsed) {
+                if(!escenario.isPausa() && intro != null && intro.getEstado() == intro.ESTADO_Q2){
+                    escenario.getJugador().moverEscenaRespectoPersonaje();
+                }
+                super.onManagedUpdate(pSecondsElapsed);
+            }
+        };
 
         //Creamos background y las capas
         escenario.onCreateEscene(scene, mParallaxLayerBackTextureRegion, vertexBufferObjectManager);
 
         escenario.setsDisparo(sDisparo);
+        escenario.setsExplosion(sExplosion);
         escenario.setmMusic(mMusic);
 
         hud = new HUD();
@@ -141,6 +157,8 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
         intro = new Intro(escenario, mIntroTituloTextureRegion, mIntroNivel1TextureRegion, mIntroNivel2TextureRegion, mIntroNivel3TextureRegion, fontNivel, fontScoreNivel, getVertexBufferObjectManager());
         scene.attachChild(intro);
         escenario.setIntro(intro);
+        escenario.setmBulletTextureRegion(mBulletTextureRegion);
+        escenario.setmExplosionTextureRegion(mExplosionTextureRegion);
         // Intro
         controles = new Controles(escenario, scale, mMandoDireccionalTextureRegion, mMandoAccionesTextureRegion, mMandoPausaTextureRegion, mBotonContinuarTextureRegion, mBotonMenuTextureRegion, fontTitulo, fontParrafo, getVertexBufferObjectManager());
         controles.ocultarControles();
@@ -150,10 +168,11 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
         hud.setZIndex(9);
         hud.setOnSceneTouchListener(this);
 
-        BotFactory botFactory = new BotFactory(escenario, this.mEnemyTextureRegion, this.mEnemyFrancotiradorTextureRegion, this.mBulletTextureRegion, vertexBufferObjectManager);
+        BotFactory botFactory = new BotFactory(escenario, this.mEnemyTextureRegion, this.mEnemyFrancotiradorTextureRegion, this.mEnemyCorredorTextureRegion, this.mEnemyMetrallaTextureRegion, this.mBulletTextureRegion, vertexBufferObjectManager);
         escenario.setBotFactory(botFactory);
 
         BalaFactory.reset();
+        ExplosionFactory.reset();
 
         // Principal
         jugador = new PersonajeJugador(escenario, (right - left)/2, 0, this.mPlayerTextureRegion, this.mBulletTextureRegion, vertexBufferObjectManager);
@@ -172,6 +191,8 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
         return scene;
     }
 
+
+
     @Override
     public boolean onSceneTouchEvent(final Scene pScene, final TouchEvent pSceneTouchEvent) {
         final int pointerID = pSceneTouchEvent.getPointerID();
@@ -187,7 +208,6 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
         Display display = windowManager.getDefaultDisplay();
         DisplayMetrics displayMetrics = new DisplayMetrics();
         display.getMetrics(displayMetrics);
-
 
         // since SDK_INT = 1;
         int mWidthPixels = displayMetrics.widthPixels;
@@ -270,10 +290,25 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
         this.mEnemyFrancotiradorTextureRegion = TextureRegionFactory.extractTiledFromTexture(this.mEnemyFrancotiradorTexture, 12, 4);
         this.mEnemyFrancotiradorTexture.load();
 
+        // Personaje Enemigo Corredor
+        this.mEnemyCorredorTexture = new AssetBitmapTexture(this.getTextureManager(), this.getAssets(), "gfx/sprite-personaje-corredor.png");
+        this.mEnemyCorredorTextureRegion = TextureRegionFactory.extractTiledFromTexture(this.mEnemyCorredorTexture, 14, 2);
+        this.mEnemyCorredorTexture.load();
+
+        // Personaje Enemigo Metralla
+        this.mEnemyMetrallaTexture = new AssetBitmapTexture(this.getTextureManager(), this.getAssets(), "gfx/sprite-personaje-metralla.png");
+        this.mEnemyMetrallaTextureRegion = TextureRegionFactory.extractTiledFromTexture(this.mEnemyMetrallaTexture, 9, 1);
+        this.mEnemyMetrallaTexture.load();
+
         // Bullet
         this.mBulletTexture = new AssetBitmapTexture(this.getTextureManager(), this.getAssets(), "gfx/sprite-bala.png");
         this.mBulletTextureRegion = TextureRegionFactory.extractTiledFromTexture(this.mBulletTexture, 3, 1);
         this.mBulletTexture.load();
+
+        // Explosion
+        this.mExplosionTexture = new AssetBitmapTexture(this.getTextureManager(), this.getAssets(), "gfx/sprite-explosion.png");
+        this.mExplosionTextureRegion = TextureRegionFactory.extractTiledFromTexture(this.mExplosionTexture, 12, 1);
+        this.mExplosionTexture.load();
 
         //IntroTitulo
         this.mIntroTituloTexture = new AssetBitmapTexture(this.getTextureManager(), this.getAssets(), "gfx/intro-titulo.png");
@@ -312,8 +347,10 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
         fontScoreNivel.load();
 
         sDisparo = SoundFactory.createSoundFromAsset(this.getSoundManager(), this.getApplicationContext(), "sounds/disparo2.ogg");
+        sExplosion = SoundFactory.createSoundFromAsset(this.getSoundManager(), this.getApplicationContext(), "sounds/explosion2.wav");
         mMusic = MusicFactory.createMusicFromAsset(mEngine.getMusicManager(), this, "sounds/korn-somebody_someone.ogg");
         mMusic.setLooping(true);
+
     }
 
     @Override

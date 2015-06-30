@@ -122,10 +122,12 @@ public class Bala extends TiledSprite{
         for(Actor enemigo : enemigos){
             if(!enemigo.isInactivo() && !enemigo.isActionDie()){
                 if (enemigo.colisionBala(this)){
-                    float restar = 5.00f;
+                    float restar = 25.00f;
                     if(enemigo instanceof PersonajeEnemigo){
                         restar = 25.0f;
                     }else if(enemigo instanceof PersonajeFrancotirador){
+                        restar = 33.34f;
+                    }else if(enemigo instanceof PersonajeMetralla){
                         restar = 33.34f;
                     }
                     if(enemigo.restarVidaOMorir(restar)) {

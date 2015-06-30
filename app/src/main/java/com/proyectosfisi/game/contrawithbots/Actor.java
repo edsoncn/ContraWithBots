@@ -105,14 +105,18 @@ public abstract class Actor extends AnimatedSprite {
 
     public abstract PosicionYVelocidad getPosicionYVelocidadDeBala();
 
-    protected void shoot(){
+    protected boolean shoot(){
         if(!actionDie) {
-            Bala bala = BalaFactory.getInstance().getBala(escenario, mBulletTextureRegion, getVertexBufferObjectManager());
-            bala.setActor(this);
-            bala.setEnemigos(enemigos);
-            bala.initBala();
-            bala.getsDisparo().play();
+            if(validarEnDentroDeEscena()) {
+                Bala bala = BalaFactory.getInstance().getBala(escenario, mBulletTextureRegion, getVertexBufferObjectManager());
+                bala.setActor(this);
+                bala.setEnemigos(enemigos);
+                bala.initBala();
+                bala.getsDisparo().play();
+                return true;
+            }
         }
+        return false;
     }
 
     public abstract boolean colisionBala(Bala bala);
@@ -135,6 +139,7 @@ public abstract class Actor extends AnimatedSprite {
         actionUp = false;
         actionDie = false;
         actionCayendo = false;
+        actionJump = false;
     }
 
     protected void resetActionsLeftRight(){
@@ -148,6 +153,7 @@ public abstract class Actor extends AnimatedSprite {
 
     protected void initFlagsAndCounts(){
         flag0 = false;
+        flag1 = false;
         dead = false;
         count0 = 0;
         count1 = 0;
@@ -170,7 +176,7 @@ public abstract class Actor extends AnimatedSprite {
     protected boolean validarEnDentroDeEscena(){
         float right = escenario.getCropResolutionPolicy().getRight();
         float left = escenario.getCropResolutionPolicy().getLeft();
-        return left - getWidth()/2 < getX() && getX() < right + getWidth()/2;
+        return left < getX() && getX() < right;
     }
 
     public float getRelativeX() {
