@@ -749,12 +749,16 @@ public class Personaje extends Actor {
     }
 
     public boolean colisionBala(Bala bala){
+        return colisionBala(bala.getX(), bala.getY());
+    }
+
+    public boolean colisionBala(float xbala, float ybala){
         int pi = positionPersonaje();
         float xMin = CHOQUE_X_MIN[pi];
         float xMax = CHOQUE_X_MAX[pi];
         float yMin = CHOQUE_Y_MIN[pi];
         float yMax = CHOQUE_Y_MAX[pi];
-        return validarColision(xMin, xMax, yMin, yMax, bala);
+        return validarColision(xMin, xMax, yMin, yMax, xbala, ybala);
     }
 
     public boolean restarVidaOMorir(float danio){

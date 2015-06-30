@@ -126,6 +126,11 @@ public abstract class Actor extends AnimatedSprite {
                 && getY() + yMin < bala.getY() && bala.getY() < getY() + yMax;
     }
 
+    protected boolean validarColision(float xMin, float xMax, float yMin, float yMax, float xbala, float ybala){
+        return getX() + xMin < xbala && xbala < getX() + xMax
+                && getY() + yMin < ybala && ybala < getY() + yMax;
+    }
+
     public abstract boolean restarVidaOMorir(float danio);
 
     protected void updateLeftRight(){

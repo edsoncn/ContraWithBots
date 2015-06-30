@@ -14,7 +14,6 @@ public class PersonajeRNBot extends Personaje {
 
     protected float countBullets;
     protected float countMove;
-    public static final int TIPO_NORMAL = 3;
     protected float destanciaMedia;
     private double[] entradas = new double[4];
     private long[] salidas = new long[6];
@@ -69,15 +68,23 @@ public class PersonajeRNBot extends Personaje {
                         entradas[2] = 1;
                     }
 
-                    double d = 0;
                     if(BalaFactory.getInstance().getListaBalasActivas().size()!=0){
                         for(Bala b: BalaFactory.getInstance().getListaBalasActivas()) {
                             if (b.getActor() instanceof PersonajeJugador) {
-                                d =  Math.sqrt( Math.pow(b.getX()-getX(),2) + Math.pow(b.getY()-getY(),2) );
-                                if(d < 100){
-                                    entradas[3] = 1;
-                                }else{
-                                    entradas[3] = 0;
+                                float bX = b.getX(), bY = b.getY();
+                                boolean colision = false;
+                                double d = Math.sqrt(Math.pow(b.getX()-getX(),2) + Math.pow(b.getY()-getY(),2));
+                                if(d<100){
+                                    for(int t=1; t<4 && !colision; t++){
+                                        bX = bX + b.getVelocityX()*t;
+                                        bY = bY + b.getVelocityY()*t;
+                                        if(this.colisionBala(bX, bY)){
+                                            entradas[3] = 1;
+                                            colision = true;
+                                        }else{
+                                            entradas[3] = 0;
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -98,7 +105,7 @@ public class PersonajeRNBot extends Personaje {
                                 setAction(ACTION_LEFT);
                             }
                         }
-                    }else if(salidas[1] == 1){
+                    }else if(salidas[1] == 1){ //avanzar
                         if(salidasPrevias[1] != salidas[1]) {
                             if (getRelativeX() > enemigo.getRelativeX()) {//personaje se encuentra a la izquierda del bot
                                 Log.i("bot", "avan L");
@@ -118,7 +125,7 @@ public class PersonajeRNBot extends Personaje {
                         }
                     }
 
-                    if(salidasPrevias[2] != salidas[2]) {
+                    if(salidasPrevias[2] != salidas[2]) { // echarse
                         if (salidas[2] == 1) {
                             setAction(ACTION_DOWN);
                         } else {
@@ -126,7 +133,7 @@ public class PersonajeRNBot extends Personaje {
                         }
                     }
 
-                    if(salidasPrevias[3] != salidas[3]) {
+                    if(salidasPrevias[3] != salidas[3]) { //saltar
                         if (salidas[3] == 1) {
                             setAction(ACTION_JUMP);
                         } else {
@@ -135,31 +142,33 @@ public class PersonajeRNBot extends Personaje {
                     }
 
                     if(salidas[4] == 1) {//esquivar
-                        for(Bala b: BalaFactory.getInstance().getListaBalasActivas()){
-                            if(b.getActor() instanceof PersonajeJugador){
-                                Log.i("bot","vy:"+b.getVelocityY()+" vx:"+b.getVelocityX());
-                                if(b.getVelocityY()>0 && b.getVelocityX()>0){
-                                    if (getX()>b.getX()) {
-                                        setAction(ACTION_RIGHT);
-                                    }else {
-                                        setAction(ACTION_LEFT);
+                        if(BalaFactory.getInstance().getListaBalasActivas().size()!=0) {
+                            for (Bala b : BalaFactory.getInstance().getListaBalasActivas()) {
+                                if (b.getActor() instanceof PersonajeJugador) {
+                                    Log.i("bot", "vy:" + b.getVelocityY() + " vx:" + b.getVelocityX());
+                                    if (b.getVelocityY() > 0 && b.getVelocityX() > 0) {
+                                        if (getX() > b.getX()) {
+                                            setAction(ACTION_RIGHT);
+                                        } else {
+                                            setAction(ACTION_LEFT);
+                                        }
                                     }
-                                }
-                                if(b.getVelocityY() == 0){
-                                    setAction(ACTION_JUMP);
-                                }
-                                if(b.getVelocityX()==0){
-                                    if (getX()>enemigo.getX()) {
-                                        setAction(ACTION_RIGHT);
-                                    }else{
-                                        setAction(ACTION_LEFT);
+                                    if (b.getVelocityY() == 0) {
+                                        setAction(ACTION_JUMP);
+                                    }
+                                    if (b.getVelocityX() == 0) {
+                                        if (getX() > enemigo.getX()) {
+                                            setAction(ACTION_RIGHT);
+                                        } else {
+                                            setAction(ACTION_LEFT);
+                                        }
                                     }
                                 }
                             }
                         }
                     }
 
-                    if(salidas[5] == 1) {
+                    if(salidas[5] == 1) { //disparar
                         if (getRelativeX() > enemigo.getRelativeX() && getOrientation() == ORIENTATION_RIGHT) {
                             setAction(ACTION_LEFT);
                             setAction(-ACTION_LEFT);
@@ -168,7 +177,7 @@ public class PersonajeRNBot extends Personaje {
                             setAction(ACTION_RIGHT);
                             setAction(-ACTION_RIGHT);
                         }
-                        setAction(ACTION_SHOOT);
+                        shoot();
                     }
 
                     countMove = 0;
