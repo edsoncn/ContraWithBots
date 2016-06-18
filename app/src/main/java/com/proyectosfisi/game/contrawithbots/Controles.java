@@ -5,11 +5,13 @@ import android.util.Log;
 import org.andengine.entity.Entity;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.sprite.Sprite;
+import org.andengine.entity.sprite.TiledSprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.text.TextOptions;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.texture.region.ITextureRegion;
+import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.adt.align.HorizontalAlign;
 import org.andengine.util.adt.color.Color;
@@ -34,9 +36,14 @@ public class Controles extends Entity{
     protected Rectangle rContinuar;
     protected Rectangle rMenu;
 
-    private Text tTitulo;
-    private Text tParrafoDerecha;
-    private Text tParrafoIzquierda;
+    protected Text tTitulo;
+    protected Text tParrafoDerecha;
+    protected Text tParrafoIzquierda;
+
+    protected TiledSprite sVida;
+    protected TiledSprite sBombas;
+    protected Text tVida;
+    protected Text tBombas;
 
     protected Escenario escenario;
     protected float escala;
@@ -47,8 +54,7 @@ public class Controles extends Entity{
                      final ITextureRegion mMandoPausaTextureRegion,
                      final ITextureRegion mBotonContinuarTextureRegion,
                      final ITextureRegion mBotonMenuTextureRegion,
-                     final Font fontTitulo,
-                     final Font fontParrafo,
+                     final TiledTextureRegion mIconosTextureRegion,
                      final VertexBufferObjectManager pVertexBufferObjectManager) {
         super();
 
@@ -59,6 +65,28 @@ public class Controles extends Entity{
         float ancho = right - left;
         float alto = top - bottom;
         this.escala = escala;
+
+        sVida = new TiledSprite(0, 0, mIconosTextureRegion, pVertexBufferObjectManager);
+        sVida.setCurrentTileIndex(0);
+        sVida.setVisible(false);
+        sVida.setOffsetCenter(1, 1);
+        this.attachChild(sVida);
+
+        tVida = new Text(0, 0, escenario.getFontIconoVida(), "100", new TextOptions(HorizontalAlign.RIGHT), pVertexBufferObjectManager);
+        tVida.setVisible(false);
+        tVida.setOffsetCenterX(1);
+        this.attachChild(tVida);
+
+        sBombas = new TiledSprite(0, 0, mIconosTextureRegion, pVertexBufferObjectManager);
+        sBombas.setCurrentTileIndex(1);
+        sBombas.setVisible(false);
+        sBombas.setOffsetCenter(1, 1);
+        this.attachChild(sBombas);
+
+        tBombas = new Text(0, 0, escenario.getFontIconoVida(), "x2", new TextOptions(HorizontalAlign.RIGHT), pVertexBufferObjectManager);
+        tBombas.setVisible(false);
+        tBombas.setOffsetCenterX(1);
+        this.attachChild(tBombas);
 
         //Fondo de la pausa
         rFondoPausa = new Rectangle(left, bottom, ancho, alto, pVertexBufferObjectManager);
@@ -82,27 +110,27 @@ public class Controles extends Entity{
         this.attachChild(spriteMandoPausa);
 
         spriteBotonContinuar = new Sprite(0, 0, mBotonContinuarTextureRegion, pVertexBufferObjectManager);
-        spriteBotonContinuar.setSize(spriteBotonContinuar.getWidth()*escala, spriteBotonContinuar.getHeight()*escala);
+        spriteBotonContinuar.setSize(spriteBotonContinuar.getWidth() * escala, spriteBotonContinuar.getHeight() * escala);
         this.attachChild(spriteBotonContinuar);
 
         spriteBotonMenu = new Sprite(0, 0, mBotonMenuTextureRegion, pVertexBufferObjectManager);
-        spriteBotonMenu.setSize(spriteBotonMenu.getWidth()*escala, spriteBotonMenu.getHeight()*escala);
+        spriteBotonMenu.setSize(spriteBotonMenu.getWidth() * escala, spriteBotonMenu.getHeight() * escala);
         this.attachChild(spriteBotonMenu);
 
-        tTitulo = new Text(left + ancho/2, top - alto/4, fontTitulo, "Perdiste el Juego", new TextOptions(HorizontalAlign.CENTER), pVertexBufferObjectManager);
+        tTitulo = new Text(left + ancho/2, top - alto/4, escenario.getFontTitulo(), "Base capturada\r\nNivel XXX", new TextOptions(HorizontalAlign.CENTER), pVertexBufferObjectManager);
         tTitulo.setVisible(false);
 
-        tParrafoDerecha = new Text(left + ancho/2, top - alto/2 - Escenario.MANDO_PADDING, fontParrafo, "SCORE:\r\nBOTS CAIDOS:\r\nAVANCE:\r\n", new TextOptions(HorizontalAlign.RIGHT), pVertexBufferObjectManager);
+        tParrafoDerecha = new Text(left + ancho/2, top - alto/2 - Escenario.MANDO_PADDING, escenario.getFontParrafo(), "SCORE:\r\nBOTS CAIDOS:\r\nAVANCE:\r\n", new TextOptions(HorizontalAlign.RIGHT), pVertexBufferObjectManager);
         tParrafoDerecha.setOffsetCenterX(1);
         tParrafoDerecha.setVisible(false);
 
-        tParrafoIzquierda = new Text(left + ancho/2 + Escenario.MANDO_PADDING, top - alto/2 - Escenario.MANDO_PADDING, fontParrafo, "9999\r\n16\r\n100%\r\n", new TextOptions(HorizontalAlign.LEFT), pVertexBufferObjectManager);
+        tParrafoIzquierda = new Text(left + ancho/2 + Escenario.MANDO_PADDING, top - alto/2 - Escenario.MANDO_PADDING, escenario.getFontParrafo(), "9999\r\n16\r\n100%\r\n", new TextOptions(HorizontalAlign.LEFT), pVertexBufferObjectManager);
         tParrafoIzquierda.setOffsetCenterX(0);
         tParrafoIzquierda.setVisible(false);
 
-        escenario.getHud().attachChild(tTitulo);
-        escenario.getHud().attachChild(tParrafoDerecha);
-        escenario.getHud().attachChild(tParrafoIzquierda);
+        this.attachChild(tTitulo);
+        this.attachChild(tParrafoDerecha);
+        this.attachChild(tParrafoIzquierda);
 
         // Control Direccional
         rDireccional = new Rectangle(0, 0, spriteMandoDireccional.getWidth(), spriteMandoDireccional.getHeight(), pVertexBufferObjectManager){
@@ -127,7 +155,16 @@ public class Controles extends Entity{
             };
         };
         rY.setVisible(false);
-        rA = new Rectangle(0, 0, spriteMandoAcciones.getWidth()/3, spriteMandoAcciones.getHeight()/3, pVertexBufferObjectManager);
+        rA = new Rectangle(0, 0, spriteMandoAcciones.getWidth()/3, spriteMandoAcciones.getHeight()/3, pVertexBufferObjectManager){
+            public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y){
+                if(!escenario.isPausa()) {
+                    if (touchEvent.isActionDown()) {
+                        escenario.getJugador().activarBomba();
+                    }
+                }
+                return true;
+            };
+        };
         rA.setVisible(false);
         rX = new Rectangle(0, 0, spriteMandoAcciones.getWidth()/3, spriteMandoAcciones.getHeight()/3 + Escenario.MANDO_PADDING * escala, pVertexBufferObjectManager);
         rX.setVisible(false);
@@ -166,7 +203,7 @@ public class Controles extends Entity{
                     }
                 }
                 return true;
-            };
+            }
         };
         rPausa.setVisible(false);
         rContinuar = new Rectangle(0, 0, spriteBotonContinuar.getWidth(), spriteBotonContinuar.getHeight(), pVertexBufferObjectManager){
@@ -210,7 +247,6 @@ public class Controles extends Entity{
 
         initPosiciones();
         ocultarBotonesPausa();
-
     }
 
     public void pausa(){
@@ -228,6 +264,7 @@ public class Controles extends Entity{
         ocultarBotonesPausa();
         ocultarControles();
         ocultarFondoPausa();
+        ocultarIconos();
         escenario.getIntro().setStateQ0();
     }
 
@@ -236,16 +273,17 @@ public class Controles extends Entity{
         ocultarBotonesPausa();
         ocultarTitulos();
         mostrarControles();
+        mostrarIconos();
         escenario.setPausa(false);
     }
 
     public void perdiste(){
-        tTitulo.setText("Perdiste\r\nel nivel "+escenario.getIntro().getNivelSelec());
+        tTitulo.setText("Perdiste\r\nnivel " + escenario.getIntro().getNivelSelec());
         score();
     }
 
     public void ganaste(){
-        tTitulo.setText("Ganaste\r\nel nivel "+escenario.getIntro().getNivelSelec());
+        tTitulo.setText("Base capturada\r\nnivel " + escenario.getIntro().getNivelSelec());
         score();
     }
 
@@ -257,7 +295,7 @@ public class Controles extends Entity{
     }
 
     public void setScore(int score, int botsCaidos, float avance){
-        tParrafoIzquierda.setText(String.format("%4d", score).replace(" ", "0") + "\r\n" + botsCaidos + "\r\n" + ((int)(avance*100))+"%\r\n");
+        tParrafoIzquierda.setText(String.format("%4d", score).replace(" ", "0") + "\r\n" + botsCaidos + "\r\n" + ((int) (avance * 100)) + "%\r\n");
         escenario.getIntro().setScore(score);
     }
 
@@ -282,6 +320,10 @@ public class Controles extends Entity{
         rPausa.setPosition(spriteMandoPausa.getX(), spriteMandoPausa.getY());
         rContinuar.setPosition(spriteBotonContinuar.getX(), spriteBotonContinuar.getY());
         rMenu.setPosition(spriteBotonMenu.getX(), spriteBotonMenu.getY());
+        tBombas.setPosition(right - escenario.MANDO_PADDING, top - escenario.MANDO_PADDING - sBombas.getHeight() / 2);
+        sBombas.setPosition(tBombas.getX() - tBombas.getWidth() - escenario.MANDO_PADDING / 2, top - escenario.MANDO_PADDING);
+        tVida.setPosition(sBombas.getX() - sBombas.getWidth() , tBombas.getY());
+        sVida.setPosition(tVida.getX() - tVida.getWidth() - escenario.MANDO_PADDING / 2, sBombas.getY());
     }
 
     public void mostrarControles(){
@@ -302,6 +344,7 @@ public class Controles extends Entity{
             spriteMandoAcciones.setVisible(true);
             spriteMandoPausa.setVisible(true);
         }
+        mostrarIconos();
     }
 
     public void ocultarControles(){
@@ -395,4 +438,33 @@ public class Controles extends Entity{
         spriteBotonMenu.setVisible(false);
     }
 
+    public void ocultarIconos(){
+        sVida.setVisible(false);
+        sBombas.setVisible(false);
+        tVida.setVisible(false);
+        tBombas.setVisible(false);
+    }
+
+    public void mostrarIconos(){
+        sVida.setVisible(true);
+        sBombas.setVisible(true);
+        tVida.setVisible(true);
+        tBombas.setVisible(true);
+    }
+
+    public Text gettVida() {
+        return tVida;
+    }
+
+    public void settVida(Text tVida) {
+        this.tVida = tVida;
+    }
+
+    public Text gettBombas() {
+        return tBombas;
+    }
+
+    public void settBombas(Text tBombas) {
+        this.tBombas = tBombas;
+    }
 }

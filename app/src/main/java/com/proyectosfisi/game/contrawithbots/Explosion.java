@@ -19,11 +19,16 @@ public class Explosion extends AnimatedSprite {
 
     protected Sound sExplosion;
 
+    protected float vx;
+    protected float vy;
+
     public Explosion(Escenario escenario, final TiledTextureRegion mBulletTextureRegion, final VertexBufferObjectManager pVertexBufferObjectManager) {
         super(0.0f, 0.0f, mBulletTextureRegion, pVertexBufferObjectManager);
         this.escenario = escenario;
 
         id = ExplosionFactory.getInstance().getNextId();
+        vx = 0;
+        vy = 0;
 
         inactivar();
     }
@@ -41,8 +46,8 @@ public class Explosion extends AnimatedSprite {
         if(!escenario.isPausa()) {
             float bX = escenario.getParallaxLayerBackSprite().getX();
             float bY = escenario.getParallaxLayerBackSprite().getY();
-            setX(getX() + bX - lastBackSpriteX);
-            setY(getY() + bY - lastBackSpriteY);
+            setX(getX() + bX - lastBackSpriteX + vx);
+            setY(getY() + bY - lastBackSpriteY + vy);
             lastBackSpriteX = bX;
             lastBackSpriteY = bY;
             if(!isAnimationRunning() && getCurrentTileIndex() == 11){
@@ -66,6 +71,11 @@ public class Explosion extends AnimatedSprite {
         setIgnoreUpdate(false);
         setVisible(true);
         init();
+    }
+
+    public void setVelocidad(float vx, float vy){
+        this.vx = vx;
+        this.vy = vy;
     }
 
     @Override

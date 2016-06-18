@@ -69,6 +69,12 @@ public class Bala extends TiledSprite{
         chispa.animate(new long[]{FRAME_TIME_CHISPA, FRAME_TIME_CHISPA}, 1, 2, true);
         countChispa = 0;
 
+        if(actor instanceof PersonajeMetralla){
+            setCurrentTileIndex(3);
+        }else{
+            setCurrentTileIndex(0);
+        }
+
         setVisible(true);
         chispa.setVisible(true);
     }
@@ -122,13 +128,27 @@ public class Bala extends TiledSprite{
         for(Actor enemigo : enemigos){
             if(!enemigo.isInactivo() && !enemigo.isActionDie()){
                 if (enemigo.colisionBala(this)){
-                    float restar = 25.00f;
+                    float restar = 10.00f;
                     if(enemigo instanceof PersonajeEnemigo){
                         restar = 25.0f;
                     }else if(enemigo instanceof PersonajeFrancotirador){
                         restar = 33.34f;
                     }else if(enemigo instanceof PersonajeMetralla){
                         restar = 33.34f;
+                    }else if(enemigo instanceof PersonajeCorredor){
+                        restar = 50.0f;
+                    }else if(enemigo instanceof PersonajeRNBot){
+                        restar = 20.0f;
+                    }else if(enemigo instanceof PersonajeRNDBot){
+                        restar = 20.0f;
+                    }else if(enemigo instanceof PersonajeJugador){
+                        if(actor instanceof PersonajeMetralla){
+                            restar = 12.0f;
+                        }else if(actor instanceof PersonajeFrancotirador){
+                            restar = 10.0f;
+                        }else if(actor instanceof PersonajeCorredor){
+                            restar = 8.0f;
+                        }
                     }
                     if(enemigo.restarVidaOMorir(restar)) {
                         enemigo.setAction(Actor.ACTION_DIE);

@@ -70,7 +70,6 @@ public class PersonajeMetralla extends Actor{
                         setStateQ2();
                         break;
                     case ACTION_SHOOT:
-                        Log.i("Metralla", "SHOOooOOT PEEE");
                         shoot();
                         break;
                 }
@@ -109,7 +108,6 @@ public class PersonajeMetralla extends Actor{
                         //Disparo
                         count0 += pSecondsElapsed;
                         if (count0 > BotFactory.BALA_TIME) {
-                            Log.i("Metralla", "SHOOOOT");
                             setAction(ACTION_SHOOT);
                             count0 = 0;
                         }
@@ -153,19 +151,13 @@ public class PersonajeMetralla extends Actor{
         if(!actionDie){
             actionDie = true;
             stopAnimation(4);
-            Explosion explosion = ExplosionFactory.getInstance().getExplosion(escenario, getVertexBufferObjectManager());
-            explosion.setPosition(getX(), getY() + MOVING_BALA_Y);
-            explosion.activar();
+            explosion(getX(), getY() + MOVING_BALA_Y);
+            despuesDeMorir();
             state = STATE_Q2;
         }
     }
 
-    protected void despuesDeMorir() {
-
-    }
-
     protected void asesinar(Actor victima) {
-
     }
 
     public PosicionYVelocidad getPosicionYVelocidadDeBala() {
@@ -175,7 +167,6 @@ public class PersonajeMetralla extends Actor{
         pv.setY(MOVING_BALA_Y + getY());
         pv.setVx(-aux * Bala.VELOCITY_X);
         pv.setVy(0);
-        Log.i("BALA", "x="+getX()+",y="+getY()+",bx="+pv.getX()+",by="+pv.getY());
         return pv;
     }
 
@@ -194,6 +185,11 @@ public class PersonajeMetralla extends Actor{
         }else{
             return false;
         }
+    }
+
+    public MinMaxXY getMinMaxXY() {
+        MinMaxXY mXY = new MinMaxXY(getX() + CHOQUE_X_MIN, getX() + CHOQUE_X_MAX, getY() + CHOQUE_Y_MIN, getY() + CHOQUE_Y_MAX);
+        return mXY;
     }
 
     @Override

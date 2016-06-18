@@ -8,7 +8,7 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 /**
  * Created by MARISSA on 14/06/2015.
  */
-public class PersonajeRNBot extends Personaje {
+public class PersonajeRNDBot extends Personaje {
 
     private RNBot red;
 
@@ -21,16 +21,16 @@ public class PersonajeRNBot extends Personaje {
 
     protected int flag;
 
-    public PersonajeRNBot(Escenario escenario, float relativeX, float relativeY, final TiledTextureRegion pTextureRegion, final TiledTextureRegion mBulletTextureRegion, final VertexBufferObjectManager pVertexBufferObjectManager) {
+    public PersonajeRNDBot(Escenario escenario, float relativeX, float relativeY, final TiledTextureRegion pTextureRegion, final TiledTextureRegion mBulletTextureRegion, final VertexBufferObjectManager pVertexBufferObjectManager) {
         super(escenario, relativeX, relativeY, pTextureRegion, mBulletTextureRegion, pVertexBufferObjectManager);
-        red = new RNBot(0.0001);
+        red = new RNBot(0.00075);
     }
 
     public void initEnemigo(){
         countBullets = 0;
         countMove = 0.0f;
         salidasPrevias = new long[]{-1,-1,-1,-1,-1,-1};
-        destanciaMedia = BotFactory.DISCTANCIA_MEDIA + BotFactory.DISCTANCIA_MEDIA_ERROR - (float)(2*Math.random()*BotFactory.DISCTANCIA_MEDIA_ERROR);
+        destanciaMedia = BotFactory.DISCTANCIA_MEDIA * 1.2f + BotFactory.DISCTANCIA_MEDIA_ERROR - (float)(2*Math.random()*BotFactory.DISCTANCIA_MEDIA_ERROR);
     }
 
     @Override
@@ -46,7 +46,7 @@ public class PersonajeRNBot extends Personaje {
             if (getState() != STATE_Q5) {
                 Actor enemigo = getEnemigos().get(0);
                 countMove += pSecondsElapsed;
-                if (countMove > 0.16) {
+                if (countMove > 0.15) {
                     if (Math.abs(getRelativeX() - enemigo.getRelativeX()) > (destanciaMedia + 20)) {
                         entradas[0] = 1;
                     }else if(Math.abs(getRelativeX() - enemigo.getRelativeX()) < (destanciaMedia - 20)){
@@ -99,7 +99,7 @@ public class PersonajeRNBot extends Personaje {
                     pintarEntradasSalidas();
 
                     if(salidas[0] == 1) {//retroceder
-                        if (salidasPrevias[0] != salidas[0]) {
+                        /*if (salidasPrevias[0] != salidas[0]) {
                             if (getRelativeX() > enemigo.getRelativeX()) {//personaje se encuentra a la izquierda del bot
                                 Log.i("bot", "retro R");
                                 setAction(ACTION_RIGHT);
@@ -107,7 +107,7 @@ public class PersonajeRNBot extends Personaje {
                                 Log.i("bot", "retro L");
                                 setAction(ACTION_LEFT);
                             }
-                        }
+                        }*/
                     }else if(salidas[1] == 1){ //avanzar
                         if(salidasPrevias[1] != salidas[1]) {
                             if (getRelativeX() > enemigo.getRelativeX()) {//personaje se encuentra a la izquierda del bot
@@ -195,6 +195,7 @@ public class PersonajeRNBot extends Personaje {
                     salidasPrevias[5] = salidas[5];
 
                     flag *= -1;
+
                 }
             }
             super.onManagedUpdate(pSecondsElapsed);

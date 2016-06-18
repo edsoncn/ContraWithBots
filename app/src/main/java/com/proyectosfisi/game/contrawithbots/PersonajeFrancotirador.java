@@ -228,7 +228,11 @@ public class PersonajeFrancotirador extends Actor {
         }
     }
 
-    protected void despuesDeMorir(){}
+    @Override
+    protected void despuesDeMorir(){
+        super.despuesDeMorir();
+        explosion(getX(), getY());
+    }
 
     protected void asesinar(Actor victima){}
 
@@ -266,6 +270,11 @@ public class PersonajeFrancotirador extends Actor {
 
     public boolean colisionBala(Bala bala){
         return validarColision(CHOQUE_X_MIN, CHOQUE_X_MAX, CHOQUE_Y_MIN, CHOQUE_Y_MAX, bala);
+    }
+
+    public MinMaxXY getMinMaxXY() {
+        MinMaxXY mXY = new MinMaxXY(getX() + CHOQUE_X_MIN, getX() + CHOQUE_X_MAX, getY() + CHOQUE_Y_MIN, getY() + CHOQUE_Y_MAX);
+        return mXY;
     }
 
     @Override

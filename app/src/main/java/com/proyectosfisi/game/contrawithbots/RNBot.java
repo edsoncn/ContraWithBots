@@ -1,5 +1,7 @@
 package com.proyectosfisi.game.contrawithbots;
 
+import android.util.Log;
+
 import org.encog.engine.network.activation.ActivationSigmoid;
 import org.encog.ml.data.MLData;
 import org.encog.ml.data.basic.BasicMLData;
@@ -23,7 +25,7 @@ public class RNBot {
 
     private BasicNetwork network;
 
-    public RNBot(){
+    public RNBot(double error){
 
         numEntradas = 4;
         numSalidas = 6;
@@ -47,10 +49,10 @@ public class RNBot {
         do {
 
             train.iteration();
-            System.out.println("Epoch #" + epoch + " Error:" + train.getError());
+            Log.i("RN", "Epoch #" + epoch + " Error:" + train.getError());
             epoch++;
 
-        } while(train.getError() > 0.001 && epoch < 2000);
+        } while(train.getError() > error && epoch < 2000);
 
     }
 

@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 public abstract class Actor extends AnimatedSprite {
 
-    public static final long FRAME_TIME = 150;
+    public static final long FRAME_TIME = 120;
 
     public static final int ACTION_LEFT = 101;
     public static final int ACTION_RIGHT = 102;
@@ -99,7 +99,9 @@ public abstract class Actor extends AnimatedSprite {
 
     public abstract void setAction(int action);
 
-    protected abstract void despuesDeMorir();
+    protected void despuesDeMorir(){
+        dead = true;
+    }
 
     protected abstract void asesinar(Actor victima);
 
@@ -133,8 +135,16 @@ public abstract class Actor extends AnimatedSprite {
 
     public abstract boolean restarVidaOMorir(float danio);
 
+    public abstract MinMaxXY getMinMaxXY();
+
     protected void updateLeftRight(){
         setRelativeX(getRelativeX() + getVelocityX());
+    }
+
+    protected boolean validarCruze(MinMaxXY mXYB){
+        MinMaxXY mXYA = getMinMaxXY();
+        return (mXYB.xMin <= mXYA.xMax && mXYB.xMax >= mXYA.xMin) &&
+                (mXYB.yMin <= mXYA.yMax && mXYB.yMax >= mXYA.yMin);
     }
 
     protected void resetActions(){
@@ -182,6 +192,17 @@ public abstract class Actor extends AnimatedSprite {
         float right = escenario.getCropResolutionPolicy().getRight();
         float left = escenario.getCropResolutionPolicy().getLeft();
         return left < getX() && getX() < right;
+    }
+
+    protected void explosion(float x, float y){
+        explosion(x, y, 0, 0);
+    }
+
+    protected void explosion(float x, float y, float vx, float vy){
+        Explosion explosion = ExplosionFactory.getInstance().getExplosion(escenario, getVertexBufferObjectManager());
+        explosion.setPosition(x, y);
+        explosion.setVelocidad(vx, vy);
+        explosion.activar();
     }
 
     public float getRelativeX() {

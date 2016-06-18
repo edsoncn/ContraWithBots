@@ -1,7 +1,10 @@
 package com.proyectosfisi.game.contrawithbots;
 
 import org.andengine.audio.music.Music;
+import org.andengine.audio.music.MusicFactory;
 import org.andengine.audio.sound.Sound;
+import org.andengine.audio.sound.SoundFactory;
+import org.andengine.engine.Engine;
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.options.resolutionpolicy.CropResolutionPolicy;
 import org.andengine.entity.Entity;
@@ -9,9 +12,20 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.AutoParallaxBackground;
 import org.andengine.entity.scene.background.ParallaxBackground;
 import org.andengine.entity.sprite.Sprite;
+import org.andengine.opengl.font.Font;
+import org.andengine.opengl.font.FontFactory;
+import org.andengine.opengl.texture.ITexture;
+import org.andengine.opengl.texture.TextureOptions;
+import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
+import org.andengine.opengl.texture.bitmap.AssetBitmapTexture;
 import org.andengine.opengl.texture.region.ITextureRegion;
+import org.andengine.opengl.texture.region.TextureRegionFactory;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
+import org.andengine.ui.activity.BaseGameActivity;
+import org.andengine.util.adt.color.Color;
+
+import java.io.IOException;
 
 /**
  * Created by edson on 01/05/2015.
@@ -37,12 +51,25 @@ public class Escenario {
     protected BotFactory botFactory;
     protected boolean pausa;
 
+    protected Base base;
+
+    protected Font fontTitulo;
+    protected Font fontParrafo;
+    protected Font fontNivel;
+    protected Font fontScoreNivel;
+    protected Font fontVida;
+    protected Font fontIconoVida;
+
     protected Sound sDisparo;
     protected Sound sExplosion;
+    protected Sound sLive;
     protected Music mMusic;
 
     protected TiledTextureRegion mBulletTextureRegion; // Textura de la bala
     protected TiledTextureRegion mExplosionTextureRegion; // Textura de la explosion
+
+    protected ITexture mIntroBaseTexture;
+    protected ITextureRegion mIntroBaseTextureRegion;
 
     public static final float PISO_ALTO = 84;
     public static final float ESCALONES_ALTO[] = new float[]{/*1*/ 56, 128, 96,/*2*/ 56, 96, 56, 128, 96, 56,/*3*/ 96, 56, 128, 96, 56,/*4*/ 46, 86};
@@ -64,28 +91,32 @@ public class Escenario {
         parallaxLayerBackSprite.setOffsetCenter(0, 0);
         autoParallaxBackground.attachParallaxEntity(new ParallaxBackground.ParallaxEntity(0.0f, parallaxLayerBackSprite));
 
+        base = new Base(this, mIntroBaseTextureRegion, vertexBufferObjectManager);
+
         layerPlayer = new Entity();
         layerPlayer.setZIndex(7);
 
         layerBullets = new Entity();
-        layerBullets.setZIndex(5);
+        layerBullets.setZIndex(15);
 
-        scene.attachChild(layerBullets);
         scene.attachChild(layerPlayer);
+        scene.attachChild(layerBullets);
+
+        layerPlayer.attachChild(base);
 
     }
 
-    public int tocoPisoOEscalon(Personaje personaje){
-        if(personaje.getVelocityY() <= 0){
-            if(personaje.getRelativeY() >= 0 && personaje.getRelativeY() + personaje.getVelocityY() <= 0){
+    public int tocoPisoOEscalon(Actor actor){
+        if(actor.getVelocityY() <= 0){
+            if(actor.getRelativeY() >= 0 && actor.getRelativeY() + actor.getVelocityY() <= 0){
                 return 0; // toco el piso
             }else{
                 for (int i = 0; i < ESCALONES_ALTO.length; i++){
                     float x_min = ESCALONES_DISTANCIA_X_MIN[i];
                     float x_max = ESCALONES_DISTANCIA_X_MAX[i];
-                    if(x_min <= personaje.getRelativeX() && personaje.getRelativeX() <= x_max){
+                    if(x_min <= actor.getRelativeX() && actor.getRelativeX() <= x_max){
                         float alto = ESCALONES_ALTO[i];
-                        if(personaje.getRelativeY() >= alto && alto >= personaje.getRelativeY() + personaje.getVelocityY()){
+                        if(actor.getRelativeY() >= alto && alto >= actor.getRelativeY() + actor.getVelocityY()){
                             return i+1; //toco un escalon
                         }
                     }
@@ -95,6 +126,45 @@ public class Escenario {
         }else{
             return -1; // esta subiendo aun
         }
+    }
+
+    public void onCreateResources(BaseGameActivity baseGameActivity, Engine mEngine) throws IOException{
+
+        final ITexture fontTextureTitulo = new BitmapTextureAtlas(baseGameActivity.getTextureManager(), 256, 256, TextureOptions.NEAREST);
+        fontTitulo = FontFactory.createFromAsset(baseGameActivity.getFontManager(), fontTextureTitulo, baseGameActivity.getAssets(), "font/ufonts.com_showcard-gothic.ttf", 32, true, new Color(0.963522f, 0.271782f, 0.079002f).getARGBPackedInt());
+        fontTitulo.load();
+
+        final ITexture fontTextureParrafo = new BitmapTextureAtlas(baseGameActivity.getTextureManager(), 256, 256, TextureOptions.NEAREST);
+        fontParrafo = FontFactory.createFromAsset(baseGameActivity.getFontManager(), fontTextureParrafo, baseGameActivity.getAssets(), "font/atari_full.ttf", 10, true, new Color(1.0f, 1.0f, 1.0f).getARGBPackedInt());
+        fontParrafo.load();
+
+        final ITexture fontTextureNivel = new BitmapTextureAtlas(baseGameActivity.getTextureManager(), 256, 256, TextureOptions.NEAREST);
+        fontNivel = FontFactory.createFromAsset(baseGameActivity.getFontManager(), fontTextureNivel, baseGameActivity.getAssets(), "font/ufonts.com_showcard-gothic.ttf", 12, true, new Color(1.0f, 1.0f, 1.0f).getARGBPackedInt());
+        fontNivel.load();
+
+        final ITexture fontTextureScoreNivel = new BitmapTextureAtlas(baseGameActivity.getTextureManager(), 256, 256, TextureOptions.NEAREST);
+        fontScoreNivel = FontFactory.createFromAsset(baseGameActivity.getFontManager(), fontTextureScoreNivel, baseGameActivity.getAssets(), "font/atari_full.ttf", 6, true, new Color(0.0f, 0.0f, 0.0f).getARGBPackedInt());
+        fontScoreNivel.load();
+
+        final ITexture fontTextureVida = new BitmapTextureAtlas(baseGameActivity.getTextureManager(), 256, 256, TextureOptions.NEAREST);
+        fontVida = FontFactory.createFromAsset(baseGameActivity.getFontManager(), fontTextureVida, baseGameActivity.getAssets(), "font/atari_full.ttf", 6, true, new Color(1.0f, 1.0f, 1.0f).getARGBPackedInt());
+        fontVida.load();
+
+        final ITexture fontTextureIconoVida = new BitmapTextureAtlas(baseGameActivity.getTextureManager(), 256, 256, TextureOptions.NEAREST);
+        fontIconoVida = FontFactory.createFromAsset(baseGameActivity.getFontManager(), fontTextureIconoVida, baseGameActivity.getAssets(), "font/atari_full.ttf", 8, true, new Color(1.0f, 1.0f, 1.0f).getARGBPackedInt());
+        fontIconoVida.load();
+
+        //Base
+        this.mIntroBaseTexture = new AssetBitmapTexture(baseGameActivity.getTextureManager(), baseGameActivity.getAssets(), "gfx/sprite-base.png");
+        this.mIntroBaseTextureRegion = TextureRegionFactory.extractFromTexture(this.mIntroBaseTexture);
+        this.mIntroBaseTexture.load();
+
+        sDisparo = SoundFactory.createSoundFromAsset(baseGameActivity.getSoundManager(), baseGameActivity.getApplicationContext(), "sounds/disparo2.ogg");
+        sExplosion = SoundFactory.createSoundFromAsset(baseGameActivity.getSoundManager(), baseGameActivity.getApplicationContext(), "sounds/explosion2.wav");
+        sLive = SoundFactory.createSoundFromAsset(baseGameActivity.getSoundManager(), baseGameActivity.getApplicationContext(), "sounds/live-down.wav");
+        mMusic = MusicFactory.createMusicFromAsset(mEngine.getMusicManager(), baseGameActivity, "sounds/korn-somebody_someone.ogg");
+        mMusic.setLooping(true);
+
     }
 
     public CropResolutionPolicy getCropResolutionPolicy() {
@@ -199,5 +269,69 @@ public class Escenario {
 
     public void setsExplosion(Sound sExplosion) {
         this.sExplosion = sExplosion;
+    }
+
+    public Sound getsLive() {
+        return sLive;
+    }
+
+    public void setsLive(Sound sLive) {
+        this.sLive = sLive;
+    }
+
+    public Font getFontVida() {
+        return fontVida;
+    }
+
+    public void setFontVida(Font fontVida) {
+        this.fontVida = fontVida;
+    }
+
+    public Font getFontTitulo() {
+        return fontTitulo;
+    }
+
+    public void setFontTitulo(Font fontTitulo) {
+        this.fontTitulo = fontTitulo;
+    }
+
+    public Font getFontParrafo() {
+        return fontParrafo;
+    }
+
+    public void setFontParrafo(Font fontParrafo) {
+        this.fontParrafo = fontParrafo;
+    }
+
+    public Font getFontNivel() {
+        return fontNivel;
+    }
+
+    public void setFontNivel(Font fontNivel) {
+        this.fontNivel = fontNivel;
+    }
+
+    public Font getFontScoreNivel() {
+        return fontScoreNivel;
+    }
+
+    public void setFontScoreNivel(Font fontScoreNivel) {
+        this.fontScoreNivel = fontScoreNivel;
+    }
+
+    public Font getFontIconoVida() {
+        return fontIconoVida;
+    }
+
+    public void setFontIconoVida(Font fontIconoVida) {
+        this.fontIconoVida = fontIconoVida;
+    }
+
+    public Base getBase() {
+        return base;
+    }
+
+    public void setBase(Base base) {
+        this.base = base;
     }
 }

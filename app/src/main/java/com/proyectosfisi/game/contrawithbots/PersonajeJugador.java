@@ -18,6 +18,9 @@ public class PersonajeJugador extends Personaje {
     protected int activePointerID;
     protected boolean flagGano;
     private Puntajes puntajes;
+    protected boolean flagBomba;
+
+    protected int bombas;
 
     public PersonajeJugador(Escenario escenario, float relativeX, float relativeY, final TiledTextureRegion pTextureRegion, final TiledTextureRegion mBulletTextureRegion, final VertexBufferObjectManager pVertexBufferObjectManager) {
         super(escenario, relativeX, relativeY, pTextureRegion, mBulletTextureRegion, pVertexBufferObjectManager);
@@ -32,6 +35,9 @@ public class PersonajeJugador extends Personaje {
         if(puntajes != null){
             puntajes.resetPuntaje();
         }
+        flagBomba = false;
+        bombas = 1;
+        actualizarBombas(0);
     }
 
     @Override
@@ -41,6 +47,28 @@ public class PersonajeJugador extends Personaje {
                 setStateQ0();
                 gane();
             } else {
+                if(flagBomba){
+                    float v = 7.5f;
+                    float w = (float)((v * Math.sqrt(2)) / 2);
+                    explosion(getX() + v, getY()    ,  v,  0);
+                    explosion(getX()    , getY() + v,  0,  v);
+                    explosion(getX() - v, getY()    , -v,  0);
+                    explosion(getX()    , getY() - v,  0, -v);
+                    explosion(getX() + w, getY() + w,  w,  w);
+                    explosion(getX() + w, getY() - w,  w, -w);
+                    explosion(getX() - w, getY() + w, -w,  w);
+                    explosion(getX() - w, getY() - w, -w, -w);
+                    actualizarBombas(-1);
+                    for(Actor a : escenario.getBotFactory().getBots()){
+                        if(getX() - 150 <= a.getX() && a.getX() <= getX() + 150){
+                            if(a.restarVidaOMorir(100)) {
+                                a.setAction(Actor.ACTION_DIE);
+                                this.asesinar(a);
+                            }
+                        }
+                    }
+                    flagBomba = false;
+                }
                 super.onManagedUpdate(pSecondsElapsed);
             }
         }
@@ -48,7 +76,9 @@ public class PersonajeJugador extends Personaje {
 
     public boolean validarJuegoGanado(){
         float anchoEscena = escenario.getParallaxLayerBackSprite().getWidth();
-        return relativeX >= anchoEscena - Escenario.ESCENARIO_PAGGING_RIGHT - getWidth() && escenario.getBotFactory().validaBotMuertos();
+        return relativeX >= anchoEscena - 0.5f * (escenario.cropResolutionPolicy.getRight() - escenario.getCropResolutionPolicy().getLeft()) &&
+                escenario.getBotFactory().validaBotMuertos() &&
+                relativeX >= anchoEscena - Escenario.ESCENARIO_PAGGING_RIGHT - getWidth();
     }
 
     @Override
@@ -235,6 +265,14 @@ public class PersonajeJugador extends Personaje {
         }
     }
 
+    public synchronized void activarBomba(){
+        if(bombas > 0){
+            if(state != STATE_Q5) {
+                flagBomba = true;
+            }
+        }
+    }
+
     public void centrarEscenaAPersonaje(){
         float left = escenario.getCropResolutionPolicy().getLeft();
         float right = escenario.getCropResolutionPolicy().getRight();
@@ -292,9 +330,15 @@ public class PersonajeJugador extends Personaje {
     }
 
     @Override
-    public synchronized void setAction(int action) {
-        Log.i("Personaje", "Action: "+action);
-        super.setAction(action);
+    public boolean restarVidaOMorir(float danio) {
+        boolean bool = super.restarVidaOMorir(danio);
+        escenario.getControles().gettVida().setText(String.format("%3d", (int) vida.getVida()).replace(" ", "0"));
+        return bool;
+    }
+
+    public void actualizarBombas(int bombas){
+        this.bombas += bombas;
+        escenario.getControles().gettBombas().setText(String.format("x%1d", this.bombas));
     }
 
     public int getActivePointerID() {

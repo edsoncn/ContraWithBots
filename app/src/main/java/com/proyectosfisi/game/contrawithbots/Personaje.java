@@ -32,7 +32,8 @@ public class Personaje extends Actor {
     public Personaje(Escenario escenario, float relativeX, float relativeY, final TiledTextureRegion pTextureRegion, final TiledTextureRegion mBulletTextureRegion, final VertexBufferObjectManager pVertexBufferObjectManager) {
         super(escenario, relativeX, relativeY, pTextureRegion, mBulletTextureRegion, pVertexBufferObjectManager);
 
-        vida = new Vida(escenario.getLayerPlayer(), getX(), getY(), getWidth(), getVertexBufferObjectManager());
+        vida = new Vida(escenario, escenario.getLayerPlayer(), getX(), getY(), getWidth(), getVertexBufferObjectManager());
+        vida.setsLive(escenario.getsLive());
     }
 
     @Override
@@ -302,12 +303,12 @@ public class Personaje extends Actor {
                                 }
                                 setVelocityX(0);
                                 setVelocityY(0);
-                                flag0 = true;
                                 if (getOrientation() == ORIENTATION_LEFT) {
                                     stopAnimation(66);
                                 } else {
                                     stopAnimation(77);
                                 }
+                                flag0 = true;
                             } else {
                                 if (count0 >= 0.2) {
                                     if (getOrientation() == ORIENTATION_LEFT) {
@@ -327,7 +328,6 @@ public class Personaje extends Actor {
                             if (count1 >= 1.5) {
                                 count1 = -1;
                                 setAlpha(0.0f);
-                                dead = true;
                                 despuesDeMorir();
                             } else if (count1 >= 0) {
                                 float frac = 1.5f / 15;
@@ -559,7 +559,10 @@ public class Personaje extends Actor {
         }
     }
 
-    protected void despuesDeMorir(){}
+    @Override
+    protected void despuesDeMorir(){
+        super.despuesDeMorir();
+    }
 
     protected void asesinar(Actor victima){}
 
@@ -765,6 +768,12 @@ public class Personaje extends Actor {
         return vida.restarVidaOMorir(danio);
     }
 
+    public MinMaxXY getMinMaxXY() {
+        int p = positionPersonaje();
+        MinMaxXY mXY = new MinMaxXY(getX() + CHOQUE_X_MIN[p], getX() + CHOQUE_X_MAX[p], getY() + CHOQUE_Y_MIN[p], getY() + CHOQUE_Y_MAX[p]);
+        return mXY;
+    }
+
     protected void animateStateQ0() {
         if (orientation == ORIENTATION_RIGHT) {
             animate(new long[]{Bala.FRAME_TIME_CHISPA, Bala.FRAME_TIME_CHISPA}, new int[]{9, 8}, 1);
@@ -820,9 +829,4 @@ public class Personaje extends Actor {
     public Vida getVida() {
         return vida;
     }
-
-    public void setVida(Vida vida) {
-        this.vida = vida;
-    }
-
 }

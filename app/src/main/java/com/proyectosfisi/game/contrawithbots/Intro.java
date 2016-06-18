@@ -60,8 +60,6 @@ public class Intro extends Entity {
                  final ITextureRegion mIntroNivel1TextureRegion,
                  final ITextureRegion mIntroNivel2TextureRegion,
                  final ITextureRegion mIntroNivel3TextureRegion,
-                 final Font fontNivel,
-                 final Font fontScoreNivel,
                  final VertexBufferObjectManager pVertexBufferObjectManager) {
         super();
         this.escenario = escenario;
@@ -100,24 +98,24 @@ public class Intro extends Entity {
         this.attachChild(spriteIntroNivel3);
 
         tNivel = new Text[3];
-        tNivel[0] = new Text(0, 0, fontNivel, "Nivel 1", new TextOptions(HorizontalAlign.LEFT), pVertexBufferObjectManager);
+        tNivel[0] = new Text(0, 0, escenario.getFontNivel(), "Nivel 1", new TextOptions(HorizontalAlign.LEFT), pVertexBufferObjectManager);
         tNivel[0].setOffsetCenter(0, 0);
         this.attachChild(tNivel[0]);
-        tNivel[1] = new Text(0, 0, fontNivel, "Nivel 2", new TextOptions(HorizontalAlign.LEFT), pVertexBufferObjectManager);
+        tNivel[1] = new Text(0, 0, escenario.getFontNivel(), "Nivel 2", new TextOptions(HorizontalAlign.LEFT), pVertexBufferObjectManager);
         tNivel[1].setOffsetCenter(0, 0);
         this.attachChild(tNivel[1]);
-        tNivel[2] = new Text(0, 0, fontNivel, "Nivel 3", new TextOptions(HorizontalAlign.LEFT), pVertexBufferObjectManager);
+        tNivel[2] = new Text(0, 0, escenario.getFontNivel(), "Nivel 3", new TextOptions(HorizontalAlign.LEFT), pVertexBufferObjectManager);
         tNivel[2].setOffsetCenter(0, 0);
         this.attachChild(tNivel[2]);
 
         tScoreNivel = new Text[3];
-        tScoreNivel[0] = new Text(0, 0, fontScoreNivel, "SCORE: 0000", new TextOptions(HorizontalAlign.RIGHT), pVertexBufferObjectManager);
+        tScoreNivel[0] = new Text(0, 0, escenario.getFontScoreNivel(), "SCORE: 0000", new TextOptions(HorizontalAlign.RIGHT), pVertexBufferObjectManager);
         tScoreNivel[0].setOffsetCenter(1, 1);
         this.attachChild(tScoreNivel[0]);
-        tScoreNivel[1] = new Text(0, 0, fontScoreNivel, "SCORE: 0000", new TextOptions(HorizontalAlign.RIGHT), pVertexBufferObjectManager);
+        tScoreNivel[1] = new Text(0, 0, escenario.getFontScoreNivel(), "SCORE: 0000", new TextOptions(HorizontalAlign.RIGHT), pVertexBufferObjectManager);
         tScoreNivel[1].setOffsetCenter(1, 1);
         this.attachChild(tScoreNivel[1]);
-        tScoreNivel[2] = new Text(0, 0, fontScoreNivel, "SCORE: 0000", new TextOptions(HorizontalAlign.RIGHT), pVertexBufferObjectManager);
+        tScoreNivel[2] = new Text(0, 0, escenario.getFontScoreNivel(), "SCORE: 0000", new TextOptions(HorizontalAlign.RIGHT), pVertexBufferObjectManager);
         tScoreNivel[2].setOffsetCenter(1, 1);
         this.attachChild(tScoreNivel[2]);
 
@@ -252,7 +250,10 @@ public class Intro extends Entity {
 
         escenario.getBotFactory().inactivar();
         escenario.getJugador().inactivar();
+        escenario.getBase().inactivar();
+
         BalaFactory.getInstance().inactivarBalasActivas();
+        ExplosionFactory.getInstance().inactivarExplosionsActivas();
 
         countQ0 = 0.0f;
         velocidad = -2.56f;
@@ -282,15 +283,17 @@ public class Intro extends Entity {
     }
 
     public void setStateQ2(){
-        ocultarIntro();
 
         PersonajeJugador j = escenario.getJugador();
         j.init();
         j.activar();
         escenario.getBotFactory().init();
 
+        ocultarIntro();
+
         escenario.getLayerPlayer().setVisible(true);
         escenario.getLayerBullets().setVisible(true);
+
         escenario.getControles().mostrarControles();
 
         escenario.setPausa(false);

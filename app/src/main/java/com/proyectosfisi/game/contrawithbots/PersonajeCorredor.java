@@ -29,6 +29,8 @@ public class PersonajeCorredor extends Actor{
     protected float vy;
     protected float a;
 
+    protected float vida;
+
     public PersonajeCorredor(Escenario escenario, float relativeX, float relativeY, final TiledTextureRegion pTextureRegion, final TiledTextureRegion mBulletTextureRegion, final VertexBufferObjectManager pVertexBufferObjectManager) {
         super(escenario, relativeX, relativeY, pTextureRegion, mBulletTextureRegion, pVertexBufferObjectManager);
     }
@@ -38,6 +40,7 @@ public class PersonajeCorredor extends Actor{
         super.init(relativeX, relativeY);
         destanciaMedia = BotFactory.DISCTANCIA_MEDIA + BotFactory.DISCTANCIA_MEDIA_ERROR - (float)(2*Math.random()*BotFactory.DISCTANCIA_MEDIA_ERROR);
         count0 = (0.5f + ((float)(Math.random()/2))) * BotFactory.BALA_TIME;
+        vida = Vida.VIDA_DEFAULT;
         setStateQ0();
     }
 
@@ -93,19 +96,27 @@ public class PersonajeCorredor extends Actor{
             switch (state) {
                 case STATE_Q0:
                     if (Math.abs(getRelativeX() - enemigo.getRelativeX()) > destanciaMedia) {
+                        int k = 1;
                         if (getRelativeX() > enemigo.getRelativeX()) {
                             setAction(ACTION_LEFT);
+                            k = -1;
                         } else {
                             setAction(ACTION_RIGHT);
                         }
-                    }
-                    if (getRelativeX() > enemigo.getRelativeX() && getOrientation() == ORIENTATION_RIGHT) {
-                        setOrientation(ORIENTATION_LEFT);
-                        setStateQ0();
-                    }
-                    if (getRelativeX() < enemigo.getRelativeX() && getOrientation() == ORIENTATION_LEFT) {
-                        setOrientation(ORIENTATION_RIGHT);
-                        setStateQ0();
+                        float k2 = 1.25f;
+                        if(validarEnDentroDeEscena()){
+                            k2 = 1;
+                        }
+                        setVelocityX(k * VELOCITY_X * k2);
+                    } else {
+                        if (getRelativeX() > enemigo.getRelativeX() && getOrientation() == ORIENTATION_RIGHT) {
+                            setOrientation(ORIENTATION_LEFT);
+                            setStateQ0();
+                        }
+                        if (getRelativeX() < enemigo.getRelativeX() && getOrientation() == ORIENTATION_LEFT) {
+                            setOrientation(ORIENTATION_RIGHT);
+                            setStateQ0();
+                        }
                     }
                     break;
                 case STATE_Q1:
@@ -176,10 +187,8 @@ public class PersonajeCorredor extends Actor{
 
     protected void setStateQ1(){
         if(actionLeft){
-            setVelocityX(-VELOCITY_X);
             animate(new long[]{FRAME_TIME, FRAME_TIME, FRAME_TIME}, new int[]{4, 3, 2}, true);
         }else{
-            setVelocityX(VELOCITY_X);
             animate(new long[]{FRAME_TIME, FRAME_TIME, FRAME_TIME}, 9, 11, true);
         }
         state = STATE_Q1;
@@ -207,7 +216,12 @@ public class PersonajeCorredor extends Actor{
         }
     }
 
+    @Override
     protected void despuesDeMorir(){
+        super.despuesDeMorir();
+
+        explosion(getX(), getY());
+
         float right = escenario.getCropResolutionPolicy().getRight();
         float left = escenario.getCropResolutionPolicy().getLeft();
         float ancho = right - left;
@@ -247,23 +261,28 @@ public class PersonajeCorredor extends Actor{
     }
 
     public boolean restarVidaOMorir(float danio) {
-        if(flag1){
+        vida -= danio;
+        if(vida <= 0) {
             return true;
         }else{
             count2 = 0;
             if(getCurrentTileIndex() < 14){
                 stopAnimation(getCurrentTileIndex() + 14);
             }
-            flag1 = true;
             return false;
         }
     }
 
+    public MinMaxXY getMinMaxXY() {
+        MinMaxXY mXY = new MinMaxXY(getX() + CHOQUE_X_MIN, getX() + CHOQUE_X_MAX, getY() + CHOQUE_Y_MIN, getY() + CHOQUE_Y_MAX);
+        return mXY;
+    }
+
     @Override
     protected boolean shoot() {
-        if(state == STATE_Q0){
+        if(state == STATE_Q0 || state == STATE_Q1){
             boolean shoot = super.shoot();
-            if(shoot){
+            if(shoot && state == STATE_Q0){
                 if (orientation == ORIENTATION_LEFT) {
                     animate(new long[]{Bala.FRAME_TIME_CHISPA, Bala.FRAME_TIME_CHISPA}, 0, 1, 1);
                 }else{

@@ -1,5 +1,7 @@
 package com.proyectosfisi.game.contrawithbots;
 
+import android.util.Log;
+
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
@@ -17,28 +19,42 @@ public class BotFactory {
     private ArrayList<Actor> botsLevel1;
     private ArrayList<Actor> botsLevel2;
     private ArrayList<Actor> botsLevel3;
+    private ArrayList<Actor> botsComunes;
     private ArrayList<Actor> personajeJugador;
 
     private Escenario escenario;
     private TiledTextureRegion pTextureEnemyRegion;
+    private TiledTextureRegion pTextureEnemy2Region;
     private TiledTextureRegion pTextureEnemyFrancotiradorRegion;
     private TiledTextureRegion pTextureEnemyCorredorRegion;
     private TiledTextureRegion pTextureEnemyMetrallaRegion;
+    private TiledTextureRegion pTextureEnemyPerroRegion;
+    private TiledTextureRegion pTextureEnemyNaveRegion;
+    private TiledTextureRegion pTextureBombaRegion;
+    private TiledTextureRegion pTextureVidaRegion;
     private TiledTextureRegion mBulletTexture;
     private VertexBufferObjectManager pVertexBufferObjectManager;
 
-    public BotFactory(Escenario escenario, TiledTextureRegion pEnemyTextureRegion, TiledTextureRegion pTextureEnemyFrancotiradorRegion, TiledTextureRegion pTextureEnemyCorredorRegion, TiledTextureRegion pTextureEnemyMetrallaRegion, TiledTextureRegion mBulletTexture, VertexBufferObjectManager pVertexBufferObjectManager){
+    protected boolean muertos;
+
+    public BotFactory(Escenario escenario, TiledTextureRegion pEnemyTextureRegion, TiledTextureRegion pEnemy2TextureRegion, TiledTextureRegion pTextureEnemyFrancotiradorRegion, TiledTextureRegion pTextureEnemyCorredorRegion, TiledTextureRegion pTextureEnemyMetrallaRegion, TiledTextureRegion pTextureEnemyPerroRegion, TiledTextureRegion pTextureEnemyNaveRegion, TiledTextureRegion pTextureBombaRegion, TiledTextureRegion pTextureVidaRegion, TiledTextureRegion mBulletTexture, VertexBufferObjectManager pVertexBufferObjectManager){
         this.escenario = escenario;
         this.pTextureEnemyRegion = pEnemyTextureRegion;
+        this.pTextureEnemy2Region = pEnemy2TextureRegion;
         this.pTextureEnemyFrancotiradorRegion = pTextureEnemyFrancotiradorRegion;
         this.pTextureEnemyCorredorRegion = pTextureEnemyCorredorRegion;
         this.pTextureEnemyMetrallaRegion = pTextureEnemyMetrallaRegion;
+        this.pTextureEnemyPerroRegion = pTextureEnemyPerroRegion;
+        this.pTextureEnemyNaveRegion = pTextureEnemyNaveRegion;
+        this.pTextureBombaRegion = pTextureBombaRegion;
+        this.pTextureVidaRegion = pTextureVidaRegion;
         this.mBulletTexture = mBulletTexture;
         this.pVertexBufferObjectManager = pVertexBufferObjectManager;
 
         botsLevel1 = new ArrayList<>();
         botsLevel2 = new ArrayList<>();
         botsLevel3 = new ArrayList<>();
+        botsComunes = new ArrayList<>();
         personajeJugador = new ArrayList<>();
     }
 
@@ -48,50 +64,51 @@ public class BotFactory {
 
         float right = escenario.getCropResolutionPolicy().getRight();
         float left = escenario.getCropResolutionPolicy().getLeft();
-        float backLayer = escenario.getParallaxLayerBackSprite().getWidth();
+
+        //Enemigos communes
+
+        botsComunes.add(crearBotEnemigoNave(2.0f * (right - left), PersonajeNave.ALTO, Actor.ORIENTATION_LEFT));// 0
+
+        botsComunes.add(crearBotEnemigoMetralla(752, 0, Actor.ORIENTATION_LEFT));// 1
+        botsComunes.add(crearBotEnemigoMetralla(1008, 0, Actor.ORIENTATION_LEFT));// 2
+        botsComunes.add(crearBotEnemigoMetralla( 1792, 0, Actor.ORIENTATION_LEFT));// 3
+        botsComunes.add(crearBotEnemigoMetralla( 2304, 0, Actor.ORIENTATION_LEFT));// 4
+        botsComunes.add(crearBotEnemigoMetralla( 2832, 0, Actor.ORIENTATION_LEFT));// 5
+        botsComunes.add(crearBotEnemigoMetralla( 3408, 0, Actor.ORIENTATION_LEFT));// 6
+        botsComunes.add(crearBotEnemigoMetralla( 3824, 0, Actor.ORIENTATION_LEFT));// 7
+        botsComunes.add(crearBotEnemigoMetralla( 3935, 0, Actor.ORIENTATION_LEFT));// 8
+        botsComunes.add(crearBotEnemigoMetralla( 4264, 0, Actor.ORIENTATION_LEFT));// 9
+
+        botsComunes.add(crearBotEnemigoPerro(1744.5f, 0, Actor.ORIENTATION_LEFT));// 10
+        botsComunes.add(crearBotEnemigoPerro(1360.5f, 0, Actor.ORIENTATION_LEFT));// 11
+        botsComunes.add(crearBotEnemigoPerro(1104.5f, 0, Actor.ORIENTATION_LEFT));// 12
+
+        botsComunes.add(crearBotEnemigoFrancotirador(860, 128, Actor.ORIENTATION_LEFT));// 13
+
+        botsComunes.add(crearBotEnemigoFrancotirador(2016, 128, Actor.ORIENTATION_LEFT));// 14
+        botsComunes.add(crearBotEnemigoFrancotirador(1848, 96, Actor.ORIENTATION_LEFT));// 15
+
+        botsComunes.add(crearBotEnemigoFrancotirador(3040, 128, Actor.ORIENTATION_LEFT));// 16
+        botsComunes.add(crearBotEnemigoFrancotirador(3080, 96, Actor.ORIENTATION_LEFT));// 17
+
+        botsComunes.add(crearBotEnemigoFrancotirador(4265, 46, Actor.ORIENTATION_LEFT));// 18
+        botsComunes.add(crearBotEnemigoFrancotirador(4261, 86, Actor.ORIENTATION_LEFT));// 19
 
         //BOTS Level 1
 
-        botsLevel1.add(crearBotEnemigoCorredor( -1 * (right - left) / 2, 0, Actor.ORIENTATION_RIGHT)); //0
-        botsLevel1.add(crearBotEnemigoCorredor( 3 * (right - left) / 2, 0, Actor.ORIENTATION_LEFT)); //1
-        botsLevel1.add(crearBotEnemigoCorredor( -1.5f * (right - left) / 2, 0, Actor.ORIENTATION_RIGHT)); //0
-        botsLevel1.add(crearBotEnemigoCorredor( 3.5f * (right - left) / 2, 0, Actor.ORIENTATION_LEFT)); //1
-        botsLevel1.add(crearBotEnemigoCorredor(backLayer / 4, 0, Actor.ORIENTATION_LEFT)); //2
+        botsLevel1.add(crearBotEnemigoCorredor( -1 * (right - left) / 2, 0, Actor.ORIENTATION_RIGHT));
+        botsLevel1.add(crearBotEnemigoCorredor( 3 * (right - left) / 2, 0, Actor.ORIENTATION_LEFT));
+        botsLevel1.add(crearBotEnemigoCorredor( -1.5f * (right - left) / 2, 0, Actor.ORIENTATION_RIGHT));
+        botsLevel1.add(crearBotEnemigoCorredor( 3.5f * (right - left) / 2, 0, Actor.ORIENTATION_LEFT));
 
-        //752, 1008, 1736, 2304, 2832, 3408, 3824, 3935
-        botsLevel1.add(crearBotEnemigoMetralla(752, 0, Actor.ORIENTATION_LEFT)); //3
-        botsLevel1.add(crearBotEnemigoMetralla(1008, 0, Actor.ORIENTATION_LEFT)); //3
-        botsLevel1.add(crearBotEnemigoMetralla( 1736, 0, Actor.ORIENTATION_LEFT)); //3
-        botsLevel1.add(crearBotEnemigoMetralla( 2304, 0, Actor.ORIENTATION_LEFT)); //3
-        botsLevel1.add(crearBotEnemigoMetralla( 2832, 0, Actor.ORIENTATION_LEFT)); //3
-        botsLevel1.add(crearBotEnemigoMetralla( 3408, 0, Actor.ORIENTATION_LEFT)); //3
-        botsLevel1.add(crearBotEnemigoMetralla( 3824, 0, Actor.ORIENTATION_LEFT)); //3
-        botsLevel1.add(crearBotEnemigoMetralla( 3935, 0, Actor.ORIENTATION_LEFT)); //3
+        //BOTS Level 2
 
-        botsLevel1.add(crearBotEnemigoFrancotirador(860, 128, Actor.ORIENTATION_LEFT)); //8
+        botsLevel2.add(crearRNBotEnemigo(3 * (right - left) / 2, 0, Actor.ORIENTATION_LEFT)); //0
 
-        botsLevel1.add(crearBotEnemigoFrancotirador(2016, 128, Actor.ORIENTATION_LEFT)); //9
-        botsLevel1.add(crearBotEnemigoFrancotirador(1848, 96, Actor.ORIENTATION_LEFT)); //10
+        //BOTS Level 3
 
-        botsLevel1.add(crearBotEnemigoFrancotirador(3040, 128, Actor.ORIENTATION_LEFT)); //11
-        botsLevel1.add(crearBotEnemigoFrancotirador(3080, 96, Actor.ORIENTATION_LEFT)); //12
+        botsLevel3.add(crearRNDBotEnemigo( 3 * (right - left) / 2, 0, Actor.ORIENTATION_LEFT)); //0
 
-        botsLevel1.add(crearBotEnemigoFrancotirador(4265, 46, Actor.ORIENTATION_LEFT)); //13
-        botsLevel1.add(crearBotEnemigoFrancotirador(4261, 86, Actor.ORIENTATION_LEFT)); //14
-
-        //BOTS Level2
-
-        botsLevel2.add(crearRNBotEnemigo( 3 * (right - left) / 2, 0, Actor.ORIENTATION_LEFT)); //1
-
-        for (Actor p : botsLevel1) {
-            escenario.getLayerPlayer().attachChild(p);
-        }
-        for (Actor p : botsLevel2) {
-            escenario.getLayerPlayer().attachChild(p);
-        }
-        for (Actor p : botsLevel3) {
-            escenario.getLayerPlayer().attachChild(p);
-        }
     }
 
     public PersonajeEnemigo crearBotEnemigo(float x, float y, int tipo, int orientacion){
@@ -99,6 +116,7 @@ public class BotFactory {
         enemigo.setOrientation(orientacion);
         enemigo.setEnemigos(personajeJugador);
         enemigo.inactivar();
+        escenario.getLayerPlayer().attachChild(enemigo);
         return enemigo;
     }
 
@@ -107,6 +125,7 @@ public class BotFactory {
         enemigo.setOrientation(orientacion);
         enemigo.setEnemigos(personajeJugador);
         enemigo.inactivar();
+        escenario.getLayerPlayer().attachChild(enemigo);
         return enemigo;
     }
 
@@ -115,6 +134,7 @@ public class BotFactory {
         enemigo.setOrientation(orientacion);
         enemigo.setEnemigos(personajeJugador);
         enemigo.inactivar();
+        escenario.getLayerPlayer().attachChild(enemigo);
         return enemigo;
     }
 
@@ -123,14 +143,41 @@ public class BotFactory {
         enemigo.setOrientation(orientacion);
         enemigo.setEnemigos(personajeJugador);
         enemigo.inactivar();
+        escenario.getLayerPlayer().attachChild(enemigo);
         return enemigo;
     }
 
+    public PersonajePerro crearBotEnemigoPerro(float x, float y, int orientacion){
+        PersonajePerro enemigo = new PersonajePerro(escenario, x, y, pTextureEnemyPerroRegion, mBulletTexture, pVertexBufferObjectManager);
+        enemigo.setOrientation(orientacion);
+        enemigo.setEnemigos(personajeJugador);
+        enemigo.inactivar();
+        escenario.getLayerPlayer().attachChild(enemigo);
+        return enemigo;
+    }
+
+    public PersonajeNave crearBotEnemigoNave(float x, float y, int orientacion){
+        PersonajeNave enemigo = new PersonajeNave(escenario, x, y, pTextureEnemyNaveRegion, pTextureBombaRegion, pTextureVidaRegion, mBulletTexture, pVertexBufferObjectManager);
+        enemigo.setOrientation(orientacion);
+        enemigo.setEnemigos(personajeJugador);
+        enemigo.inactivar();
+        escenario.getLayerPlayer().attachChild(enemigo);
+        return enemigo;
+    }
     public PersonajeRNBot crearRNBotEnemigo(float x, float y, int orientacion){
         PersonajeRNBot enemigo = new PersonajeRNBot(escenario, x, y, pTextureEnemyRegion, mBulletTexture, pVertexBufferObjectManager);
         enemigo.setOrientation(orientacion);
         enemigo.setEnemigos(personajeJugador);
         enemigo.inactivar();
+        escenario.getLayerPlayer().attachChild(enemigo);
+        return enemigo;
+    }
+    public PersonajeRNDBot crearRNDBotEnemigo(float x, float y, int orientacion){
+        PersonajeRNDBot enemigo = new PersonajeRNDBot(escenario, x, y, pTextureEnemy2Region, mBulletTexture, pVertexBufferObjectManager);
+        enemigo.setOrientation(orientacion);
+        enemigo.setEnemigos(personajeJugador);
+        enemigo.inactivar();
+        escenario.getLayerPlayer().attachChild(enemigo);
         return enemigo;
     }
 
@@ -142,6 +189,7 @@ public class BotFactory {
                 bot.activar();
             }
         }
+        muertos = false;
     }
 
     public void inactivar(){
@@ -155,45 +203,68 @@ public class BotFactory {
         all.addAll(botsLevel1);
         all.addAll(botsLevel2);
         all.addAll(botsLevel3);
+        all.addAll(botsComunes);
         return all;
     }
 
     public boolean validaBotMuertos(){
-        switch(escenario.getIntro().getNivelSelec()){
-            case 1:
-                int[] ibots = new int[]{14, 13, 7, 0, 1, 2};
-                for(int i : ibots){
-                    if(!botsLevel1.get(i).isDead()){
-                        return false;
+        if(!muertos) {
+            int[] ibots;
+            switch (escenario.getIntro().getNivelSelec()) {
+                case 1:
+                    for (Actor a : botsLevel1) {
+                        if (!a.isDead()) {
+                            return false;
+                        }
                     }
-                }
-                break;
-            case 2:
-                for (Actor bot : botsLevel2){
-                    if(!bot.isDead()){
-                        return false;
+                    break;
+                case 2:
+                    for (Actor a : botsLevel2) {
+                        if (!a.isDead()) {
+                            return false;
+                        }
                     }
+                    break;
+                case 3:
+                    for (Actor a : botsLevel3) {
+                        if (!a.isDead()) {
+                            return false;
+                        }
+                    }
+                    break;
+            }
+            int[] bots = new int[]{9, 18, 19};
+            for (int i = 0; i < bots.length; i++) {
+                if (!botsComunes.get(bots[i]).isDead()) {
+                    return false;
                 }
-                break;
-            case 3:
-                break;
+            }
+            escenario.getBase().activar();
+            muertos = true;
+            return true;
+        }else{
+            return true;
         }
-        return true;
     }
 
     public ArrayList<Actor> getBots() {
-        ArrayList<Actor> botsSelec = null;
+        ArrayList<Actor> botsSelec = new ArrayList<>();
         switch(escenario.getIntro().getNivelSelec()) {
             case 1:
-                botsSelec = botsLevel1;
+                botsSelec.addAll(botsLevel1);
                 break;
             case 2:
-                botsSelec = botsLevel2;
+                botsSelec.addAll(botsLevel2);
                 break;
             case 3:
-                botsSelec = botsLevel3;
+                botsSelec.addAll(botsLevel3);
                 break;
         }
-        return botsSelec;
+        if(botsSelec.size() == 0){
+            return null;
+        }else{
+            botsSelec.addAll(botsComunes);
+            return botsSelec;
+        }
     }
 }
