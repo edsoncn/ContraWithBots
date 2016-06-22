@@ -34,8 +34,8 @@ public class Explosion extends AnimatedSprite {
     }
 
     public void init(){
-        lastBackSpriteX = escenario.getParallaxLayerBackSprite().getX();
-        lastBackSpriteY = escenario.getParallaxLayerBackSprite().getY();
+        lastBackSpriteX = escenario.getParallaxX();
+        lastBackSpriteY = escenario.getParallaxY();
         long f = Bala.FRAME_TIME_CHISPA;
         animate(new long[]{f, f, f, f, f, f, f, f, f, f, f, f}, 0, 11, 0);
         sExplosion.play();
@@ -44,8 +44,8 @@ public class Explosion extends AnimatedSprite {
     @Override
     protected void onManagedUpdate(final float pSecondsElapsed) {
         if(!escenario.isPausa()) {
-            float bX = escenario.getParallaxLayerBackSprite().getX();
-            float bY = escenario.getParallaxLayerBackSprite().getY();
+            float bX = escenario.getParallaxX();
+            float bY = escenario.getParallaxY();
             setX(getX() + bX - lastBackSpriteX + vx);
             setY(getY() + bY - lastBackSpriteY + vy);
             lastBackSpriteX = bX;

@@ -1,11 +1,6 @@
 package com.proyectosfisi.game.contrawithbots;
 
-import android.util.Log;
-
-import org.andengine.engine.camera.Camera;
-import org.andengine.entity.modifier.ColorModifier;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
-import org.andengine.opengl.util.GLState;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 /**
@@ -392,7 +387,7 @@ public class PersonajeFrancotirador extends Actor {
     @Override
     public void setRelativeY(float relativeY) {
         this.relativeY = relativeY;
-        setY(relativeY + escenario.getCropResolutionPolicy().getBottom() + Escenario.PISO_ALTO - 8);
+        setY(relativeY + escenario.getFillCropResolutionPolicy().getBottom() + Escenario.PISO_ALTO - 8);
     }
 
 }

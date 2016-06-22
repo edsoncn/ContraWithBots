@@ -1,16 +1,18 @@
 package com.proyectosfisi.game.contrawithbots;
 
+import com.proyectosfisi.game.andengine.resolutionpolicy.FillCropResolutionPolicy;
+
 import org.andengine.audio.music.Music;
 import org.andengine.audio.music.MusicFactory;
 import org.andengine.audio.sound.Sound;
 import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.Engine;
 import org.andengine.engine.camera.hud.HUD;
-import org.andengine.engine.options.resolutionpolicy.CropResolutionPolicy;
+import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.Entity;
 import org.andengine.entity.scene.Scene;
-import org.andengine.entity.scene.background.AutoParallaxBackground;
 import org.andengine.entity.scene.background.ParallaxBackground;
+import org.andengine.entity.scene.background.ParallaxBackground.ParallaxEntity;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
@@ -32,15 +34,14 @@ import java.io.IOException;
  */
 public class Escenario {
 
-    public static final int CAMARA_ANCHO = 1024;
+    public static final int CAMARA_ANCHO = 340;//1024;
     public static final int CAMARA_ALTO = 256;
     public static final float MANDO_PADDING = 6;
     public static final float ESCENARIO_PAGGING_RIGHT = 58;
 
-    protected CropResolutionPolicy cropResolutionPolicy;
+    protected FillCropResolutionPolicy fillCropResolutionPolicy;
 
-    protected AutoParallaxBackground autoParallaxBackground;
-    protected Sprite parallaxLayerBackSprite;
+    protected Sprite[] parallaxLayerBackSprites;
     protected Entity layerPlayer;
     protected Entity layerBullets;
     protected HUD hud;
@@ -77,19 +78,23 @@ public class Escenario {
     public static final float ESCALONES_DISTANCIA_X_MAX[] = new float[]{/*1*/ 832, 904, 1000,/*2*/ 1856, 1928, 1952, 2096, 2120, 2144,/*3*/ 2952, 2976, 3120, 3144, 3168,/*4*/ 4299, 4291};
 
     public void onCreateEngineOptions(){
-        cropResolutionPolicy = new CropResolutionPolicy(CAMARA_ANCHO, CAMARA_ALTO);
+        fillCropResolutionPolicy = new FillCropResolutionPolicy(CAMARA_ANCHO, CAMARA_ALTO);
         pausa = true;
     }
 
-    public void onCreateEscene(Scene scene, ITextureRegion mParallaxLayerBackTextureRegion,VertexBufferObjectManager vertexBufferObjectManager){
+    public void onCreateEscene(Scene scene, ITextureRegion[] mParallaxLayerBackTextureRegions,VertexBufferObjectManager vertexBufferObjectManager){
 
-        autoParallaxBackground = new AutoParallaxBackground(0, 0, 0, 5);
-        scene.setBackground(autoParallaxBackground);
+        final ParallaxBackground parallaxBackground = new ParallaxBackground(0, 0, 0);
+        scene.setBackground(parallaxBackground);
+
+        parallaxLayerBackSprites = new Sprite[mParallaxLayerBackTextureRegions.length];
+        for(int i = 0; i < mParallaxLayerBackTextureRegions.length; i++){
+            parallaxLayerBackSprites[i] = new Sprite(i * mParallaxLayerBackTextureRegions[i].getWidth(), 0, mParallaxLayerBackTextureRegions[i], vertexBufferObjectManager);
+            parallaxLayerBackSprites[i].setOffsetCenter(0, 0);
+            parallaxBackground.attachParallaxEntity(new ParallaxEntity(0.0f, parallaxLayerBackSprites[i]));
+        }
 
         // Fondo
-        parallaxLayerBackSprite = new Sprite(cropResolutionPolicy.getLeft(), cropResolutionPolicy.getBottom(), mParallaxLayerBackTextureRegion, vertexBufferObjectManager);
-        parallaxLayerBackSprite.setOffsetCenter(0, 0);
-        autoParallaxBackground.attachParallaxEntity(new ParallaxBackground.ParallaxEntity(0.0f, parallaxLayerBackSprite));
 
         base = new Base(this, mIntroBaseTextureRegion, vertexBufferObjectManager);
 
@@ -167,8 +172,8 @@ public class Escenario {
 
     }
 
-    public CropResolutionPolicy getCropResolutionPolicy() {
-        return cropResolutionPolicy;
+    public FillCropResolutionPolicy getFillCropResolutionPolicy() {
+        return fillCropResolutionPolicy;
     }
 
     public Entity getLayerPlayer() {
@@ -179,8 +184,22 @@ public class Escenario {
         return layerBullets;
     }
 
-    public Sprite getParallaxLayerBackSprite() {
-        return parallaxLayerBackSprite;
+    public float getParallaxX(){
+        return parallaxLayerBackSprites[0].getX();
+    }
+
+    public float getParallaxY(){
+        return parallaxLayerBackSprites[0].getY();
+    }
+
+    public float getParallaxWidth(){
+        return parallaxLayerBackSprites[0].getWidth()*parallaxLayerBackSprites.length;
+    }
+
+    public void setParallaxX(float x){
+        for(int i = 0; i < parallaxLayerBackSprites.length; i++){
+            parallaxLayerBackSprites[i].setX(x + parallaxLayerBackSprites[0].getWidth() * i);
+        }
     }
 
     public PersonajeJugador getJugador() {

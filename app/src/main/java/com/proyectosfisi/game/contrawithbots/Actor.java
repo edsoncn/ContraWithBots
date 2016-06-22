@@ -189,8 +189,8 @@ public abstract class Actor extends AnimatedSprite {
     }
 
     protected boolean validarEnDentroDeEscena(){
-        float right = escenario.getCropResolutionPolicy().getRight();
-        float left = escenario.getCropResolutionPolicy().getLeft();
+        float right = escenario.getFillCropResolutionPolicy().getRight();
+        float left = escenario.getFillCropResolutionPolicy().getLeft();
         return left < getX() && getX() < right;
     }
 
@@ -211,7 +211,7 @@ public abstract class Actor extends AnimatedSprite {
 
     public void setRelativeX(float relativeX) {
         this.relativeX = relativeX;
-        setX(escenario.getParallaxLayerBackSprite().getX() + relativeX);
+        setX(escenario.getParallaxX() + relativeX);
     }
 
     public float getRelativeY() {
@@ -220,7 +220,7 @@ public abstract class Actor extends AnimatedSprite {
 
     public void setRelativeY(float relativeY) {
         this.relativeY = relativeY;
-        setY(relativeY + escenario.getCropResolutionPolicy().getBottom() + Escenario.PISO_ALTO);
+        setY(relativeY + escenario.getFillCropResolutionPolicy().getBottom() + Escenario.PISO_ALTO);
     }
 
     public float getVelocityY() {

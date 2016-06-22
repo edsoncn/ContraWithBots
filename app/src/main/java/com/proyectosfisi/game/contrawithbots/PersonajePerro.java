@@ -1,7 +1,5 @@
 package com.proyectosfisi.game.contrawithbots;
 
-import android.util.Log;
-
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
@@ -76,7 +74,7 @@ public class PersonajePerro extends Actor{
                     }
                     break;
                 case STATE_Q1:
-                    if(getX() - getWidth() / 2 >= escenario.getCropResolutionPolicy().getRight()){
+                    if(getX() - getWidth() / 2 >= escenario.getFillCropResolutionPolicy().getRight()){
                         inactivar();
                         despuesDeMorir();
                     }
@@ -204,6 +202,6 @@ public class PersonajePerro extends Actor{
     @Override
     public void setRelativeY(float relativeY) {
         this.relativeY = relativeY;
-        setY(relativeY + escenario.getCropResolutionPolicy().getBottom() + Escenario.PISO_ALTO + (state == STATE_Q0 ? - 3 : -13));
+        setY(relativeY + escenario.getFillCropResolutionPolicy().getBottom() + Escenario.PISO_ALTO + (state == STATE_Q0 ? - 3 : -13));
     }
 }

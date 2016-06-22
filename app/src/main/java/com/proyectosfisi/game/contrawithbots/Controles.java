@@ -9,7 +9,6 @@ import org.andengine.entity.sprite.TiledSprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.text.TextOptions;
 import org.andengine.input.touch.TouchEvent;
-import org.andengine.opengl.font.Font;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
@@ -58,10 +57,10 @@ public class Controles extends Entity{
                      final VertexBufferObjectManager pVertexBufferObjectManager) {
         super();
 
-        float left = escenario.getCropResolutionPolicy().getLeft();
-        float right = escenario.getCropResolutionPolicy().getRight();
-        float bottom = escenario.getCropResolutionPolicy().getBottom();
-        float top = escenario.getCropResolutionPolicy().getTop();
+        float left = escenario.getFillCropResolutionPolicy().getLeft();
+        float right = escenario.getFillCropResolutionPolicy().getRight();
+        float bottom = escenario.getFillCropResolutionPolicy().getBottom();
+        float top = escenario.getFillCropResolutionPolicy().getTop();
         float ancho = right - left;
         float alto = top - bottom;
         this.escala = escala;
@@ -300,10 +299,10 @@ public class Controles extends Entity{
     }
 
     public void initPosiciones(){
-        float left = escenario.getCropResolutionPolicy().getLeft();
-        float bottom = escenario.getCropResolutionPolicy().getBottom();
-        float right = escenario.getCropResolutionPolicy().getRight();
-        float top = escenario.getCropResolutionPolicy().getTop();
+        float left = escenario.getFillCropResolutionPolicy().getLeft();
+        float bottom = escenario.getFillCropResolutionPolicy().getBottom();
+        float right = escenario.getFillCropResolutionPolicy().getRight();
+        float top = escenario.getFillCropResolutionPolicy().getTop();
         float ancho = right - left;
         float alto = top - bottom;
 
@@ -327,8 +326,8 @@ public class Controles extends Entity{
     }
 
     public void mostrarControles(){
-        float left = escenario.getCropResolutionPolicy().getLeft();
-        float right = escenario.getCropResolutionPolicy().getRight();
+        float left = escenario.getFillCropResolutionPolicy().getLeft();
+        float right = escenario.getFillCropResolutionPolicy().getRight();
         float ancho = right - left;
         if(spriteMandoDireccional.getX() > right){
             spriteMandoDireccional.setX(spriteMandoDireccional.getX() - ancho);
@@ -348,8 +347,8 @@ public class Controles extends Entity{
     }
 
     public void ocultarControles(){
-        float left = escenario.getCropResolutionPolicy().getLeft();
-        float right = escenario.getCropResolutionPolicy().getRight();
+        float left = escenario.getFillCropResolutionPolicy().getLeft();
+        float right = escenario.getFillCropResolutionPolicy().getRight();
         float ancho = right - left;
         if(spriteMandoDireccional.getX() < right){
             spriteMandoDireccional.setVisible(false);
@@ -376,10 +375,10 @@ public class Controles extends Entity{
     }
 
     public void mostrarBotonesPausa(){
-        float left = escenario.getCropResolutionPolicy().getLeft();
-        float right = escenario.getCropResolutionPolicy().getRight();
-        float bottom = escenario.getCropResolutionPolicy().getBottom();
-        float top = escenario.getCropResolutionPolicy().getTop();
+        float left = escenario.getFillCropResolutionPolicy().getLeft();
+        float right = escenario.getFillCropResolutionPolicy().getRight();
+        float bottom = escenario.getFillCropResolutionPolicy().getBottom();
+        float top = escenario.getFillCropResolutionPolicy().getTop();
         float ancho = right - left;
         float alto = top - bottom;
 
@@ -394,8 +393,8 @@ public class Controles extends Entity{
     }
 
     public void ocultarBotonesPausa(){
-        float left = escenario.getCropResolutionPolicy().getLeft();
-        float right = escenario.getCropResolutionPolicy().getRight();
+        float left = escenario.getFillCropResolutionPolicy().getLeft();
+        float right = escenario.getFillCropResolutionPolicy().getRight();
         float ancho = right - left;
         if(spriteBotonContinuar.getX() < right){
             spriteBotonContinuar.setVisible(false);
@@ -408,10 +407,10 @@ public class Controles extends Entity{
     }
 
     public void mostrarTitulos(){
-        float left = escenario.getCropResolutionPolicy().getLeft();
-        float right = escenario.getCropResolutionPolicy().getRight();
-        float bottom = escenario.getCropResolutionPolicy().getBottom();
-        float top = escenario.getCropResolutionPolicy().getTop();
+        float left = escenario.getFillCropResolutionPolicy().getLeft();
+        float right = escenario.getFillCropResolutionPolicy().getRight();
+        float bottom = escenario.getFillCropResolutionPolicy().getBottom();
+        float top = escenario.getFillCropResolutionPolicy().getTop();
         float ancho = right - left;
         float alto = top - bottom;
 
@@ -425,8 +424,8 @@ public class Controles extends Entity{
     }
 
     public void ocultarTitulos(){
-        float left = escenario.getCropResolutionPolicy().getLeft();
-        float right = escenario.getCropResolutionPolicy().getRight();
+        float left = escenario.getFillCropResolutionPolicy().getLeft();
+        float right = escenario.getFillCropResolutionPolicy().getRight();
         float ancho = right - left;
         if(spriteBotonMenu.getX() > right) {
             spriteBotonMenu.setX(spriteBotonMenu.getX() - ancho);

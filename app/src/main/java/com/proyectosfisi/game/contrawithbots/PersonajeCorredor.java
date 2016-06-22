@@ -222,11 +222,11 @@ public class PersonajeCorredor extends Actor{
 
         explosion(getX(), getY());
 
-        float right = escenario.getCropResolutionPolicy().getRight();
-        float left = escenario.getCropResolutionPolicy().getLeft();
+        float right = escenario.getFillCropResolutionPolicy().getRight();
+        float left = escenario.getFillCropResolutionPolicy().getLeft();
         float ancho = right - left;
-        float backLayerX = escenario.getParallaxLayerBackSprite().getX();
-        float backLayerW = escenario.getParallaxLayerBackSprite().getWidth();
+        float backLayerX = escenario.getParallaxX();
+        float backLayerW = escenario.getParallaxWidth();
 
         if((left - backLayerX) + (4.0f * ancho / 2) < backLayerW) {
             if (Math.random() >= 0.5) {
@@ -303,7 +303,7 @@ public class PersonajeCorredor extends Actor{
     @Override
     public void setRelativeY(float relativeY) {
         this.relativeY = relativeY;
-        setY(relativeY + escenario.getCropResolutionPolicy().getBottom() + Escenario.PISO_ALTO - 8);
+        setY(relativeY + escenario.getFillCropResolutionPolicy().getBottom() + Escenario.PISO_ALTO - 8);
     }
 
 }

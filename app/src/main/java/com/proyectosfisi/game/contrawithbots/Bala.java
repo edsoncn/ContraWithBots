@@ -60,8 +60,8 @@ public class Bala extends TiledSprite{
         PosicionYVelocidad pv = actor.getPosicionYVelocidadDeBala();
         setX(pv.getX());
         setY(pv.getY());
-        lastBackSpriteX = escenario.getParallaxLayerBackSprite().getX();
-        lastBackSpriteY = escenario.getParallaxLayerBackSprite().getY();
+        lastBackSpriteX = escenario.getParallaxX();
+        lastBackSpriteY = escenario.getParallaxY();
         velocityX = pv.getVx();
         velocityY = pv.getVy();
 
@@ -90,17 +90,17 @@ public class Bala extends TiledSprite{
     protected void onManagedUpdate(final float pSecondsElapsed) {
         if(!escenario.isPausa()) {
             if (active) {
-                float left = escenario.getCropResolutionPolicy().getLeft();
-                float right = escenario.getCropResolutionPolicy().getRight();
-                float top = escenario.getCropResolutionPolicy().getTop();
-                float bottom = escenario.getCropResolutionPolicy().getBottom();
+                float left = escenario.getFillCropResolutionPolicy().getLeft();
+                float right = escenario.getFillCropResolutionPolicy().getRight();
+                float top = escenario.getFillCropResolutionPolicy().getTop();
+                float bottom = escenario.getFillCropResolutionPolicy().getBottom();
                 if (left - actor.getWidth() / 2 > getX() || getX() > right + actor.getWidth() / 2
                         || top + actor.getHeight() / 2 < getY() || getY() < bottom
                         || validarColisiones()) {
                     inactivar();
                 } else {
-                    float bX = escenario.getParallaxLayerBackSprite().getX();
-                    float bY = escenario.getParallaxLayerBackSprite().getY();
+                    float bX = escenario.getParallaxX();
+                    float bY = escenario.getParallaxY();
                     setX(getX() + velocityX + bX - lastBackSpriteX);
                     setY(getY() + velocityY + bY - lastBackSpriteY);
                     lastBackSpriteX = bX;
@@ -130,7 +130,7 @@ public class Bala extends TiledSprite{
                 if (enemigo.colisionBala(this)){
                     float restar = 10.00f;
                     if(enemigo instanceof PersonajeEnemigo){
-                        restar = 25.0f;
+                        restar = 50.0f;
                     }else if(enemigo instanceof PersonajeFrancotirador){
                         restar = 33.34f;
                     }else if(enemigo instanceof PersonajeMetralla){
@@ -138,9 +138,9 @@ public class Bala extends TiledSprite{
                     }else if(enemigo instanceof PersonajeCorredor){
                         restar = 50.0f;
                     }else if(enemigo instanceof PersonajeRNBot){
-                        restar = 20.0f;
+                        restar = 25.0f;
                     }else if(enemigo instanceof PersonajeRNDBot){
-                        restar = 20.0f;
+                        restar = 25.0f;
                     }else if(enemigo instanceof PersonajeJugador){
                         if(actor instanceof PersonajeMetralla){
                             restar = 12.0f;

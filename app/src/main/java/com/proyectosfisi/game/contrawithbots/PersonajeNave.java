@@ -1,7 +1,5 @@
 package com.proyectosfisi.game.contrawithbots;
 
-import android.util.Log;
-
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
@@ -73,7 +71,7 @@ public class PersonajeNave extends Actor{
         if(!escenario.isPausa()) {
             switch (state) {
                 case STATE_Q0:
-                    if (getX() + getWidth() / 2 <= escenario.getCropResolutionPolicy().getLeft()) {
+                    if (getX() + getWidth() / 2 <= escenario.getFillCropResolutionPolicy().getLeft()) {
                         setStateQ1();
                     }
                     if (getVelocityY() == V_MAX || getVelocityY() == -V_MAX) {
@@ -85,9 +83,9 @@ public class PersonajeNave extends Actor{
                 case STATE_Q1:
                     if(cuadrante <= 3) {
                         Actor jugador = getEnemigos().get(0);
-                        float W = escenario.getParallaxLayerBackSprite().getWidth();
-                        float left = escenario.getCropResolutionPolicy().getLeft();
-                        float right = escenario.getCropResolutionPolicy().getRight();
+                        float W = escenario.getParallaxWidth();
+                        float left = escenario.getFillCropResolutionPolicy().getLeft();
+                        float right = escenario.getFillCropResolutionPolicy().getRight();
                         float div = (jugador.getRelativeX() - W / 10) / W;
                         if (div <= ((cuadrante + 1) * (W / 5) / W) && div >= (cuadrante * (W / 5) / W)) {
                             cuadrante++;

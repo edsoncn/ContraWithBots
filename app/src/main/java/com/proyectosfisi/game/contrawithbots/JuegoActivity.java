@@ -8,10 +8,6 @@ import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
-import org.andengine.audio.music.Music;
-import org.andengine.audio.music.MusicFactory;
-import org.andengine.audio.sound.Sound;
-import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.options.EngineOptions;
@@ -20,18 +16,14 @@ import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.util.FPSLogger;
 import org.andengine.input.touch.TouchEvent;
-import org.andengine.opengl.font.Font;
-import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.texture.ITexture;
 import org.andengine.opengl.texture.TextureOptions;
-import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.bitmap.AssetBitmapTexture;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.TextureRegionFactory;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
-import org.andengine.util.adt.color.Color;
 
 import java.io.IOException;
 
@@ -43,8 +35,17 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
     protected Camera camera;
     protected Escenario escenario;
 
-    protected ITexture mParallaxLayerBackTexture;
-    protected ITextureRegion mParallaxLayerBackTextureRegion;
+    protected ITexture mParallaxLayerBackTexture1;
+    protected ITextureRegion mParallaxLayerBackTextureRegion1;
+
+    protected ITexture mParallaxLayerBackTexture2;
+    protected ITextureRegion mParallaxLayerBackTextureRegion2;
+
+    protected ITexture mParallaxLayerBackTexture3;
+    protected ITextureRegion mParallaxLayerBackTextureRegion3;
+
+    protected ITexture mParallaxLayerBackTexture4;
+    protected ITextureRegion mParallaxLayerBackTextureRegion4;
 
     //Personajes y Bala
     protected ITexture mPlayerTexture;
@@ -117,7 +118,7 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
         escenario = new Escenario();
         escenario.onCreateEngineOptions();
 
-        EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, escenario.getCropResolutionPolicy(), camera);
+        EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, escenario.getFillCropResolutionPolicy(), camera);
 
         engineOptions.getTouchOptions().setNeedsMultiTouch(true);
         engineOptions.getAudioOptions().setNeedsSound(true);
@@ -131,8 +132,8 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
     @Override
     public Scene onCreateScene() {
 
-        float left = escenario.getCropResolutionPolicy().getLeft();
-        float right = escenario.getCropResolutionPolicy().getRight();
+        float left = escenario.getFillCropResolutionPolicy().getLeft();
+        float right = escenario.getFillCropResolutionPolicy().getRight();
 
         this.mEngine.registerUpdateHandler(new FPSLogger());
 
@@ -148,11 +149,12 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
             }
         };
 
-        //Creamos background y las capas
-        escenario.onCreateEscene(scene, mParallaxLayerBackTextureRegion, vertexBufferObjectManager);
-
         hud = new HUD();
         escenario.setHud(hud);
+
+        //Creamos background y las capas
+        escenario.onCreateEscene(scene, new ITextureRegion[]{mParallaxLayerBackTextureRegion1, mParallaxLayerBackTextureRegion2, mParallaxLayerBackTextureRegion3, mParallaxLayerBackTextureRegion4}, vertexBufferObjectManager);
+
         // Touch Area
         intro = new Intro(escenario, mIntroTituloTextureRegion, mIntroNivel1TextureRegion, mIntroNivel2TextureRegion, mIntroNivel3TextureRegion, getVertexBufferObjectManager());
         scene.attachChild(intro);
@@ -261,9 +263,21 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
     public void onCreateResources() throws IOException {
 
         // Fondo
-        this.mParallaxLayerBackTexture = new AssetBitmapTexture(this.getTextureManager(), this.getAssets(), "gfx/contrafondo.png");
-        this.mParallaxLayerBackTextureRegion = TextureRegionFactory.extractFromTexture(this.mParallaxLayerBackTexture);
-        this.mParallaxLayerBackTexture.load();
+        this.mParallaxLayerBackTexture1 = new AssetBitmapTexture(this.getTextureManager(), this.getAssets(), "gfx/contrafondo2_1.png");
+        this.mParallaxLayerBackTextureRegion1 = TextureRegionFactory.extractFromTexture(this.mParallaxLayerBackTexture1);
+        this.mParallaxLayerBackTexture1.load();
+
+        this.mParallaxLayerBackTexture2 = new AssetBitmapTexture(this.getTextureManager(), this.getAssets(), "gfx/contrafondo2_2.png");
+        this.mParallaxLayerBackTextureRegion2 = TextureRegionFactory.extractFromTexture(this.mParallaxLayerBackTexture2);
+        this.mParallaxLayerBackTexture2.load();
+
+        this.mParallaxLayerBackTexture3 = new AssetBitmapTexture(this.getTextureManager(), this.getAssets(), "gfx/contrafondo2_3.png");
+        this.mParallaxLayerBackTextureRegion3 = TextureRegionFactory.extractFromTexture(this.mParallaxLayerBackTexture3);
+        this.mParallaxLayerBackTexture3.load();
+
+        this.mParallaxLayerBackTexture4 = new AssetBitmapTexture(this.getTextureManager(), this.getAssets(), "gfx/contrafondo2_4.png");
+        this.mParallaxLayerBackTextureRegion4 = TextureRegionFactory.extractFromTexture(this.mParallaxLayerBackTexture4);
+        this.mParallaxLayerBackTexture4.load();
 
         // Mando
         this.mMandoDireccionalTexture = new AssetBitmapTexture(this.getTextureManager(), this.getAssets(), "gfx/mando_direccional.png", TextureOptions.BILINEAR_PREMULTIPLYALPHA);

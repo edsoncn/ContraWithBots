@@ -2,7 +2,6 @@ package com.proyectosfisi.game.contrawithbots;
 
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.opengl.texture.region.ITextureRegion;
-import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 /**
@@ -49,8 +48,8 @@ public class Base extends Sprite {
     public void activar(){
         count = 0;
         v = 0.125f;
-        float right = escenario.getCropResolutionPolicy().getRight();
-        float bottom = escenario.getCropResolutionPolicy().getBottom();
+        float right = escenario.getFillCropResolutionPolicy().getRight();
+        float bottom = escenario.getFillCropResolutionPolicy().getBottom();
         setPosition(right - 90, bottom + 51.5f);
         setIgnoreUpdate(false);
         setVisible(true);

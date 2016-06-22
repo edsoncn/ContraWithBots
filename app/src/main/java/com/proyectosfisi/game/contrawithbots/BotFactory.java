@@ -1,7 +1,5 @@
 package com.proyectosfisi.game.contrawithbots;
 
-import android.util.Log;
-
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
@@ -62,8 +60,8 @@ public class BotFactory {
 
         personajeJugador.add(escenario.getJugador());
 
-        float right = escenario.getCropResolutionPolicy().getRight();
-        float left = escenario.getCropResolutionPolicy().getLeft();
+        float right = escenario.getFillCropResolutionPolicy().getRight();
+        float left = escenario.getFillCropResolutionPolicy().getLeft();
 
         //Enemigos communes
 
@@ -72,12 +70,10 @@ public class BotFactory {
         botsComunes.add(crearBotEnemigoMetralla(752, 0, Actor.ORIENTATION_LEFT));// 1
         botsComunes.add(crearBotEnemigoMetralla(1008, 0, Actor.ORIENTATION_LEFT));// 2
         botsComunes.add(crearBotEnemigoMetralla( 1792, 0, Actor.ORIENTATION_LEFT));// 3
-        botsComunes.add(crearBotEnemigoMetralla( 2304, 0, Actor.ORIENTATION_LEFT));// 4
-        botsComunes.add(crearBotEnemigoMetralla( 2832, 0, Actor.ORIENTATION_LEFT));// 5
-        botsComunes.add(crearBotEnemigoMetralla( 3408, 0, Actor.ORIENTATION_LEFT));// 6
-        botsComunes.add(crearBotEnemigoMetralla( 3824, 0, Actor.ORIENTATION_LEFT));// 7
-        botsComunes.add(crearBotEnemigoMetralla( 3935, 0, Actor.ORIENTATION_LEFT));// 8
-        botsComunes.add(crearBotEnemigoMetralla( 4264, 0, Actor.ORIENTATION_LEFT));// 9
+        botsComunes.add(crearBotEnemigoMetralla( 2382, 0, Actor.ORIENTATION_LEFT));// 6
+        botsComunes.add(crearBotEnemigoMetralla( 2798, 0, Actor.ORIENTATION_LEFT));// 7
+        botsComunes.add(crearBotEnemigoMetralla( 2909, 0, Actor.ORIENTATION_LEFT));// 8
+        botsComunes.add(crearBotEnemigoMetralla( 3238, 0, Actor.ORIENTATION_LEFT));// 9
 
         botsComunes.add(crearBotEnemigoPerro(1744.5f, 0, Actor.ORIENTATION_LEFT));// 10
         botsComunes.add(crearBotEnemigoPerro(1360.5f, 0, Actor.ORIENTATION_LEFT));// 11
@@ -88,11 +84,8 @@ public class BotFactory {
         botsComunes.add(crearBotEnemigoFrancotirador(2016, 128, Actor.ORIENTATION_LEFT));// 14
         botsComunes.add(crearBotEnemigoFrancotirador(1848, 96, Actor.ORIENTATION_LEFT));// 15
 
-        botsComunes.add(crearBotEnemigoFrancotirador(3040, 128, Actor.ORIENTATION_LEFT));// 16
-        botsComunes.add(crearBotEnemigoFrancotirador(3080, 96, Actor.ORIENTATION_LEFT));// 17
-
-        botsComunes.add(crearBotEnemigoFrancotirador(4265, 46, Actor.ORIENTATION_LEFT));// 18
-        botsComunes.add(crearBotEnemigoFrancotirador(4261, 86, Actor.ORIENTATION_LEFT));// 19
+        botsComunes.add(crearBotEnemigoFrancotirador(3238, 46, Actor.ORIENTATION_LEFT));// 18
+        botsComunes.add(crearBotEnemigoFrancotirador(3235, 86, Actor.ORIENTATION_LEFT));// 19
 
         //BOTS Level 1
 

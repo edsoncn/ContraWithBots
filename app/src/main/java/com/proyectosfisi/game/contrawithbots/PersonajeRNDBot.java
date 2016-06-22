@@ -225,11 +225,11 @@ public class PersonajeRNDBot extends Personaje {
 
     @Override
     protected void despuesDeMorir() {
-        float right = escenario.getCropResolutionPolicy().getRight();
-        float left = escenario.getCropResolutionPolicy().getLeft();
+        float right = escenario.getFillCropResolutionPolicy().getRight();
+        float left = escenario.getFillCropResolutionPolicy().getLeft();
         float ancho = right - left;
-        float backLayerX = escenario.getParallaxLayerBackSprite().getX();
-        float backLayerW = escenario.getParallaxLayerBackSprite().getWidth();
+        float backLayerX = escenario.getParallaxX();
+        float backLayerW = escenario.getParallaxWidth();
 
         if((left - backLayerX) + (3.5f * (ancho / 2)) < backLayerW) {
             init((left - backLayerX) + (3.5f * (ancho / 2)), 0);

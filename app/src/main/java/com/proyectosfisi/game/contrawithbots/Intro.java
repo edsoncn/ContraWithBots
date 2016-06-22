@@ -1,14 +1,11 @@
 package com.proyectosfisi.game.contrawithbots;
 
-import android.text.TextPaint;
-
 import org.andengine.entity.Entity;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.text.TextOptions;
 import org.andengine.input.touch.TouchEvent;
-import org.andengine.opengl.font.Font;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.adt.align.HorizontalAlign;
@@ -64,10 +61,10 @@ public class Intro extends Entity {
         super();
         this.escenario = escenario;
 
-        float left = escenario.getCropResolutionPolicy().getLeft();
-        float bottom = escenario.getCropResolutionPolicy().getBottom();
-        float top = escenario.getCropResolutionPolicy().getTop();
-        float right = escenario.getCropResolutionPolicy().getRight();
+        float left = escenario.getFillCropResolutionPolicy().getLeft();
+        float bottom = escenario.getFillCropResolutionPolicy().getBottom();
+        float top = escenario.getFillCropResolutionPolicy().getTop();
+        float right = escenario.getFillCropResolutionPolicy().getRight();
         float ancho = right - left;
         float alto = top - bottom;
 
@@ -177,9 +174,9 @@ public class Intro extends Entity {
     protected void onManagedUpdate(final float pSecondsElapsed) {
         switch (estado){
             case ESTADO_Q1:
-                float top = escenario.getCropResolutionPolicy().getTop();
-                float left = escenario.getCropResolutionPolicy().getLeft();
-                float right = escenario.getCropResolutionPolicy().getRight();
+                float top = escenario.getFillCropResolutionPolicy().getTop();
+                float left = escenario.getFillCropResolutionPolicy().getLeft();
+                float right = escenario.getFillCropResolutionPolicy().getRight();
                 boolean bool = spriteIntroTitulo.getY() > top;
                 switch (nivelSelec) {
                     case 1:
@@ -196,7 +193,7 @@ public class Intro extends Entity {
                     setStateQ2();
                 }else{
                     spriteIntroTitulo.setY(spriteIntroTitulo.getY() + velocidad);
-                    float dif = (escenario.getCropResolutionPolicy().getTop() - spriteIntroTitulo.getY()) / separa;
+                    float dif = (escenario.getFillCropResolutionPolicy().getTop() - spriteIntroTitulo.getY()) / separa;
                     switch (nivelSelec){
                         case 1:
                             spriteIntroNivel2.setX(spriteIntroNivel2.getX() + velocidad);
@@ -226,7 +223,7 @@ public class Intro extends Entity {
                     velocidad += aceleracion;
                 }
             case ESTADO_Q0:
-                float ancho = escenario.getCropResolutionPolicy().getRight() - escenario.getCropResolutionPolicy().getLeft();
+                float ancho = escenario.getFillCropResolutionPolicy().getRight() - escenario.getFillCropResolutionPolicy().getLeft();
                 PersonajeJugador j = escenario.getJugador();
                 if(j.getRelativeX() > ancho / 2){
                     if(j.getRelativeX() - velocidadEscena < ancho / 2){
@@ -263,10 +260,10 @@ public class Intro extends Entity {
         mostrarIntro();
         mostrarScores();
 
-        separa = escenario.getCropResolutionPolicy().getTop() - spriteIntroTitulo.getY();
+        separa = escenario.getFillCropResolutionPolicy().getTop() - spriteIntroTitulo.getY();
 
         //Determinando la velocidad y acelaracion de la escena
-        float ancho = escenario.getCropResolutionPolicy().getRight() - escenario.getCropResolutionPolicy().getLeft();
+        float ancho = escenario.getFillCropResolutionPolicy().getRight() - escenario.getFillCropResolutionPolicy().getLeft();
         float t = 12.5f;
         PersonajeJugador j = escenario.getJugador();
         velocidadEscena = 2*(j.getRelativeX() - ancho / 2) / t;
@@ -302,10 +299,10 @@ public class Intro extends Entity {
     }
 
     public void initPosiciones(){
-        float left = escenario.getCropResolutionPolicy().getLeft();
-        float bottom = escenario.getCropResolutionPolicy().getBottom();
-        float top = escenario.getCropResolutionPolicy().getTop();
-        float right = escenario.getCropResolutionPolicy().getRight();
+        float left = escenario.getFillCropResolutionPolicy().getLeft();
+        float bottom = escenario.getFillCropResolutionPolicy().getBottom();
+        float top = escenario.getFillCropResolutionPolicy().getTop();
+        float right = escenario.getFillCropResolutionPolicy().getRight();
         float alto = top - bottom;
         float ancho = right - left;
         float separaAlto = (alto - spriteIntroTitulo.getHeight() - spriteIntroNivel1.getHeight())/3;
@@ -330,8 +327,8 @@ public class Intro extends Entity {
     }
 
     public void ocultarIntro(){
-        float left = escenario.getCropResolutionPolicy().getLeft();
-        float right = escenario.getCropResolutionPolicy().getRight();
+        float left = escenario.getFillCropResolutionPolicy().getLeft();
+        float right = escenario.getFillCropResolutionPolicy().getRight();
         float ancho = right - left;
 
         if(rNivel1.getX() < right){
@@ -347,8 +344,8 @@ public class Intro extends Entity {
     }
 
     public void mostrarIntro(){
-        float left = escenario.getCropResolutionPolicy().getLeft();
-        float right = escenario.getCropResolutionPolicy().getRight();
+        float left = escenario.getFillCropResolutionPolicy().getLeft();
+        float right = escenario.getFillCropResolutionPolicy().getRight();
         float ancho = right - left;
 
         initPosiciones();

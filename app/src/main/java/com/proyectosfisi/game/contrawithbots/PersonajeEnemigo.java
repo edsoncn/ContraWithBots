@@ -247,11 +247,11 @@ public class PersonajeEnemigo extends Personaje {
     @Override
     protected void despuesDeMorir(){
         if(tipo == TIPO_NORMAL){
-            float right = escenario.getCropResolutionPolicy().getRight();
-            float left = escenario.getCropResolutionPolicy().getLeft();
+            float right = escenario.getFillCropResolutionPolicy().getRight();
+            float left = escenario.getFillCropResolutionPolicy().getLeft();
             float ancho = right - left;
-            float backLayerX = escenario.getParallaxLayerBackSprite().getX();
-            float backLayerW = escenario.getParallaxLayerBackSprite().getWidth();
+            float backLayerX = escenario.getParallaxX();
+            float backLayerW = escenario.getParallaxWidth();
 
             if((left - backLayerX) + (5.5f * ancho / 2) < backLayerW) {
                 if (Math.random() >= 0.5) {

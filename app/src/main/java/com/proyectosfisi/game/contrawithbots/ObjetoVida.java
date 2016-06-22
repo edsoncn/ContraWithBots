@@ -18,6 +18,6 @@ public class ObjetoVida extends Objeto {
     }
 
     protected void cogioObjeto(PersonajeJugador jugador) {
-        jugador.restarVidaOMorir(-20.0f);
+        jugador.restarVidaOMorir(-40.0f);
     }
 }
