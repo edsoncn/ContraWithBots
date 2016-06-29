@@ -423,10 +423,11 @@ public class Personaje extends Actor {
     protected void setStateQ1() {
         if (!actionJump) {
             actionJump = true;
+            long frameTime = (long)(0.5f * FRAME_TIME);
             if (orientation == ORIENTATION_RIGHT) {
-                animate(new long[]{FRAME_TIME, FRAME_TIME, FRAME_TIME, FRAME_TIME}, 56, 59, true);
+                animate(new long[]{frameTime, frameTime, frameTime, frameTime}, 56, 59, true);
             } else {
-                animate(new long[]{FRAME_TIME, FRAME_TIME, FRAME_TIME, FRAME_TIME}, new int[]{55, 54, 53, 52}, true);
+                animate(new long[]{frameTime, frameTime, frameTime, frameTime}, new int[]{55, 54, 53, 52}, true);
             }
             state = STATE_Q1;
         }

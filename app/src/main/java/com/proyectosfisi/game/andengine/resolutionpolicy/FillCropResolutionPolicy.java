@@ -10,42 +10,49 @@ import org.andengine.engine.options.resolutionpolicy.IResolutionPolicy;
  */
 public class FillCropResolutionPolicy extends BaseResolutionPolicy {
 
-    private final float mRatio;
+    private final float desiredWidth;
+    private final float desiredHeight;
+
+    private float userWidth;
+    private float userHeight;
 
     private float left;
     private float right;
     private float top;
     private float bottom;
 
-    public FillCropResolutionPolicy(final float pWidthRatio, final float pHeightRatio) {
-        this.mRatio = pWidthRatio / pHeightRatio;
-        left = 0;
-        top = pHeightRatio;
-        right = pWidthRatio;
-        bottom = 0;
+    public FillCropResolutionPolicy(final float pWidth, final float pHeight) {
+        desiredWidth = pWidth;
+        desiredHeight = pHeight;
     }
 
     @Override
     public void onMeasure(final IResolutionPolicy.Callback pResolutionPolicyCallback, final int pWidthMeasureSpec, final int pHeightMeasureSpec) {
-        BaseResolutionPolicy.throwOnNotMeasureSpecEXACTLY(pWidthMeasureSpec, pHeightMeasureSpec);
 
-        final int specWidth = View.MeasureSpec.getSize(pWidthMeasureSpec);
-        final int specHeight = View.MeasureSpec.getSize(pHeightMeasureSpec);
+        final int measuredWidth = View.MeasureSpec.getSize(pWidthMeasureSpec);
+        final int measuredHeight = View.MeasureSpec.getSize(pHeightMeasureSpec);
 
-        final float desiredRatio = this.mRatio;
-        final float realRatio = ((float) specWidth) / specHeight;
+        final float desiredRatio = (float) desiredWidth / (float) desiredHeight;
+        float scaleRatio;
 
-        int measuredWidth;
-        int measuredHeight;
-        if (realRatio < desiredRatio) {
-            measuredWidth = specWidth;
-            measuredHeight = Math.round(measuredWidth / desiredRatio);
-        } else {
-            measuredHeight = specHeight;
-            measuredWidth = Math.round(measuredHeight * desiredRatio);
-        }
+        float resultWidth;
+        float resultHeight;
 
-        pResolutionPolicyCallback.onResolutionChanged(measuredWidth, measuredHeight);
+        // Scale to fit height, width will crop
+        resultWidth = measuredHeight * desiredRatio;
+        resultHeight = measuredHeight;
+        scaleRatio = desiredHeight / resultHeight;
+
+        userWidth = measuredWidth * scaleRatio;
+        userHeight = measuredHeight * scaleRatio;
+
+        left = (desiredWidth - userWidth) / 2f;
+        right = userWidth + left;
+        bottom = (desiredHeight - userHeight) / 2f;
+        top = userHeight + bottom;
+
+        pResolutionPolicyCallback.onResolutionChanged(Math.round(resultWidth), Math.round(resultHeight));
+
     }
 
     public float getLeft() {

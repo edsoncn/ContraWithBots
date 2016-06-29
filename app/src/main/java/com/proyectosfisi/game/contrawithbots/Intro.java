@@ -172,11 +172,11 @@ public class Intro extends Entity {
 
     @Override
     protected void onManagedUpdate(final float pSecondsElapsed) {
+        float top = escenario.getFillCropResolutionPolicy().getTop();
+        float left = escenario.getFillCropResolutionPolicy().getLeft();
+        float right = escenario.getFillCropResolutionPolicy().getRight();
         switch (estado){
             case ESTADO_Q1:
-                float top = escenario.getFillCropResolutionPolicy().getTop();
-                float left = escenario.getFillCropResolutionPolicy().getLeft();
-                float right = escenario.getFillCropResolutionPolicy().getRight();
                 boolean bool = spriteIntroTitulo.getY() > top;
                 switch (nivelSelec) {
                     case 1:
@@ -223,16 +223,13 @@ public class Intro extends Entity {
                     velocidad += aceleracion;
                 }
             case ESTADO_Q0:
-                float ancho = escenario.getFillCropResolutionPolicy().getRight() - escenario.getFillCropResolutionPolicy().getLeft();
-                PersonajeJugador j = escenario.getJugador();
-                if(j.getRelativeX() > ancho / 2){
-                    if(j.getRelativeX() - velocidadEscena < ancho / 2){
-                        j.setRelativeX(ancho / 2);
+                if (escenario.getParallaxX() < left) {
+                    if(escenario.getParallaxX() + velocidadEscena >= left){
+                        escenario.setParallaxX(left);
                     }else{
-                        j.setRelativeX(j.getRelativeX() - velocidadEscena);
+                        escenario.setParallaxX(escenario.getParallaxX() + velocidadEscena);
                     }
                     velocidadEscena += aceleracionEscena;
-                    j.centrarEscenaAPersonaje();
                 }
                 break;
         }
@@ -263,10 +260,9 @@ public class Intro extends Entity {
         separa = escenario.getFillCropResolutionPolicy().getTop() - spriteIntroTitulo.getY();
 
         //Determinando la velocidad y acelaracion de la escena
-        float ancho = escenario.getFillCropResolutionPolicy().getRight() - escenario.getFillCropResolutionPolicy().getLeft();
+        float left = escenario.getFillCropResolutionPolicy().getLeft();
         float t = 12.5f;
-        PersonajeJugador j = escenario.getJugador();
-        velocidadEscena = 2*(j.getRelativeX() - ancho / 2) / t;
+        velocidadEscena = 2*(left - escenario.getParallaxX()) / t;
         aceleracionEscena = -velocidadEscena / t;
 
         escenario.getmMusic().play();

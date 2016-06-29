@@ -1,13 +1,20 @@
 package com.proyectosfisi.game.contrawithbots;
 
+import android.annotation.TargetApi;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.text.format.DateUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.View;
 import android.view.WindowManager;
 
+import org.andengine.engine.Engine;
+import org.andengine.engine.LimitedFPSEngine;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.options.EngineOptions;
@@ -31,6 +38,8 @@ import java.io.IOException;
  * Created by edson on 30/03/2015.
  */
 public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTouchListener {
+
+    public static final int FPS_LIMIT = 60;
 
     protected Camera camera;
     protected Escenario escenario;
@@ -106,9 +115,33 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
     public static final float SCALE_REF_HEIGHT = 2.75f; //2.54936f;
     protected float scale;
 
+    Handler immersiveModeHandler;
+
     @Override
     protected void onCreate(final Bundle pSavedInstanceState) {
         super.onCreate(pSavedInstanceState);
+
+        //Immersive mode
+        restoreTransparentBars();
+
+        final View decorView = getWindow().getDecorView();
+
+        decorView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    restoreTransparentBars();
+                }
+            }
+        });
+
+        immersiveModeHandler = new Handler(){
+            @Override
+            public void handleMessage(Message inputMessage) {
+                restoreTransparentBars();
+            }
+        };
+
     }
 
     @Override
@@ -118,7 +151,7 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
         escenario = new Escenario();
         escenario.onCreateEngineOptions();
 
-        EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, escenario.getFillCropResolutionPolicy(), camera);
+        EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_SENSOR, escenario.getFillCropResolutionPolicy(), camera);
 
         engineOptions.getTouchOptions().setNeedsMultiTouch(true);
         engineOptions.getAudioOptions().setNeedsSound(true);
@@ -130,10 +163,13 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
     }
 
     @Override
-    public Scene onCreateScene() {
+    public Engine onCreateEngine(EngineOptions pEngineOptions) {
+        Engine engine = new LimitedFPSEngine(pEngineOptions, FPS_LIMIT);
+        return engine;
+    }
 
-        float left = escenario.getFillCropResolutionPolicy().getLeft();
-        float right = escenario.getFillCropResolutionPolicy().getRight();
+    @Override
+    public Scene onCreateScene() {
 
         this.mEngine.registerUpdateHandler(new FPSLogger());
 
@@ -188,7 +224,7 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
         }
 
         // Principal
-        jugador = new PersonajeJugador(escenario, (right - left)/2, 0, this.mPlayerTextureRegion, this.mBulletTextureRegion, vertexBufferObjectManager);
+        jugador = new PersonajeJugador(escenario, 120, 70, this.mPlayerTextureRegion, this.mBulletTextureRegion, vertexBufferObjectManager);
 
         Log.i("Contra", "Jugador: " + jugador.hashCode());
 
@@ -204,10 +240,15 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
         return scene;
     }
 
-
-
     @Override
     public boolean onSceneTouchEvent(final Scene pScene, final TouchEvent pSceneTouchEvent) {
+        if (Build.VERSION.SDK_INT >= 19 && pSceneTouchEvent.isActionDown()) {
+            int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
+            boolean isImmersiveModeEnabled = ((uiOptions | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY) == uiOptions);
+            if (!isImmersiveModeEnabled) {
+                immersiveModeHandler.sendEmptyMessageDelayed(1, 2 * DateUtils.SECOND_IN_MILLIS);
+            }
+        }
         final int pointerID = pSceneTouchEvent.getPointerID();
         if(pointerID == jugador.getActivePointerID()){
             jugador.resetActionsAndStates();
@@ -401,4 +442,73 @@ public class JuegoActivity extends SimpleBaseGameActivity implements IOnSceneTou
             super.onBackPressed();
         }
     }
+
+    //Immersive mode
+    private void restoreTransparentBars(){
+        if(areTranslucentBarsAvailable()) {
+            hideSystemUI();
+        }
+    }
+
+    // This snippet hides the system bars.
+    // Immersive mode
+    @TargetApi(19)
+    private void hideSystemUI() {
+        // Set the IMMERSIVE flag.
+        // Set the content to appear under the system bars so that the content
+        // doesn't resize when the system bars hide and show.
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            restoreTransparentBars();
+            playMusic();
+        }else{
+            pauseMusic();
+        }
+    }
+
+    //Validate if has immersive mode
+    public boolean areTranslucentBarsAvailable(){
+        if(Build.VERSION.SDK_INT < 19) {
+            return false;
+        }
+        try {
+            int id = getApplicationContext().getResources().getIdentifier("config_enableTranslucentDecor", "bool", "android");
+            if (id == 0) {
+                // not on KitKat
+                return false;
+            } else {
+                boolean enabled = getApplicationContext().getResources().getBoolean(id);
+                // enabled = are translucent bars supported on this device
+                return enabled;
+            }
+        } catch (Exception e) { return false; }
+    }
+
+    public void pauseMusic(){
+        if(escenario != null && escenario.getmMusic() != null){
+            if(escenario.getmMusic().isPlaying()){
+                escenario.getmMusic().pause();
+            }
+        }
+    }
+
+    public void playMusic(){
+        if(escenario != null && escenario.getmMusic() != null){
+            if(!escenario.getmMusic().isPlaying()){
+                escenario.getmMusic().play();
+            }
+        }
+    }
+
 }

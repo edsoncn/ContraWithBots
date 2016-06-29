@@ -24,9 +24,9 @@ public abstract class Actor extends AnimatedSprite {
     public static final int ORIENTATION_LEFT = 1;
     public static final int ORIENTATION_RIGHT = 2;
 
-    public static final float VELOCITY_X = 1.5f;
-    public static final float VELOCITY_Y = 6f;
-    public static final float GRAVEDAD = -0.25f;
+    public static final float VELOCITY_X = 1.6f;
+    public static final float VELOCITY_Y = 8.0f;
+    public static final float GRAVEDAD = -0.4f;
 
     protected boolean actionLeft;
     protected boolean actionRight;

@@ -103,7 +103,7 @@ public class PersonajeCorredor extends Actor{
                         } else {
                             setAction(ACTION_RIGHT);
                         }
-                        float k2 = 1.25f;
+                        float k2 = 1.20f;
                         if(validarEnDentroDeEscena()){
                             k2 = 1;
                         }
@@ -222,18 +222,23 @@ public class PersonajeCorredor extends Actor{
 
         explosion(getX(), getY());
 
-        float right = escenario.getFillCropResolutionPolicy().getRight();
+        float top = escenario.getFillCropResolutionPolicy().getTop();
+        float bottom = escenario.getFillCropResolutionPolicy().getBottom();
         float left = escenario.getFillCropResolutionPolicy().getLeft();
-        float ancho = right - left;
+        float right = escenario.getFillCropResolutionPolicy().getRight();
+        float medio = (right - left) / 2;
+        float alto = top - bottom;
         float backLayerX = escenario.getParallaxX();
         float backLayerW = escenario.getParallaxWidth();
 
-        if((left - backLayerX) + (4.0f * ancho / 2) < backLayerW) {
-            if (Math.random() >= 0.5) {
-                init((left - backLayerX) + (-2.0f * ancho / 2), 0);
-            } else {
-                init((left - backLayerX) + (4.0f * ancho / 2), 0);
-            }
+        float newX;
+        if (Math.random() >= 0.5) {
+            newX = (left - backLayerX + medio) + (-3.0f * alto / 2);
+        } else {
+            newX = (left - backLayerX + medio) + (3.0f * alto / 2);
+        }
+        if(newX < backLayerX + backLayerW + 1.5f * alto){
+            init(newX, 0);
             activar();
         }
     }

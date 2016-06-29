@@ -94,7 +94,7 @@ public class Bala extends TiledSprite{
                 float right = escenario.getFillCropResolutionPolicy().getRight();
                 float top = escenario.getFillCropResolutionPolicy().getTop();
                 float bottom = escenario.getFillCropResolutionPolicy().getBottom();
-                if (left - actor.getWidth() / 2 > getX() || getX() > right + actor.getWidth() / 2
+                if (left > getX() || getX() > right
                         || top + actor.getHeight() / 2 < getY() || getY() < bottom
                         || validarColisiones()) {
                     inactivar();

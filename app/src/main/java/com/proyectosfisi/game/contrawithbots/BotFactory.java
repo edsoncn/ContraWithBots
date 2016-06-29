@@ -10,14 +10,15 @@ import java.util.ArrayList;
  */
 public class BotFactory {
 
-    public static float DISCTANCIA_MEDIA = 110;
-    public static float DISCTANCIA_MEDIA_ERROR = 30;
+    public static float DISCTANCIA_MEDIA = 112;
+    public static float DISCTANCIA_MEDIA_ERROR = 32;
     public static float BALA_TIME = 1.25f;
 
     private ArrayList<Actor> botsLevel1;
     private ArrayList<Actor> botsLevel2;
     private ArrayList<Actor> botsLevel3;
     private ArrayList<Actor> botsComunes;
+    private ArrayList<Actor> botsUltimos;
     private ArrayList<Actor> personajeJugador;
 
     private Escenario escenario;
@@ -53,6 +54,7 @@ public class BotFactory {
         botsLevel2 = new ArrayList<>();
         botsLevel3 = new ArrayList<>();
         botsComunes = new ArrayList<>();
+        botsUltimos = new ArrayList<>();
         personajeJugador = new ArrayList<>();
     }
 
@@ -62,45 +64,49 @@ public class BotFactory {
 
         float right = escenario.getFillCropResolutionPolicy().getRight();
         float left = escenario.getFillCropResolutionPolicy().getLeft();
+        float alto = escenario.getFillCropResolutionPolicy().getTop() - escenario.getFillCropResolutionPolicy().getBottom();
 
         //Enemigos communes
 
-        botsComunes.add(crearBotEnemigoNave(2.0f * (right - left), PersonajeNave.ALTO, Actor.ORIENTATION_LEFT));// 0
+        botsComunes.add(crearBotEnemigoNave(3.5f * alto, PersonajeNave.ALTO, Actor.ORIENTATION_LEFT));// 0
 
-        botsComunes.add(crearBotEnemigoMetralla(752, 0, Actor.ORIENTATION_LEFT));// 1
-        botsComunes.add(crearBotEnemigoMetralla(1008, 0, Actor.ORIENTATION_LEFT));// 2
-        botsComunes.add(crearBotEnemigoMetralla( 1792, 0, Actor.ORIENTATION_LEFT));// 3
-        botsComunes.add(crearBotEnemigoMetralla( 2382, 0, Actor.ORIENTATION_LEFT));// 6
-        botsComunes.add(crearBotEnemigoMetralla( 2798, 0, Actor.ORIENTATION_LEFT));// 7
-        botsComunes.add(crearBotEnemigoMetralla( 2909, 0, Actor.ORIENTATION_LEFT));// 8
-        botsComunes.add(crearBotEnemigoMetralla( 3238, 0, Actor.ORIENTATION_LEFT));// 9
+        botsComunes.add(crearBotEnemigoMetralla(752, 0, Actor.ORIENTATION_LEFT));
+        botsComunes.add(crearBotEnemigoMetralla(1008, 0, Actor.ORIENTATION_LEFT));
+        botsComunes.add(crearBotEnemigoMetralla( 1792, 0, Actor.ORIENTATION_LEFT));
+        botsComunes.add(crearBotEnemigoMetralla( 2382, 0, Actor.ORIENTATION_LEFT));
+        botsComunes.add(crearBotEnemigoMetralla( 2798, 0, Actor.ORIENTATION_LEFT));
+        botsComunes.add(crearBotEnemigoMetralla( 2909, 0, Actor.ORIENTATION_LEFT));
+        botsComunes.add(crearBotEnemigoMetralla(3238, 0, Actor.ORIENTATION_LEFT));
+        botsUltimos.add(botsComunes.get(botsComunes.size() - 1));
 
-        botsComunes.add(crearBotEnemigoPerro(1744.5f, 0, Actor.ORIENTATION_LEFT));// 10
-        botsComunes.add(crearBotEnemigoPerro(1360.5f, 0, Actor.ORIENTATION_LEFT));// 11
-        botsComunes.add(crearBotEnemigoPerro(1104.5f, 0, Actor.ORIENTATION_LEFT));// 12
+        botsComunes.add(crearBotEnemigoPerro(1744.5f, 0, Actor.ORIENTATION_LEFT));
+        botsComunes.add(crearBotEnemigoPerro(1360.5f, 0, Actor.ORIENTATION_LEFT));
+        botsComunes.add(crearBotEnemigoPerro(1104.5f, 0, Actor.ORIENTATION_LEFT));
 
-        botsComunes.add(crearBotEnemigoFrancotirador(860, 128, Actor.ORIENTATION_LEFT));// 13
+        botsComunes.add(crearBotEnemigoFrancotirador(860, 128, Actor.ORIENTATION_LEFT));
 
-        botsComunes.add(crearBotEnemigoFrancotirador(2016, 128, Actor.ORIENTATION_LEFT));// 14
-        botsComunes.add(crearBotEnemigoFrancotirador(1848, 96, Actor.ORIENTATION_LEFT));// 15
+        botsComunes.add(crearBotEnemigoFrancotirador(2016, 128, Actor.ORIENTATION_LEFT));
+        botsComunes.add(crearBotEnemigoFrancotirador(1848, 96, Actor.ORIENTATION_LEFT));
 
-        botsComunes.add(crearBotEnemigoFrancotirador(3238, 46, Actor.ORIENTATION_LEFT));// 18
-        botsComunes.add(crearBotEnemigoFrancotirador(3235, 86, Actor.ORIENTATION_LEFT));// 19
+        botsComunes.add(crearBotEnemigoFrancotirador(3238, 46, Actor.ORIENTATION_LEFT));
+        botsUltimos.add(botsComunes.get(botsComunes.size() - 1));
+        botsComunes.add(crearBotEnemigoFrancotirador(3235, 86, Actor.ORIENTATION_LEFT));
+        botsUltimos.add(botsComunes.get(botsComunes.size() - 1));
 
         //BOTS Level 1
 
-        botsLevel1.add(crearBotEnemigoCorredor( -1 * (right - left) / 2, 0, Actor.ORIENTATION_RIGHT));
-        botsLevel1.add(crearBotEnemigoCorredor( 3 * (right - left) / 2, 0, Actor.ORIENTATION_LEFT));
-        botsLevel1.add(crearBotEnemigoCorredor( -1.5f * (right - left) / 2, 0, Actor.ORIENTATION_RIGHT));
-        botsLevel1.add(crearBotEnemigoCorredor( 3.5f * (right - left) / 2, 0, Actor.ORIENTATION_LEFT));
+        botsLevel1.add(crearBotEnemigoCorredor( -2 * alto, 0, Actor.ORIENTATION_RIGHT));
+        botsLevel1.add(crearBotEnemigoCorredor( 3 * alto, 0, Actor.ORIENTATION_LEFT));
+        botsLevel1.add(crearBotEnemigoCorredor( 4 * alto, 0, Actor.ORIENTATION_RIGHT));
+        //botsLevel1.add(crearBotEnemigoCorredor( 3.5f * alto, 0, Actor.ORIENTATION_LEFT));
 
         //BOTS Level 2
 
-        botsLevel2.add(crearRNBotEnemigo(3 * (right - left) / 2, 0, Actor.ORIENTATION_LEFT)); //0
+        botsLevel2.add(crearRNBotEnemigo(3 * alto, 0, Actor.ORIENTATION_LEFT));
 
         //BOTS Level 3
 
-        botsLevel3.add(crearRNDBotEnemigo( 3 * (right - left) / 2, 0, Actor.ORIENTATION_LEFT)); //0
+        botsLevel3.add(crearRNDBotEnemigo( 3 * alto, 0, Actor.ORIENTATION_LEFT));
 
     }
 
@@ -226,9 +232,8 @@ public class BotFactory {
                     }
                     break;
             }
-            int[] bots = new int[]{9, 18, 19};
-            for (int i = 0; i < bots.length; i++) {
-                if (!botsComunes.get(bots[i]).isDead()) {
+            for (Actor actor : botsUltimos) {
+                if (!actor.isDead()) {
                     return false;
                 }
             }

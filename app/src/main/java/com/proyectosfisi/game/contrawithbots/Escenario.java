@@ -8,7 +8,6 @@ import org.andengine.audio.sound.Sound;
 import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.Engine;
 import org.andengine.engine.camera.hud.HUD;
-import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.Entity;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.ParallaxBackground;
@@ -34,7 +33,7 @@ import java.io.IOException;
  */
 public class Escenario {
 
-    public static final int CAMARA_ANCHO = 340;//1024;
+    public static final int CAMARA_ANCHO = 480;//1024;
     public static final int CAMARA_ALTO = 256;
     public static final float MANDO_PADDING = 6;
     public static final float ESCENARIO_PAGGING_RIGHT = 58;
@@ -89,7 +88,7 @@ public class Escenario {
 
         parallaxLayerBackSprites = new Sprite[mParallaxLayerBackTextureRegions.length];
         for(int i = 0; i < mParallaxLayerBackTextureRegions.length; i++){
-            parallaxLayerBackSprites[i] = new Sprite(i * mParallaxLayerBackTextureRegions[i].getWidth(), 0, mParallaxLayerBackTextureRegions[i], vertexBufferObjectManager);
+            parallaxLayerBackSprites[i] = new Sprite(fillCropResolutionPolicy.getLeft() + i * mParallaxLayerBackTextureRegions[i].getWidth(), 0, mParallaxLayerBackTextureRegions[i], vertexBufferObjectManager);
             parallaxLayerBackSprites[i].setOffsetCenter(0, 0);
             parallaxBackground.attachParallaxEntity(new ParallaxEntity(0.0f, parallaxLayerBackSprites[i]));
         }
